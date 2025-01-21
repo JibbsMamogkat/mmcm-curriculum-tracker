@@ -1,15 +1,54 @@
+# Gradle
+.gradle/
+build/
 *.iml
 .gradle
 /local.properties
+
+# IntelliJ/Android Studio
+/.idea
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+
+# Mac OS
 .DS_Store
-/build
+
+# Android Studio
 /captures
 .externalNativeBuild
 .cxx
+
+# Keystore files
+*.jks
+*.keystore
+
+# Proguard
+proguard/
+
+# APKs
+*.apk
+*.ap_
+
+# Log files
+*.log
+
+# Generated binary files
+*.dex
+*.class
+*.jar
+*.so
+
+# Backup files
+*.swp
+*.lock
+*.tmp
+*.orig
+
+# Others
+.gradle/
+.idea/
 local.properties
