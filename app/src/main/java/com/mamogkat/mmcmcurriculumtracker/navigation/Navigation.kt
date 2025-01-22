@@ -5,13 +5,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.mamogkat.mmcmcurriculumtracker.ui.screens.AdminPage
-import com.mamogkat.mmcmcurriculumtracker.ui.screens.ChooseCurriculumScreen
-import com.mamogkat.mmcmcurriculumtracker.ui.screens.CurriculumOverviewScreen
-import com.mamogkat.mmcmcurriculumtracker.ui.screens.ForgotPassword
-import com.mamogkat.mmcmcurriculumtracker.ui.screens.LoginScreen
-import com.mamogkat.mmcmcurriculumtracker.ui.screens.NextCoursesScreen
-import com.mamogkat.mmcmcurriculumtracker.ui.screens.RegisterUI
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.*
 
 sealed class Screen(val route: String) {
     object  Login: Screen("login")
@@ -21,6 +15,7 @@ sealed class Screen(val route: String) {
     object CurriculumOverview: Screen("curriculum_overview")
     object NextCourses: Screen("next_courses")
     object Admin: Screen("admin_page")
+    object AboutDevelopers: Screen("about_developers")
 }
 
 
@@ -34,5 +29,6 @@ fun AppNavHost(navController: NavHostController) {
         composable(Screen.CurriculumOverview.route) { CurriculumOverviewScreen(navController) }
         composable(Screen.NextCourses.route) { NextCoursesScreen(navController) }
         composable(Screen.Admin.route) { AdminPage(navController)}
+        composable(Screen.AboutDevelopers.route) { AboutDevelopersScreen(navController) }
     }
 }

@@ -7,12 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -93,6 +88,12 @@ fun CurriculumOverviewScreen(navController: NavController) {
                     label = { Text("Account", color = colorResource(id = R.color.mmcm_white)) },
                     selected = false,
                     onClick = { /* Handle Settings Navigation */ }
+                )
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Default.Info, contentDescription = "About", tint = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("About", color = colorResource(id = R.color.mmcm_white)) },
+                    selected = false,
+                    onClick = { navController.navigate("about_developers") }
                 )
             }
         }
