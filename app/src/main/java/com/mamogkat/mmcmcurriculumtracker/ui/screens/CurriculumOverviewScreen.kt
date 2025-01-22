@@ -8,6 +8,7 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
@@ -58,7 +59,12 @@ fun CurriculumOverviewScreen(navController: NavController) {
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorResource(id = R.color.mmcm_blue),
                     titleContentColor = colorResource(id = R.color.mmcm_white)
-                )
+                ),
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = colorResource(id = R.color.mmcm_white))
+                    }
+                }
             )
         },
         bottomBar = {

@@ -1,5 +1,6 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -105,12 +107,30 @@ fun LoginScreen(navController: NavController?) {
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
             )
-
+            var errorMessage by remember { mutableStateOf("") }
+            if (errorMessage.isNotEmpty()) {
+                Text(
+                    text = errorMessage,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
             // Login Button
             Button(
-                onClick = { /* Handle Login */
-                            navController?.navigate("choose_curriculum")
-                          },
+                onClick = {
+                    when {
+                        username.isBlank() || password.isBlank() -> {
+                            errorMessage = "Username and Password cannot be blank!"
+                        }
+                        username.equals("Admin", ignoreCase = true) && password.equals("Admin", ignoreCase = true) -> {
+                            navController?.navigate("admin_page")
+                        }
+                        else -> {
+                            navController?.navigate("choose_curriculum") // Navigate to Curriculum Page
+                        }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(id = R.color.mmcm_blue) // Delft Blue
                 ),
