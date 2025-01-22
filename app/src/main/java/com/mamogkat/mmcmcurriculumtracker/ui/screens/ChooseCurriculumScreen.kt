@@ -16,9 +16,7 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.Snackbar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,9 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,19 +51,19 @@ fun ChooseCurriculumScreen(navController: NavController) {
         bottomBar = {
             BottomNavigation(
                 backgroundColor = colorResource(id = R.color.mmcm_blue), // mmcm_blue
-                contentColor = colorResource(id = R.color.mmcm_white), // mmcm_white
+                contentColor = colorResource(id = R.color.mmcm_silver), // mmcm_silver
             ) {
                 BottomNavigationItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("Home", color = colorResource(id = R.color.mmcm_white)) },
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Home", tint = colorResource(id = R.color.mmcm_silver)) },
+                    label = { Text("Home", color = colorResource(id = R.color.mmcm_silver)) },
                     selected = false,
                     selectedContentColor = colorResource(id = R.color.mmcm_red),
-                    unselectedContentColor = colorResource(id = R.color.mmcm_white),
+                    unselectedContentColor = colorResource(id = R.color.mmcm_silver),
                     onClick = { /* Handle Home Navigation */ }
                 )
                 BottomNavigationItem(
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("Settings", color = colorResource(id = R.color.mmcm_white)) },
+                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings", tint = colorResource(id = R.color.mmcm_silver)) },
+                    label = { Text("Settings", color = colorResource(id = R.color.mmcm_silver)) },
                     selected = false,
                     onClick = { /* Handle Settings Navigation */ }
                 )
@@ -164,4 +164,10 @@ fun CurriculumDropdown(navController: NavController) {
     ) {
         Text(text = "Next")
     }
+}
+
+@Preview
+@Composable
+fun ChooseCurriculumScreenPreview() {
+    ChooseCurriculumScreen(rememberNavController())
 }
