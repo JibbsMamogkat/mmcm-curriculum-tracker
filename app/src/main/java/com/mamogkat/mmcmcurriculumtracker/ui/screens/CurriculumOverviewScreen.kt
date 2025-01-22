@@ -7,4 +7,5 @@ import androidx.navigation.NavController
 @Composable
 fun CurriculumOverviewScreen(navController: NavController) {
     Text(text = "Curriculum Overview Screen")
+
 }
