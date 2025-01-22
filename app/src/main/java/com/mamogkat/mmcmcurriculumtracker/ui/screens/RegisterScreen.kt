@@ -1,8 +1,9 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -37,14 +39,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mamogkat.mmcmcurriculumtracker.R
+import com.mamogkat.mmcmcurriculumtracker.ui.theme.Pink80
+import com.mamogkat.mmcmcurriculumtracker.ui.theme.WhiteColor
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController?) {
+fun RegisterUI(navController: NavController?) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.mmcm_white)), // MMCM Red Background
+            .background(colorResource(id = R.color.mmcm_white)),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -62,92 +65,102 @@ fun LoginScreen(navController: NavController?) {
                     .padding(bottom = 24.dp)
             )
 
-            // Title Text
+            // Title
             Text(
-                text = "Welcome to MMCM Tracker",
+                text = "Register for MMCM Tracker",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                color = colorResource(id = R.color.mmcm_red), // MMCM Red
+                color = colorResource(id = R.color.mmcm_red),
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 
-            // Username Field
+            // Username
             var username by remember { mutableStateOf("") }
 
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
                 label = { Text("Username") },
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = colorResource(id = R.color.mmcm_white),
-                    focusedIndicatorColor = colorResource(id = R.color.mmcm_blue),
-                    unfocusedIndicatorColor = colorResource(id = R.color.mmcm_silver),
-                ),
+                visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
+                    .background(WhiteColor, RoundedCornerShape(8.dp))
+                    .border(1.dp, WhiteColor, RoundedCornerShape(8.dp))
+                    .padding(16.dp)
             )
 
-            // Password Field
+            // Email
+            var email by remember { mutableStateOf("") }
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("MMCM Email") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp)
+                    .background(WhiteColor, RoundedCornerShape(8.dp))
+                    .border(1.dp, WhiteColor, RoundedCornerShape(8.dp))
+                    .padding(16.dp)
+            )
+
+            // Password
             var password by remember { mutableStateOf("") }
+
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = colorResource(id = R.color.mmcm_white),
-                    focusedIndicatorColor = colorResource(id = R.color.mmcm_blue),
-                    unfocusedIndicatorColor = colorResource(id = R.color.mmcm_silver),
-                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
+                    .background(WhiteColor, RoundedCornerShape(8.dp))
+                    .border(1.dp, WhiteColor, RoundedCornerShape(8.dp))
+                    .padding(16.dp)
             )
 
-            // Login Button
+            // Confirm password
+            var confirmPassword by remember { mutableStateOf("") }
+
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Confirm Password") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp)
+                    .background(WhiteColor, RoundedCornerShape(8.dp))
+                    .border(1.dp, WhiteColor, RoundedCornerShape(8.dp))
+                    .padding(16.dp)
+            )
+            // Register
             Button(
-                onClick = { /* Handle Login */
-                            navController?.navigate("choose_curriculum")
-                          },
+                onClick = {
+                    navController?.navigate("login")
+                },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.mmcm_blue) // Delft Blue
+                    containerColor = colorResource(id = R.color.mmcm_blue)
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
                 Text(
-                    text = "Login",
+                    text = "Register",
                     color = colorResource(id = R.color.mmcm_white),
                     fontSize = 16.sp
                 )
             }
-            // Forgot password link
-            Spacer(modifier = Modifier.height(7.dp))
-            Text(
-                text = "Forgot Password?",
-                color = colorResource(id = R.color.mmcm_blue),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .clickable {
-                        navController?.navigate("forgot_password_screen")
-                    }
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            Text(
-                text = "or",
-                color = colorResource(id = R.color.mmcm_blue),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            // Register button link
+            Spacer(modifier = Modifier.height(16.dp))
+            // Back to Login
             Button(
                 onClick = {
-                navController?.navigate("register_ui")
+                    navController?.popBackStack()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(id = R.color.mmcm_silver)
@@ -155,22 +168,13 @@ fun LoginScreen(navController: NavController?) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
-
             ) {
                 Text(
-                    text = "Sign Up",
+                    text = "Back to Login",
                     color = colorResource(id = R.color.mmcm_black),
                     fontSize = 16.sp
                 )
-
             }
-
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen(navController = null)
 }
