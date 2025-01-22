@@ -8,7 +8,9 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,20 +42,20 @@ fun ReusableScaffold(
         bottomBar = {
             BottomNavigation(
                 backgroundColor = colorResource(id = R.color.mmcm_blue),
-                contentColor = colorResource(id = R.color.mmcm_white)
+                contentColor = colorResource(id = R.color.mmcm_silver)
             ) {
                 BottomNavigationItem(
                     icon = {
                         Icon(
                             Icons.Default.CheckCircle,
                             contentDescription = "Home",
-                            tint = colorResource(id = R.color.mmcm_white)
+                            tint = colorResource(id = R.color.mmcm_silver)
                         )
                     },
                     label = {
                         Text(
                             "Curriculum",
-                            color = colorResource(id = R.color.mmcm_white)
+                            color = colorResource(id = R.color.mmcm_silver)
                         )
                     },
                     selected = false,
@@ -66,18 +68,18 @@ fun ReusableScaffold(
                         Icon(
                             Icons.Default.List,
                             contentDescription = "Tracker",
-                            tint = colorResource(id = R.color.mmcm_white)
+                            tint = colorResource(id = R.color.mmcm_silver)
                         )
                     },
                     label = {
                         Text(
                             "Tracker",
-                            color = colorResource(id = R.color.mmcm_white)
+                            color = colorResource(id = R.color.mmcm_silver)
                         )
                     },
                     selected = false,
                     selectedContentColor = colorResource(id = R.color.mmcm_red),
-                    unselectedContentColor = colorResource(id = R.color.mmcm_white),
+                    unselectedContentColor = colorResource(id = R.color.mmcm_silver),
                     onClick = { navController.navigate("next_courses") }
                 )
                 BottomNavigationItem(
@@ -85,13 +87,13 @@ fun ReusableScaffold(
                         Icon(
                             Icons.Default.AccountBox,
                             contentDescription = "Settings",
-                            tint = colorResource(id = R.color.mmcm_white)
+                            tint = colorResource(id = R.color.mmcm_silver)
                         )
                     },
                     label = {
                         Text(
                             "Account",
-                            color = colorResource(id = R.color.mmcm_white)
+                            color = colorResource(id = R.color.mmcm_silver)
                         )
                     },
                     selected = false,
@@ -102,13 +104,13 @@ fun ReusableScaffold(
                         Icon(
                             Icons.Default.Info,
                             contentDescription = "About",
-                            tint = colorResource(id = R.color.mmcm_white)
+                            tint = colorResource(id = R.color.mmcm_silver)
                         )
                     },
                     label = {
                         Text(
                             "About",
-                            color = colorResource(id = R.color.mmcm_white)
+                            color = colorResource(id = R.color.mmcm_silver)
                         )
                     },
                     selected = false,
@@ -118,4 +120,12 @@ fun ReusableScaffold(
         },
         content = content
     )
+}
+
+@Preview
+@Composable
+fun PreviewReusableScaffold() {
+    ReusableScaffold(rememberNavController(), topBarTitle = "Title") { paddingValues ->
+        // Content
+    }
 }
