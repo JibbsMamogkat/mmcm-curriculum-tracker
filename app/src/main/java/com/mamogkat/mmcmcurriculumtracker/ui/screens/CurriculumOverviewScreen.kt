@@ -22,7 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.ui.year.curriculumData
 
@@ -69,7 +71,7 @@ fun CurriculumOverviewScreen(navController: NavController) {
             ) {
                 BottomNavigationItem(
                     icon = { Icon(Icons.Default.CheckCircle, contentDescription = "Home", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("Curriculum", color = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("Curriculum", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
                     selected = false,
                     selectedContentColor = colorResource(id = R.color.mmcm_red),
                     unselectedContentColor = colorResource(id = R.color.mmcm_white),
@@ -77,7 +79,7 @@ fun CurriculumOverviewScreen(navController: NavController) {
                 )
                 BottomNavigationItem(
                     icon = { Icon(Icons.Default.List, contentDescription = "Tracker", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("Tracker", color = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("Tracker", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
                     selected = false,
                     selectedContentColor = colorResource(id = R.color.mmcm_red),
                     unselectedContentColor = colorResource(id = R.color.mmcm_white),
@@ -85,13 +87,13 @@ fun CurriculumOverviewScreen(navController: NavController) {
                 )
                 BottomNavigationItem(
                     icon = { Icon(Icons.Default.AccountBox, contentDescription = "Settings", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("Account", color = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("Account", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
                     selected = false,
                     onClick = { /* Handle Settings Navigation */ }
                 )
                 BottomNavigationItem(
                     icon = { Icon(Icons.Default.Info, contentDescription = "About", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("About", color = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("About", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
                     selected = false,
                     onClick = { navController.navigate("about_developers") }
                 )
@@ -251,7 +253,6 @@ fun CollapsibleTerm(
         }
     }
 }
-@Preview(showBackground = false)
 @Composable
 fun CurriculumItemPreview() {
     // Create a mutable state to hold the checked state of the checkbox
@@ -275,3 +276,8 @@ fun CurriculumItemPreview() {
     )
 }
 
+@Preview
+@Composable
+fun CurriculumOverviewScreenPreview() {
+    CurriculumOverviewScreen(rememberNavController())
+}

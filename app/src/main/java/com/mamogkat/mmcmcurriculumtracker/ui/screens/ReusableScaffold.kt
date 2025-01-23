@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
@@ -42,20 +43,21 @@ fun ReusableScaffold(
         bottomBar = {
             BottomNavigation(
                 backgroundColor = colorResource(id = R.color.mmcm_blue),
-                contentColor = colorResource(id = R.color.mmcm_silver)
+                contentColor = colorResource(id = R.color.mmcm_white)
             ) {
                 BottomNavigationItem(
                     icon = {
                         Icon(
                             Icons.Default.CheckCircle,
                             contentDescription = "Home",
-                            tint = colorResource(id = R.color.mmcm_silver)
+                            tint = colorResource(id = R.color.mmcm_white)
                         )
                     },
                     label = {
                         Text(
                             "Curriculum",
-                            color = colorResource(id = R.color.mmcm_silver)
+                            color = colorResource(id = R.color.mmcm_white),
+                            fontSize = 12.sp
                         )
                     },
                     selected = false,
@@ -68,18 +70,19 @@ fun ReusableScaffold(
                         Icon(
                             Icons.Default.List,
                             contentDescription = "Tracker",
-                            tint = colorResource(id = R.color.mmcm_silver)
+                            tint = colorResource(id = R.color.mmcm_white)
                         )
                     },
                     label = {
                         Text(
                             "Tracker",
-                            color = colorResource(id = R.color.mmcm_silver)
+                            color = colorResource(id = R.color.mmcm_white),
+                            fontSize = 12.sp
                         )
                     },
                     selected = false,
                     selectedContentColor = colorResource(id = R.color.mmcm_red),
-                    unselectedContentColor = colorResource(id = R.color.mmcm_silver),
+                    unselectedContentColor = colorResource(id = R.color.mmcm_white),
                     onClick = { navController.navigate("next_courses") }
                 )
                 BottomNavigationItem(
@@ -87,13 +90,14 @@ fun ReusableScaffold(
                         Icon(
                             Icons.Default.AccountBox,
                             contentDescription = "Settings",
-                            tint = colorResource(id = R.color.mmcm_silver)
+                            tint = colorResource(id = R.color.mmcm_white)
                         )
                     },
                     label = {
                         Text(
                             "Account",
-                            color = colorResource(id = R.color.mmcm_silver)
+                            color = colorResource(id = R.color.mmcm_white),
+                            fontSize = 12.sp
                         )
                     },
                     selected = false,
@@ -104,13 +108,14 @@ fun ReusableScaffold(
                         Icon(
                             Icons.Default.Info,
                             contentDescription = "About",
-                            tint = colorResource(id = R.color.mmcm_silver)
+                            tint = colorResource(id = R.color.mmcm_white)
                         )
                     },
                     label = {
                         Text(
                             "About",
-                            color = colorResource(id = R.color.mmcm_silver)
+                            color = colorResource(id = R.color.mmcm_white),
+                            fontSize = 12.sp
                         )
                     },
                     selected = false,
