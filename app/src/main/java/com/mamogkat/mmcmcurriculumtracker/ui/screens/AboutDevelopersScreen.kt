@@ -82,13 +82,14 @@ fun DeveloperItem(
         ){
             Text(
                 text = name,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = colorResource(id = R.color.mmcm_red)
             )
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = description,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 color = colorResource(id = R.color.mmcm_black)
             )
         }}
