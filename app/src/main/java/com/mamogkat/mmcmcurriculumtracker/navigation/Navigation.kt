@@ -16,6 +16,7 @@ sealed class Screen(val route: String) {
     object NextCourses: Screen("next_courses")
     object Admin: Screen("admin_page")
     object AboutDevelopers: Screen("about_developers")
+    object UserAccount: Screen("user_account")
 }
 
 
@@ -30,5 +31,6 @@ fun AppNavHost(navController: NavHostController) {
         composable(Screen.NextCourses.route) { NextCoursesScreen(navController) }
         composable(Screen.Admin.route) { AdminPage(navController)}
         composable(Screen.AboutDevelopers.route) { AboutDevelopersScreen(navController) }
+        composable(Screen.UserAccount.route) { UserProfileScreen("student","studen@mcm.edu.ph",navController) }
     }
 }
