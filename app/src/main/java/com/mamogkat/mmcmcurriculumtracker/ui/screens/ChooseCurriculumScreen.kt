@@ -51,19 +51,19 @@ fun ChooseCurriculumScreen(navController: NavController) {
         bottomBar = {
             BottomNavigation(
                 backgroundColor = colorResource(id = R.color.mmcm_blue), // mmcm_blue
-                contentColor = colorResource(id = R.color.mmcm_silver), // mmcm_silver
+                contentColor = colorResource(id = R.color.mmcm_white), // mmcm_silver
             ) {
                 BottomNavigationItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home", tint = colorResource(id = R.color.mmcm_silver)) },
-                    label = { Text("Home", color = colorResource(id = R.color.mmcm_silver)) },
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Home", tint = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("Home", color = colorResource(id = R.color.mmcm_white)) },
                     selected = false,
                     selectedContentColor = colorResource(id = R.color.mmcm_red),
-                    unselectedContentColor = colorResource(id = R.color.mmcm_silver),
+                    unselectedContentColor = colorResource(id = R.color.mmcm_white),
                     onClick = { /* Handle Home Navigation */ }
                 )
                 BottomNavigationItem(
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings", tint = colorResource(id = R.color.mmcm_silver)) },
-                    label = { Text("Settings", color = colorResource(id = R.color.mmcm_silver)) },
+                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings", tint = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("Settings", color = colorResource(id = R.color.mmcm_white)) },
                     selected = false,
                     onClick = { /* Handle Settings Navigation */ }
                 )
