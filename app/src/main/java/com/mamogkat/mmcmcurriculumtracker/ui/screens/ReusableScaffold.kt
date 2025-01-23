@@ -101,7 +101,7 @@ fun ReusableScaffold(
                         )
                     },
                     selected = false,
-                    onClick = { /* Handle Settings Navigation */ }
+                    onClick = { navController.navigate("user_account") }
                 )
                 BottomNavigationItem(
                     icon = {

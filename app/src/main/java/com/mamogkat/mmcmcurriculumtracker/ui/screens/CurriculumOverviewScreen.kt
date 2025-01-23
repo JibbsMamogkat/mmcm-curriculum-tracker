@@ -58,7 +58,7 @@ fun CurriculumOverviewScreen(navController: NavController) {
                     titleContentColor = colorResource(id = R.color.mmcm_white)
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { navController.navigate("choose_curriculum")}) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = colorResource(id = R.color.mmcm_white))
                     }
                 }
@@ -89,7 +89,7 @@ fun CurriculumOverviewScreen(navController: NavController) {
                     icon = { Icon(Icons.Default.AccountBox, contentDescription = "Settings", tint = colorResource(id = R.color.mmcm_white)) },
                     label = { Text("Account", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
                     selected = false,
-                    onClick = { /* Handle Settings Navigation */ }
+                    onClick = { navController.navigate("user_account")}
                 )
                 BottomNavigationItem(
                     icon = { Icon(Icons.Default.Info, contentDescription = "About", tint = colorResource(id = R.color.mmcm_white)) },
