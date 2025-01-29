@@ -51,7 +51,7 @@ fun UserProfileScreen(username: String, email: String, navController: NavControl
                 )
                 BottomNavigationItem(
                     icon = { Icon(Icons.Default.List, contentDescription = "Tracker", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("Tracker", color = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("Tracker", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
                     selected = false,
                     selectedContentColor = colorResource(id = R.color.mmcm_red),
                     unselectedContentColor = colorResource(id = R.color.mmcm_white),
@@ -59,13 +59,13 @@ fun UserProfileScreen(username: String, email: String, navController: NavControl
                 )
                 BottomNavigationItem(
                     icon = { Icon(Icons.Default.AccountBox, contentDescription = "Settings", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("Account", color = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("Account", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
                     selected = false,
                     onClick = { navController.navigate("user_account") }
                 )
                 BottomNavigationItem(
                     icon = { Icon(Icons.Default.Info, contentDescription = "About", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("About", color = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("About", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
                     selected = false,
                     onClick = { navController.navigate("about_developers") }
                 )

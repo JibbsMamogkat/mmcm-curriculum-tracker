@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.ui.theme.Pink80
 import com.mamogkat.mmcmcurriculumtracker.ui.theme.WhiteColor
@@ -177,4 +178,10 @@ fun RegisterUI(navController: NavController?) {
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun RegisterUIPreview() {
+    RegisterUI(rememberNavController())
 }

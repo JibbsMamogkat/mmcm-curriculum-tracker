@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -69,6 +70,7 @@ dependencies {
 
     // Navigation for Jetpack Compose
     implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation(libs.firebase.firestore)
 
     // Test dependencies
     testImplementation(libs.junit)

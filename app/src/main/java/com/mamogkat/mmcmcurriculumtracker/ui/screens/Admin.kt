@@ -18,8 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,7 +45,7 @@ fun AdminPage(navController: NavController) {
             ) {
                 BottomNavigationItem(
                     icon = { Icon(Icons.Default.ExitToApp, contentDescription = "Home", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("EXIT", color = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("EXIT", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
                     selected = false,
                     selectedContentColor = colorResource(id = R.color.mmcm_red),
                     unselectedContentColor = colorResource(id = R.color.mmcm_white),
@@ -108,4 +111,10 @@ fun UserItem(username: String, email: String) {
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun AdminPagePreview() {
+    AdminPage(rememberNavController())
 }
