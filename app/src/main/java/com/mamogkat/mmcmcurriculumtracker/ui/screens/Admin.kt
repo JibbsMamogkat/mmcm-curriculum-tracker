@@ -6,11 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -51,6 +47,16 @@ fun AdminPage(navController: NavController) {
                     unselectedContentColor = colorResource(id = R.color.mmcm_white),
                     onClick = { navController.navigate("login") }
                 )
+
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Upload", tint = colorResource(id = R.color.mmcm_white)) },
+                    label = { Text("UPLOAD", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
+                    selected = false,
+                    selectedContentColor = colorResource(id = R.color.mmcm_red),
+                    unselectedContentColor = colorResource(id = R.color.mmcm_white),
+                    onClick = { navController.navigate("upload_courses") }
+                )
+
             }
         }
     ) { paddingValues ->

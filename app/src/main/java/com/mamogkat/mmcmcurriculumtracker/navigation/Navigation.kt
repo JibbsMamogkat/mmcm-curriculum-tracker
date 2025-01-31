@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.*
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
 
 sealed class Screen(val route: String) {
     object  Login: Screen("login")
@@ -17,6 +18,7 @@ sealed class Screen(val route: String) {
     object Admin: Screen("admin_page")
     object AboutDevelopers: Screen("about_developers")
     object UserAccount: Screen("user_account")
+    object UploadCourses: Screen("upload_courses")
 }
 
 
@@ -32,5 +34,6 @@ fun AppNavHost(navController: NavHostController) {
         composable(Screen.Admin.route) { AdminPage(navController)}
         composable(Screen.AboutDevelopers.route) { AboutDevelopersScreen(navController) }
         composable(Screen.UserAccount.route) { UserProfileScreen("student","studen@mcm.edu.ph",navController) }
+        composable(Screen.UploadCourses.route) { UploadCoursesScreen(navController)  }
     }
 }
