@@ -31,4 +31,24 @@ class FirebaseRepository {
                 }
         }
     }
+    fun uploadElectives(program: String, electives: Map<String, List<Map<String, Any>>>) {
+        electives.forEach { (category, courses) ->
+            val categoryRef = db.collection("curriculums")
+                .document(program)
+                .collection("electives")
+                .document(category)
+
+            courses.forEach { course ->
+                categoryRef.collection("courses")
+                    .document(course["code"].toString())
+                    .set(course)
+                    .addOnSuccessListener {
+                        println("Elective ${course["code"]} uploaded successfully")
+                    }
+                    .addOnFailureListener { e ->
+                        println("Error uploading elective ${course["code"]}: ${e.message}")
+                    }
+            }
+        }
+    }
 }
