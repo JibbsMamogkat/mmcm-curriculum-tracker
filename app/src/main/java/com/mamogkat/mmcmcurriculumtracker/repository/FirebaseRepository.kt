@@ -1,6 +1,11 @@
 package com.mamogkat.mmcmcurriculumtracker.repository
 
+import android.util.Log
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
+import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
 
 class FirebaseRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -51,4 +56,142 @@ class FirebaseRepository {
             }
         }
     }
+
+    fun fetchAllCourses(
+        program: String,
+        onComplete: (List<CourseNode>) -> Unit,
+        onError: (Exception) -> Unit
+    ){
+        val courseNodes = mutableListOf<CourseNode>()
+        val dbRef = db.collection("curriculums")
+            .document(program)
+
+            //Fetch all terms
+            dbRef.get().addOnSuccessListener { document ->
+                if (document.exists()){
+                    dbRef.collection("electives").get().addOnSuccessListener{electiveCategories ->
+                        val tasks = mutableListOf<Task<QuerySnapshot>>()
+
+                        //Fetch each elective category
+                        for (category in electiveCategories.documents){
+                            val task = dbRef.collection("electives")
+                                .document(category.id)
+                                .collection("courses")
+                                .get()
+                                .addOnSuccessListener(){electiveDocs ->
+                                    for (doc in electiveDocs.documents){
+                                        val courseNode = doc.toObject(CourseNode::class.java)
+                                        if (courseNode != null){
+                                            courseNodes.add(courseNode)
+                                        }
+                                }
+                        }
+                        tasks.add(task)
+                    }
+
+                        //Fetch all terms (1st year - 4th year)
+                        for (year in 1..4){
+                            for (term in 1..3){
+                                val task = dbRef.collection(year.toString())
+                                    .document("term_$term")
+                                    .collection("courses").get()
+                                    .addOnSuccessListener { courseDocs ->
+                                        for (doc in courseDocs.documents){
+                                            val courseNode = doc.toObject(CourseNode::class.java)
+                                            if (courseNode != null){
+                                                courseNodes.add(courseNode)
+                                            }
+                                        }
+                                    }
+                                tasks.add(task)
+                            }
+                        }
+                        //Wait for all queries to complete
+                        Tasks.whenAllSuccess<QuerySnapshot>(tasks)
+                            .addOnSuccessListener {
+                                onComplete(courseNodes)
+                            }
+                            .addOnFailureListener { e ->
+                                onError(e)
+                            }
+                        }
+                    }
+                    else{
+                        onError(Exception("Program $program not found in Firestore"))
+                    }
+                }.addOnFailureListener{ e ->
+                    onError(e)
+                }
+            }
+    fun updateCoursesWithRegularTerms(program: String) {
+        val dbRef = db.collection("curriculums").document(program)
+
+        for (year in 1..4) {
+            for (term in 1..3) {
+                val termRef = dbRef.collection(year.toString()).document("term_$term").collection("courses")
+
+                termRef.get().addOnSuccessListener { documents ->
+                    for (doc in documents) {
+                        val courseCode = doc.id
+
+                        // 🔥 Assign the current term as the only regular term
+                        val regularTerms = listOf(term)
+
+                        // Update Firestore with regularTerms
+                        termRef.document(courseCode)
+                            .update("regularTerms", regularTerms)
+                            .addOnSuccessListener {
+                                Log.d("FirestoreUpdate", "Updated $courseCode with regularTerms: $regularTerms")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("FirestoreUpdate", "Failed to update $courseCode: ${e.message}")
+                            }
+                    }
+                }
+            }
+        }
+    }
+    fun updateElectivesWithRegularTerms(program: String) {
+        val electivesRef = db.collection("curriculums").document(program).collection("electives")
+
+        // 🔥 Corrected elective categories with "P" instead of "F"
+        val electiveCategories = listOf("AWS171P", "EMSY171P", "GEN_ED", "MACH171P", "MICR172P", "NETA172P", "SDEV173P", "SNAD174P")
+
+        for (categoryName in electiveCategories) {
+            val coursesRef = electivesRef.document(categoryName).collection("courses")
+
+            coursesRef.get().addOnSuccessListener { electiveDocs ->
+                if (electiveDocs.isEmpty) {
+                    Log.e("FirestoreUpdate", "⚠️ No courses found in category: $categoryName")
+                } else {
+                    Log.d("FirestoreUpdate", "✅ Courses in $categoryName: ${electiveDocs.documents.map { it.id }}")
+                }
+
+                // Update each elective course with "regularTerms": [1, 2, 3]
+                for (doc in electiveDocs.documents) {
+                    val courseCode = doc.id
+                    val regularTerms = listOf(1, 2, 3) // Electives are available in all terms
+
+                    coursesRef.document(courseCode)
+                        .update("regularTerms", regularTerms)
+                        .addOnSuccessListener {
+                            Log.d("FirestoreUpdate", "✅ Successfully updated $courseCode")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FirestoreUpdate", "❌ Failed to update $courseCode: ${e.message}")
+                        }
+                }
+            }.addOnFailureListener { e ->
+                Log.e("FirestoreUpdate", "🔥 Failed to fetch courses in category $categoryName: ${e.message}")
+            }
+        }
+    }
+
+
+
+
+
+
 }
+
+

@@ -1,11 +1,38 @@
 package com.mamogkat.mmcmcurriculumtracker.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.mamogkat.mmcmcurriculumtracker.models.CourseGraph
+import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
 import com.mamogkat.mmcmcurriculumtracker.repository.FirebaseRepository
 
 class CurriculumViewModel : ViewModel() {
     private val repository = FirebaseRepository()
+    private val _courseGraph = MutableLiveData<CourseGraph>()
+    val courseGraph: LiveData<CourseGraph> = _courseGraph
+    private val _completedCourses = MutableLiveData<Set<String>>()
+    val completedCourses: LiveData<Set<String>> = _completedCourses
+    private val _enrolledTerm = MutableLiveData<Int>()
+    val enrolledTerm: LiveData<Int> = _enrolledTerm
+    private val _selectedCurriculum = MutableLiveData<String>()
+    val selectedCurriculum: LiveData<String> = _selectedCurriculum
+
+    fun setEnrolledTerm(term: Int) {
+        _enrolledTerm.postValue(term)
+    }
+
+    fun setCurriculum(curriculum: String) {
+        _selectedCurriculum.postValue(curriculum)
+    }
+
+    fun getAvailableCourses() : List<Pair<CourseNode,String>>{
+        val graph = _courseGraph.value ?: return emptyList()
+        val completed = _completedCourses.value ?: emptySet()
+        val term = _enrolledTerm.value ?: 1 //Default to Term 1 if not set
+        return graph.getNextAvailableCourses(term, completed)
+    }
 
     fun uploadFirstYearTerm1() {
         val firstYearTerm1Courses = listOf(
@@ -830,6 +857,18 @@ class CurriculumViewModel : ViewModel() {
 
         repository.uploadElectives("bscpe_2022_2023", electives)
     }
+    fun updateRegularTermsInFirestore() {
+        repository.updateCoursesWithRegularTerms("bscpe_2022_2023")
+    }
+    fun updateRegularTermsForElectives() {
+        repository.updateElectivesWithRegularTerms("bscpe_2022_2023")
+    }
+
+
+
+
+
+
 
 
 

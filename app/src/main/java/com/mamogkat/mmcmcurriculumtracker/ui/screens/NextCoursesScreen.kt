@@ -1,17 +1,23 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
 
 @Composable
 fun NextCoursesScreen(navController: NavController) {
@@ -19,7 +25,7 @@ fun NextCoursesScreen(navController: NavController) {
         navController = navController,
         topBarTitle = "Next Courses..."
     ) {paddingValues ->
-        NextCoursesContent(paddingValues)
+        NextCoursesContent(paddingValues, currentTerm = 1, completedCourses = emptySet())
     }
 }
 
@@ -60,79 +66,48 @@ data class Course(
 )
 
 @Composable
-fun NextCoursesContent(paddingValues: PaddingValues) {
-    val courses = listOf(
-        Course("CPE103-4", "Microprocessors", "CPE101-1", "None", "3.0"),
-        Course("CPE103L-4", "Microprocessors (Laboratory)", "CPE101L-1", "CPE103-4", "1.0"),
-        Course("CPE107-1", "Software Design", "CS105L", "None", "3.0"),
-        Course("CPE107L-1", "Software Design (Laboratory)", "CS105L", "CPE107-1", "1.0"),
-        Course("CPE143L", "Web Design and Development (Laboratory)", "CPE142L", "None", "2.0"),
-        Course("ECE130", "Feedback and Control Systems", "MATH116", "None", "3.0"),
-        Course("GEELEC02", "GE Elective 2", "None", "None", "3.0"),
-        Course("TEC100", "Technopreneurship", "EMGT100", "None", "3.0"),
-        Course("PE004", "Physical Activities Toward Health and Fitness 4", "PE001, PE002", "None", "2.0")
-    )
+fun NextCoursesContent(
+    paddingValues: PaddingValues,
+    viewModel: CurriculumViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    currentTerm: Int,
+    completedCourses: Set<String>
+) {
+    val availableCourses by remember{ mutableStateOf(viewModel.getAvailableCourses())}
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(paddingValues)
-        .padding(16.dp)) {
-
-        FilterRow()
-
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(courses.size) { index ->
-                CourseItem(course = courses[index])
-                Divider()
-            }
-        }
-    }
-}
-
-// Composable for the Filter Row
-@Composable
-fun FilterRow() {
-    var selectedTerm by remember { mutableStateOf("1st Term") }
-    val terms = listOf("1st Term", "2nd Term", "3rd Term")
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Text(
-            text = "Filter:",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(end = 8.dp)
+            "Available Courses",
+            style = MaterialTheme.typography.headlineMedium
         )
-
-        Box(modifier = Modifier.wrapContentSize()) {
-            var expanded by remember { mutableStateOf(false) }
-            Button(
-                onClick = { expanded = true },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.mmcm_blue),
-                    contentColor = colorResource(id = R.color.mmcm_white)
-                )
-            ) {
-                Text(selectedTerm)
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                terms.forEach { term ->
-                    DropdownMenuItem(
-                        text = { Text(term) },
-                        onClick = {
-                            selectedTerm = term
-                            expanded = false
-                        }
+        LazyColumn {
+            items(availableCourses) { (course, color) ->
+                val backgroundColor = when (color) {
+                    "green" -> Color(0xFF4CAF50) // Green
+                    "orange" -> Color(0xFFFFA500) // Orange
+                    "red" -> Color(0xFFD32F2F) // Red
+                    else -> Color.White
+                }
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(8.dp)
+                        .background(backgroundColor)
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = "${course.code} - ${course.name} (${course.units} units)",
+                        fontSize = 16.sp,
+                        color = Color.White
                     )
                 }
             }
         }
     }
 }
+
 
 @Preview
 @Composable

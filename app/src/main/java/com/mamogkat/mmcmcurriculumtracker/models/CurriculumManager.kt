@@ -11,9 +11,9 @@ class CurriculumManager{
         return curriculums.find { it.program == program && it.year == year }
     }
 
-    fun getTotalUnits(program: String, year: Int, completedCourses: Set<String>) : Double? {
-        val curriculum = getCurriculum(program, year) ?: return null
-        val courseGraph = CourseGraph(curriculum.courses)
-        return courseGraph.getTotalUnits(completedCourses)
-    }
+//    fun getTotalUnits(program: String, year: Int, completedCourses: Set<String>) : Int? {
+//        val curriculum = getCurriculum(program, year) ?: return null
+//        val courseGraph = CourseGraph(curriculum.courses)
+//        return courseGraph.getTotalUnits(completedCourses)
+//    }
 }

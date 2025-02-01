@@ -2,15 +2,7 @@ package com.mamogkat.mmcmcurriculumtracker.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.IconButton
@@ -34,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,10 +98,11 @@ fun ChooseCurriculumScreen(navController: NavController) {
 }
 
 @Composable
-fun CurriculumDropdown(navController: NavController) {
+fun CurriculumDropdown(navController: NavController, viewModel: CurriculumViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val curriculumList = listOf("BS Computer Engineering 2022-2023", "BS Electronics and Communications Engineering 2022-2023", "BS Computer Engineering 2021-2022")
     var selectedCurriculum by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
+    var selectedTerm by remember { mutableStateOf(1) } // Default term is 1
 
     Text(
         text = "Select a Curriculum",
@@ -149,18 +143,48 @@ fun CurriculumDropdown(navController: NavController) {
         }
     }
 
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Text("Select the Term You Are Enrolling In", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = colorResource(id = R.color.mmcm_red))
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    // Radio button group for selecting term
+    val terms = listOf(1, 2, 3)
+    terms.forEach { term ->
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { selectedTerm = term }
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RadioButton(
+                selected = (selectedTerm == term),
+                onClick = { selectedTerm = term }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Term $term", fontSize = 18.sp)
+        }
+    }
+
+
     Spacer(modifier = Modifier.height(24.dp))
+
 
     Button(
         onClick = {
             if (selectedCurriculum.isNotEmpty()) {
+                viewModel.setEnrolledTerm(selectedTerm)
+                viewModel.setCurriculum(selectedCurriculum)
                 navController.navigate("curriculum_overview")
             } else {
                 // Handle empty selection (e.g., Snackbar or Toast)
             }
         },
         colors = ButtonDefaults.buttonColors(colorResource(id = R.color.mmcm_blue)),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        enabled = selectedTerm in terms // ensure a term is selected before proceeding
     ) {
         Text(text = "Next")
     }

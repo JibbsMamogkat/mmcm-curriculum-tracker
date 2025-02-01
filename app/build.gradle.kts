@@ -71,6 +71,7 @@ dependencies {
     // Navigation for Jetpack Compose
     implementation("androidx.navigation:navigation-compose:2.8.5")
     implementation(libs.firebase.firestore)
+    implementation(libs.androidx.runtime.livedata)
 
     // Test dependencies
     testImplementation(libs.junit)

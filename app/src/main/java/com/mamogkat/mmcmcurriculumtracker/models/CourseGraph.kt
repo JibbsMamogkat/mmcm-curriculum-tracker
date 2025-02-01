@@ -1,20 +1,45 @@
 package com.mamogkat.mmcmcurriculumtracker.models
 
-class CourseGraph (private val courses: List<CourseNode>){
-    private val courseMap = courses.associateBy { it.code }
+class CourseGraph {
+    private val adjacencyList =
+        mutableMapOf<String, MutableList<String>>() // Key: Course code, Value: List of dependent courses
+    private val courses = mutableMapOf<String, CourseNode>() // Store course details
 
-    fun getNextCourses(completedCourses: Set<String>) : List<CourseNode>{
-        return courses.filter { course ->
-            course.prerequisites.all { completedCourses.contains(it) }
+    fun addCourse(course: CourseNode) {
+        courses[course.code] = course
+        adjacencyList.putIfAbsent(
+            course.code,
+            mutableListOf()
+        )
+    }
+
+    fun addPrerequisite(
+        courseCode: String,
+        prerequisite: String
+    ) {
+        adjacencyList.putIfAbsent(
+            courseCode,
+            mutableListOf()
+        )
+        adjacencyList[prerequisite]?.add(courseCode)
+    }
+
+    fun getNextAvailableCourses(enrolledTerm: Int, completedCourses: Set<String>): List<Pair<CourseNode, String>> {
+        val availableCourses = mutableListOf<Pair<CourseNode, String>>() // Pair (course, colorCode)
+
+        for ((courseCode, course) in courses) {
+            if (completedCourses.contains(courseCode)) continue
+
+            val prerequisitesMet = course.prerequisites.all { completedCourses.contains(it) }
+
+            val colorCode = when{
+                !prerequisitesMet -> "red" // Prerequisites not met
+                enrolledTerm in course.regularTerms -> "green" // eligible and offered this term
+                else -> "orange" // eligible but not regularly offered this term
+            }
+            availableCourses.add(Pair(course, colorCode))
         }
-    }
-
-    fun getTotalUnits(completedCourses: Set<String>) : Double {
-        return courses.filter { completedCourses.contains(it.code) }
-            .sumOf { it.units }
-    }
-
-    fun getCourseDetails(courseCode: String) : CourseNode? {
-        return courseMap[courseCode]
+        return availableCourses
     }
 }
+
