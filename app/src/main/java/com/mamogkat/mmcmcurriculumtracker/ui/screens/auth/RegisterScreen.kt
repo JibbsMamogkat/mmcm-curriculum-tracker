@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.IconButton
 import androidx.compose.material.RadioButton
 import androidx.compose.material.icons.Icons
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,9 +48,17 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.ui.theme.WhiteColor
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun RegisterUI(navController: NavController?) {
+fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
+    val isLoading by authViewModel.isLoading
+    val errorMessage by authViewModel.errorMessage
+    val isSuccess by authViewModel.isSuccess
+    var selectedProgram by remember { mutableStateOf("") }
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -81,8 +91,6 @@ fun RegisterUI(navController: NavController?) {
 
             )
 
-            // Username
-            var username by remember { mutableStateOf("") }
             // Email
             var email by remember { mutableStateOf("") }
             Row (
@@ -91,24 +99,12 @@ fun RegisterUI(navController: NavController?) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = {
-                        if (it.length <= 10) {
-                            username = it
-                        }
-                    },
-                    label = { Text("Username") },
-                    singleLine = true,
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(WhiteColor, RoundedCornerShape(8.dp))
-                        .border(1.dp, WhiteColor, RoundedCornerShape(8.dp))
-                        .padding(2.dp)
-                )
-                OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("MMCM Email") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email
+                    ),
                     singleLine = true,
                     modifier = Modifier
                         .weight(1f)
@@ -126,6 +122,9 @@ fun RegisterUI(navController: NavController?) {
                 label = { Text("Password") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(WhiteColor, RoundedCornerShape(8.dp))
@@ -141,6 +140,9 @@ fun RegisterUI(navController: NavController?) {
                 label = { Text("Confirm Password") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(WhiteColor, RoundedCornerShape(8.dp))
@@ -149,7 +151,7 @@ fun RegisterUI(navController: NavController?) {
             )
             // Admin or Student hehe
             var selectedRole by remember { mutableStateOf("Student") }
-            ProgramDropdown(selectedRole)
+            ProgramDropdown(selectedRole) {selectedProgram = it}
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -177,11 +179,25 @@ fun RegisterUI(navController: NavController?) {
                     Text("Student", modifier = Modifier.clickable { selectedRole = "Student" })
                 }
             }
+            if(errorMessage != null){
+                Text(
+                    text = errorMessage!!,
+                    color = colorResource(id = R.color.mmcm_red),
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+
             // Register
             Button(
                 onClick = {
-                    navController?.navigate("login")
+                    if(password != confirmPassword){
+                        authViewModel.setErrorMessage("Passwords do not match!")
+                        return@Button
+                    }
+
+                    authViewModel.registerUser(email, password, selectedRole, selectedProgram, navController)
                 },
+                enabled = !isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(id = R.color.mmcm_blue)
                 ),
@@ -190,7 +206,7 @@ fun RegisterUI(navController: NavController?) {
                     .height(50.dp)
             ) {
                 Text(
-                    text = "Register",
+                    if (isLoading) "Registering..." else "Register",
                     color = colorResource(id = R.color.mmcm_white),
                     fontSize = 16.sp
                 )
@@ -219,7 +235,7 @@ fun RegisterUI(navController: NavController?) {
 
 
 @Composable
-fun ProgramDropdown(selectedRole: String) {
+fun ProgramDropdown(selectedRole: String, onProgramSelected: (String) -> Unit) {
     val programList = listOf("BS Computer Engineering", "BS Electronics and Communications Engineering", "BS Electrical Engineering")
     var selectedProgramList by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
@@ -246,12 +262,13 @@ fun ProgramDropdown(selectedRole: String) {
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            programList.forEach { curriculum ->
+            programList.forEach { program ->
                 DropdownMenuItem(
-                    text = {Text(text = curriculum )},
+                    text = {Text(text = program )},
                     onClick = {
-                        selectedProgramList = curriculum
+                        selectedProgramList = program
                         expanded = false
+                        onProgramSelected(program)
                     })
             }
         }

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.gms.google-services")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -63,6 +64,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation ("androidx.compose.compiler:compiler:1.5.10")
 
     // Material Design (Compose)
     implementation(libs.androidx.material3) // Material 3
@@ -70,8 +72,13 @@ dependencies {
 
     // Navigation for Jetpack Compose
     implementation("androidx.navigation:navigation-compose:2.8.5")
+
+    //Firebase
     implementation(libs.firebase.firestore)
+
+
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.firebase.auth)
 
     // Test dependencies
     testImplementation(libs.junit)

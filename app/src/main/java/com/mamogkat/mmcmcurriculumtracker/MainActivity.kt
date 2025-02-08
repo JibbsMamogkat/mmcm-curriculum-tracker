@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.FirebaseApp
 import com.mamogkat.mmcmcurriculumtracker.navigation.AppNavHost
 import com.mamogkat.mmcmcurriculumtracker.ui.theme.MMCMCurriculumTrackerTheme
 
@@ -26,6 +27,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     AppNavHost(navController = navController)
+
+                    FirebaseApp.initializeApp(this)
                 }
             }
         }
