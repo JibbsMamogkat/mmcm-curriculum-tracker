@@ -58,7 +58,7 @@ class AuthViewModel: ViewModel() {
                                     .set(studentData)
                                     .addOnSuccessListener {
                                         _isSuccess.value = true
-                                        navController.navigate("user_account")
+                                        navController.navigate("login")
                                     }
                             } else {
                                 val adminDate = hashMapOf(
@@ -72,7 +72,7 @@ class AuthViewModel: ViewModel() {
                                     .set(adminDate)
                                     .addOnSuccessListener {
                                         _isSuccess.value = true
-                                        navController.navigate("admin_page")
+                                        navController.navigate("login")
                                     }
                             }
                         }
@@ -87,6 +87,43 @@ class AuthViewModel: ViewModel() {
 
 
     }
+    fun loginUser(email: String, password: String, navController: NavController) {
+        _isLoading.value = true
+        _errorMessage.value = null
+
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
+
+                    db.collection("users").document(userId)
+                        .get()
+                        .addOnSuccessListener { document ->
+                            if (document != null && document.exists()) {
+                                val role = document.getString("role")
+
+                                when (role) {
+                                    "Student" -> navController.navigate("choose_curriculum")
+                                    "Admin" -> navController.navigate("admin_page")
+                                    null -> _errorMessage.value = "Account role is missing. Contact support."
+                                    else -> _errorMessage.value = "Unknown role: $role"
+                                }
+                            } else {
+                                _errorMessage.value = "Account not found. Please register first."
+                            }
+                            _isLoading.value = false
+                        }
+                        .addOnFailureListener { e ->
+                            _errorMessage.value = "Error retrieving user data: ${e.message}"
+                            _isLoading.value = false
+                        }
+                } else {
+                    _errorMessage.value = "Login failed: ${task.exception?.message}"
+                    _isLoading.value = false
+                }
+            }
+    }
+
 
     fun setErrorMessage(s: String) {
         _errorMessage.value = s
