@@ -42,10 +42,13 @@ class AuthViewModel: ViewModel() {
                     db.collection("users").document(userId)
                         .set(user)
                         .addOnSuccessListener {
-                            if (role == "student") {
+                            if (role == "Student") {
                                 val studentData = hashMapOf(
                                     "userID" to userId,
-                                    "program" to "program",
+                                    "email" to email,
+                                    "name" to "",
+                                    "studentNumber" to "",
+                                    "program" to program,
                                     "curriculum" to "",
                                     "coursesCompleted" to emptyList<String>(),
                                     "termEnrolling" to "1",
@@ -60,6 +63,8 @@ class AuthViewModel: ViewModel() {
                             } else {
                                 val adminDate = hashMapOf(
                                     "userID" to userId,
+                                    "email" to email,
+                                    "name" to "",
                                     "permission" to "admin"
                                 )
 
