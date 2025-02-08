@@ -176,7 +176,7 @@ fun CurriculumDropdown(navController: NavController, viewModel: CurriculumViewMo
             if (selectedCurriculum.isNotEmpty()) {
                 viewModel.setEnrolledTerm(selectedTerm)
                 viewModel.setCurriculum(selectedCurriculum)
-                navController.navigate("curriculum_overview")
+                navController.navigate("student_main")
             } else {
                 // Handle empty selection (e.g., Snackbar or Toast)
             }

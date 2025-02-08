@@ -79,6 +79,7 @@ dependencies {
 
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.auth.ktx)
 
     // Test dependencies
     testImplementation(libs.junit)

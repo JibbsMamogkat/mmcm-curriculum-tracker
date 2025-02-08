@@ -35,9 +35,8 @@ data class Curriculum(
     val coRequisites: String?,
     var isChecked: Boolean = false
 )
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CurriculumOverviewScreen(navController: NavController) {
+fun CurriculumOverviewScreen() {
     // State to track which term is expanded
     val expandedStates = remember { mutableStateMapOf<String, Boolean>() }
 
@@ -46,60 +45,15 @@ fun CurriculumOverviewScreen(navController: NavController) {
         mutableStateMapOf<String, Boolean>()
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Curriculum - 2022 - 2023") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorResource(id = R.color.mmcm_blue),
-                    titleContentColor = colorResource(id = R.color.mmcm_white)
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigate("choose_curriculum")}) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = colorResource(id = R.color.mmcm_white))
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            BottomNavigation(
-                backgroundColor = colorResource(id = R.color.mmcm_blue),
-                contentColor = colorResource(id = R.color.mmcm_white)
-            ) {
-                BottomNavigationItem(
-                    icon = { Icon(Icons.Default.CheckCircle, contentDescription = "Home", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("Curriculum", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
-                    selected = false,
-                    selectedContentColor = colorResource(id = R.color.mmcm_red),
-                    unselectedContentColor = colorResource(id = R.color.mmcm_white),
-                    onClick = { navController.navigate("curriculum_overview") }
-                )
-                BottomNavigationItem(
-                    icon = { Icon(Icons.Default.List, contentDescription = "Tracker", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("Tracker", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
-                    selected = false,
-                    selectedContentColor = colorResource(id = R.color.mmcm_red),
-                    unselectedContentColor = colorResource(id = R.color.mmcm_white),
-                    onClick = { navController.navigate("next_courses") }
-                )
-                BottomNavigationItem(
-                    icon = { Icon(Icons.Default.AccountBox, contentDescription = "Settings", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("Account", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
-                    selected = false,
-                    onClick = { navController.navigate("user_account")}
-                )
-                BottomNavigationItem(
-                    icon = { Icon(Icons.Default.Info, contentDescription = "About", tint = colorResource(id = R.color.mmcm_white)) },
-                    label = { Text("About", color = colorResource(id = R.color.mmcm_white), fontSize = 12.sp) },
-                    selected = false,
-                    onClick = { navController.navigate("about_developers") }
-                )
-            }
-        }
-    ) { paddingValues ->
+    // Main layout using a Box
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         LazyColumn(
             modifier = Modifier
-                .padding(paddingValues)
+                .fillMaxSize()
                 .padding(16.dp)
         ) {
             curriculumData.forEach { (year, terms) ->
@@ -276,5 +230,5 @@ fun CurriculumItemPreview() {
 @Preview
 @Composable
 fun CurriculumOverviewScreenPreview() {
-    CurriculumOverviewScreen(rememberNavController())
+    CurriculumOverviewScreen()
 }
