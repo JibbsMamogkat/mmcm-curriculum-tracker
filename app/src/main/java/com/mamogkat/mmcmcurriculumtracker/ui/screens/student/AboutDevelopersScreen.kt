@@ -19,22 +19,23 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutDevelopersScreen(navController: NavController) {
-    ReusableScaffold(
-        navController = navController,
-        topBarTitle = "About the Developers"
-    ){
-        paddingValues ->
-        AboutDevelopersScreenContent(paddingValues)
+fun AboutDevelopersScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorResource(id = R.color.mmcm_white))
+    ) {
+        AboutDevelopersScreenContent(
+            paddingValues = PaddingValues(16.dp),
+        )
     }
 }
 
 @Preview
 @Composable
 fun AboutDevelopersScreenPreview() {
-    AboutDevelopersScreen(rememberNavController())
+    AboutDevelopersScreen()
 }
 
 

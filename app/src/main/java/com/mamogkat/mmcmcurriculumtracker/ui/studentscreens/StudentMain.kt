@@ -47,12 +47,13 @@ import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.AboutDevelopersScre
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.ChooseCurriculumScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.CurriculumOverviewScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.NextCoursesScreen
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.StudentHomeScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.UserProfileScreen
 
 
 @Composable
 fun StudentMainScreen(navController: NavController) {
-    val selectedScreen = remember { mutableStateOf("Curriculum")}
+    val selectedScreen = remember { mutableStateOf("Home")}
     Scaffold (
         bottomBar = {
             NavigationBar (
@@ -67,7 +68,7 @@ fun StudentMainScreen(navController: NavController) {
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = colorResource(id = R.color.mmcm_blue),
                         unselectedIconColor = colorResource(id = R.color.white),
-                        selectedTextColor = colorResource(id = R.color.mmcm_blue),
+                        selectedTextColor = colorResource(id = R.color.mmcm_red),
                         unselectedTextColor = colorResource(id = R.color.white)
                     )
                 )
@@ -79,7 +80,7 @@ fun StudentMainScreen(navController: NavController) {
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = colorResource(id = R.color.mmcm_blue),
                         unselectedIconColor = colorResource(id = R.color.white),
-                        selectedTextColor = colorResource(id = R.color.mmcm_blue),
+                        selectedTextColor = colorResource(id = R.color.mmcm_red),
                         unselectedTextColor = colorResource(id = R.color.white)
                     )
                 )
@@ -91,7 +92,7 @@ fun StudentMainScreen(navController: NavController) {
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = colorResource(id = R.color.mmcm_blue),
                         unselectedIconColor = colorResource(id = R.color.white),
-                        selectedTextColor = colorResource(id = R.color.mmcm_blue),
+                        selectedTextColor = colorResource(id = R.color.mmcm_red),
                         unselectedTextColor = colorResource(id = R.color.white)
                     )
                 )
@@ -103,7 +104,7 @@ fun StudentMainScreen(navController: NavController) {
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = colorResource(id = R.color.mmcm_blue),
                         unselectedIconColor = colorResource(id = R.color.white),
-                        selectedTextColor = colorResource(id = R.color.mmcm_blue),
+                        selectedTextColor = colorResource(id = R.color.mmcm_red),
                         unselectedTextColor = colorResource(id = R.color.white)
                     )
                 )
@@ -115,7 +116,7 @@ fun StudentMainScreen(navController: NavController) {
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = colorResource(id = R.color.mmcm_blue),
                         unselectedIconColor = colorResource(id = R.color.white),
-                        selectedTextColor = colorResource(id = R.color.mmcm_blue),
+                        selectedTextColor = colorResource(id = R.color.mmcm_red),
                         unselectedTextColor = colorResource(id = R.color.white)
                     )
                 )
@@ -125,10 +126,11 @@ fun StudentMainScreen(navController: NavController) {
             paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             when (selectedScreen.value) {
+                "Home" -> StudentHomeScreen()
                 "Curriculum" -> CurriculumOverviewScreen()
-                "Next Courses" -> NextCoursesScreen(navController = navController)
+                "Next Courses" -> NextCoursesScreen()
                 "Account" -> UserProfileScreen(username = String(), email = String(), navController = navController)
-                "Info" -> AboutDevelopersScreen(navController = navController)
+                "Info" -> AboutDevelopersScreen()
             }
         }
     }

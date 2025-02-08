@@ -18,12 +18,18 @@ import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
 
 @Composable
-fun NextCoursesScreen(navController: NavController) {
-    ReusableScaffold(
-        navController = navController,
-        topBarTitle = "Next Courses..."
-    ) {paddingValues ->
-        NextCoursesContent(paddingValues, currentTerm = 1, completedCourses = emptySet())
+fun NextCoursesScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // Top bar title or any header content can be placed here if needed
+        NextCoursesContent(
+            paddingValues = PaddingValues(0.dp), // No external padding needed since `Box` is handling it
+            currentTerm = 1,
+            completedCourses = emptySet()
+        )
     }
 }
 
@@ -110,5 +116,5 @@ fun NextCoursesContent(
 @Preview
 @Composable
 fun NextCoursesScreenPreview() {
-    NextCoursesScreen(rememberNavController())
+    NextCoursesScreen()
 }
