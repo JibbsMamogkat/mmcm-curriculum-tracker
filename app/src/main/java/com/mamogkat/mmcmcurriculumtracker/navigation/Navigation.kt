@@ -1,12 +1,15 @@
 package com.mamogkat.mmcmcurriculumtracker.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.mamogkat.mmcmcurriculumtracker.ui.screens.*
-import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminPage
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.UploadCoursesScreen
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.ForgotPassword
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.LoginScreen
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.RegisterUI
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.*
 
 sealed class Screen(val route: String) {
     object  Login: Screen("login")
@@ -26,12 +29,12 @@ sealed class Screen(val route: String) {
 fun AppNavHost(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(Screen.Login.route) { LoginScreen(navController) }
-        composable(Screen.Register.route) { RegisterUI(navController)}
+        composable(Screen.Register.route) { RegisterUI(navController) }
         composable(Screen.ForgotPassword.route) { ForgotPassword(navController) }
         composable(Screen.ChooseCurriculum.route) { ChooseCurriculumScreen(navController) }
         composable(Screen.CurriculumOverview.route) { CurriculumOverviewScreen(navController) }
         composable(Screen.NextCourses.route) { NextCoursesScreen(navController) }
-        composable(Screen.Admin.route) { AdminPage(navController)}
+        composable(Screen.Admin.route) { AdminPage(navController) }
         composable(Screen.AboutDevelopers.route) { AboutDevelopersScreen(navController) }
         composable(Screen.UserAccount.route) { UserProfileScreen("student","studen@mcm.edu.ph",navController) }
         composable(Screen.UploadCourses.route) { UploadCoursesScreen(navController)  }

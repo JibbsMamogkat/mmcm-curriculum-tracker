@@ -1,4 +1,4 @@
-package com.mamogkat.mmcmcurriculumtracker.ui.screens
+package com.mamogkat.mmcmcurriculumtracker.ui.screens.admin
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,7 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel

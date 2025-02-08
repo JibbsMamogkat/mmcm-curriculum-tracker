@@ -1,4 +1,4 @@
-package com.mamogkat.mmcmcurriculumtracker.ui.screens
+package com.mamogkat.mmcmcurriculumtracker.ui.screens.student
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.BottomNavigation

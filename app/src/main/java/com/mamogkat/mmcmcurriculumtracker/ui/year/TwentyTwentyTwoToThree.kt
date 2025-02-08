@@ -1,6 +1,6 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.year
 
-import com.mamogkat.mmcmcurriculumtracker.ui.screens.Curriculum
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.Curriculum
 
 
 val curriculumData: Map<String, List<Pair<String, List<Curriculum>>>> = mapOf(

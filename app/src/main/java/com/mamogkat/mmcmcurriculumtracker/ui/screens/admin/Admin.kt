@@ -1,4 +1,4 @@
-package com.mamogkat.mmcmcurriculumtracker.ui.screens
+package com.mamogkat.mmcmcurriculumtracker.ui.screens.admin
 
 
 import androidx.compose.foundation.layout.*
