@@ -96,22 +96,52 @@ class AuthViewModel: ViewModel() {
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
 
+                    // First, get user role from "users" collection
                     db.collection("users").document(userId)
                         .get()
-                        .addOnSuccessListener { document ->
-                            if (document != null && document.exists()) {
-                                val role = document.getString("role")
+                        .addOnSuccessListener { userDoc ->
+                            if (userDoc != null && userDoc.exists()) {
+                                val role = userDoc.getString("role") ?: "Unknown"
 
                                 when (role) {
-                                    "Student" -> navController.navigate("choose_curriculum")
-                                    "Admin" -> navController.navigate("admin_home_page")
-                                    null -> _errorMessage.value = "Account role is missing. Contact support."
-                                    else -> _errorMessage.value = "Unknown role: $role"
+                                    "Student" -> {
+                                        // Now fetch curriculum info from "students" collection
+                                        db.collection("students").document(userId)
+                                            .get()
+                                            .addOnSuccessListener { studentDoc ->
+                                                if (studentDoc != null && studentDoc.exists()) {
+                                                    val curriculum = studentDoc.getString("curriculum")
+
+                                                    if (curriculum.isNullOrEmpty()) {
+                                                        navController.navigate("choose_curriculum")
+                                                    } else {
+                                                        navController.navigate("student_main")
+                                                    }
+                                                } else {
+                                                    _errorMessage.value = "Student record not found. Contact support."
+                                                }
+                                                _isLoading.value = false
+                                            }
+                                            .addOnFailureListener { e ->
+                                                _errorMessage.value = "Error retrieving student data: ${e.message}"
+                                                _isLoading.value = false
+                                            }
+                                    }
+
+                                    "Admin" -> {
+                                        navController.navigate("admin_home_page")
+                                        _isLoading.value = false
+                                    }
+
+                                    else -> {
+                                        _errorMessage.value = "Unknown role: $role. Contact support."
+                                        _isLoading.value = false
+                                    }
                                 }
                             } else {
                                 _errorMessage.value = "Account not found. Please register first."
+                                _isLoading.value = false
                             }
-                            _isLoading.value = false
                         }
                         .addOnFailureListener { e ->
                             _errorMessage.value = "Error retrieving user data: ${e.message}"
@@ -123,9 +153,22 @@ class AuthViewModel: ViewModel() {
                 }
             }
     }
-
-
     fun setErrorMessage(s: String) {
         _errorMessage.value = s
     }
+
+    // duff added feb -15
+    fun checkUserCurriculum(onResult: (Boolean) -> Unit) {
+        val userId = auth.currentUser?.uid ?: return
+        db.collection("students").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                val curriculum = document.getString("curriculum")
+                onResult(!curriculum.isNullOrEmpty()) // Returns true if curriculum is set
+            }
+            .addOnFailureListener {
+                onResult(false)
+            }
+    }
+    // ----------------------------
 }

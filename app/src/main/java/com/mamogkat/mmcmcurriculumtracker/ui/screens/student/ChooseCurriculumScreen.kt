@@ -10,7 +10,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -22,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
@@ -29,7 +32,18 @@ import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChooseCurriculumScreen(navController: NavController) {
+fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: CurriculumViewModel = viewModel()) {
+
+    // duff added - feb 15
+    val selectedCurriculum by curriculumViewModel.selectedCurriculum.observeAsState()
+    LaunchedEffect(selectedCurriculum) {
+        if (!selectedCurriculum.isNullOrEmpty()) {
+            navController.navigate("student_main") {
+                popUpTo("choose_curriculum") { inclusive = true } // Prevent going back
+            }
+        }
+    }
+    // ---------------------------------
     Scaffold(
         topBar = {
             TopAppBar(
@@ -174,16 +188,18 @@ fun CurriculumDropdown(navController: NavController, viewModel: CurriculumViewMo
     Button(
         onClick = {
             if (selectedCurriculum.isNotEmpty()) {
-                viewModel.setEnrolledTerm(selectedTerm)
-                viewModel.setCurriculum(selectedCurriculum)
-                navController.navigate("student_main")
+                viewModel.updateCurriculumInFirestore(selectedCurriculum, selectedTerm) {
+                    navController.navigate("student_main") {
+                        popUpTo("choose_curriculum") { inclusive = true } // Removes ChooseCurriculumScreen from stack
+                    }
+                }
             } else {
-                // Handle empty selection (e.g., Snackbar or Toast)
+                // Show error (Snackbar or Toast)
             }
         },
         colors = ButtonDefaults.buttonColors(colorResource(id = R.color.mmcm_blue)),
         modifier = Modifier.fillMaxWidth(),
-        enabled = selectedTerm in terms // ensure a term is selected before proceeding
+        enabled = selectedTerm in terms // Ensure term is selected before proceeding
     ) {
         Text(text = "Next")
     }

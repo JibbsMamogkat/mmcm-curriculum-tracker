@@ -1,6 +1,8 @@
 package com.mamogkat.mmcmcurriculumtracker.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,6 +15,7 @@ import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.RegisterUI
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.*
 import com.mamogkat.mmcmcurriculumtracker.ui.studentscreens.StudentMainScreen
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AdminViewModel
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
 
 sealed class Screen(val route: String) {
     object  Login: Screen("login")
@@ -28,6 +31,18 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun AppNavHost(navController: NavHostController, adminViewModel: AdminViewModel) {
+    // duff added - feb 15
+    val authViewModel: AuthViewModel = viewModel()
+    LaunchedEffect(Unit) {
+        authViewModel.checkUserCurriculum { hasCurriculum ->
+            if (hasCurriculum) {
+                navController.navigate("student_main") {
+                    popUpTo("choose_curriculum") { inclusive = true } // Prevent going back
+                }
+            }
+        }
+    }
+    // --------------------------------------------------------------
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(Screen.Login.route) { LoginScreen(navController) }
         composable(Screen.Register.route) { RegisterUI(navController) }
@@ -39,3 +54,4 @@ fun AppNavHost(navController: NavHostController, adminViewModel: AdminViewModel)
         composable(Screen.StudentMasterList.route) { StudentMasterListScreen(adminViewModel, navController)  }
     }
 }
+

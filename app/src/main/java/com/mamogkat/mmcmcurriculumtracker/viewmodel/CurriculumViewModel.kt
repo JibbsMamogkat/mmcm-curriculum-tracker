@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.mamogkat.mmcmcurriculumtracker.models.CourseGraph
 import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
 import com.mamogkat.mmcmcurriculumtracker.repository.FirebaseRepository
@@ -865,7 +867,28 @@ class CurriculumViewModel : ViewModel() {
     }
 
 
+    // Duff added feb - 15
+    fun updateCurriculumInFirestore(selectedCurriculum: String, selectedTerm: Int, onSuccess: () -> Unit) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            return
+        }
 
+        val db = FirebaseFirestore.getInstance()
+        db.collection("students").document(userId)
+            .update(
+                "curriculum", selectedCurriculum,
+                "termEnrolling", selectedTerm,
+                "approvalStatus", "pending"
+            )
+            .addOnSuccessListener {
+                onSuccess() // Calls navigation logic after update
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Failed to update curriculum: ${e.message}")
+            }
+    }
+    // ----------------------------------
 
 
 
