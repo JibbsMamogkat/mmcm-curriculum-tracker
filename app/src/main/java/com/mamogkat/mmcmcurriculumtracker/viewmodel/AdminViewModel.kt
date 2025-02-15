@@ -1,5 +1,6 @@
 package com.mamogkat.mmcmcurriculumtracker.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -29,8 +30,24 @@ class AdminViewModel : ViewModel() {
         }
     }
 
-    fun updateStudentCurriculum(studentId: String, newCurriculumId: String) {
-        repository.updateStudentCurriculum(studentId, newCurriculumId)
+    fun updateStudentCurriculum(studentId: String?, newCurriculumId: String) {
+        if (studentId.isNullOrEmpty()) {
+            Log.e("AdminViewModel", "Error: studentId is null or empty, cannot update curriculum")
+            return
+        }
+
+        repository.updateStudentCurriculum(studentId, newCurriculumId) { success ->
+            if (success) {
+                Log.d("AdminViewModel", "Successfully updated curriculum for student: $studentId")
+                fetchStudents() //refresh the student list to trigger UI recomposition
+            } else {
+                Log.e("AdminViewModel", "Failed to update curriculum for student: $studentId")
+            }
+        }
+    }
+
+    fun getCurriculumNameMap(): Map<String, String> {
+        return curriculumList.value?.associate { it.curriculumID to it.name } ?: emptyMap()
     }
 
     fun removeStudent(studentId: String) {

@@ -30,6 +30,10 @@ fun StudentMasterListScreen(viewModel: AdminViewModel, navController: NavControl
     Log.d("StudentMasterListScreen", "Total students: ${students.size}")
     Log.d("StudentMasterListScreen", "Total curriculums: ${curriculums.size}")
 
+    students.forEach { student ->
+        Log.d("StudentMasterListScreen", "Student ID: ${student.studentID}, Name: ${student.name}")
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
@@ -51,10 +55,12 @@ fun StudentMasterListScreen(viewModel: AdminViewModel, navController: NavControl
 
 @Composable
 fun StudentCard(student: Student, curriculums: List<Curriculum>, viewModel: AdminViewModel, navController: NavController) {
-    var expanded by remember { mutableStateOf(false) }
+    val curriculumMap = viewModel.getCurriculumNameMap()
     var selectedCurriculum by remember { mutableStateOf(student.curriculum ?: "") }
+    var curriculumName by remember { mutableStateOf(curriculumMap[selectedCurriculum] ?: "Not Assigned") }
+    var expanded by remember { mutableStateOf(false) }
 
-    Log.d("StudentCard", "Rendering card for: ${student.name}")
+    Log.d("StudentCard", "Displaying student: ${student.name} with curriculum: ${student.curriculum}")
 
     Card(
         modifier = Modifier
@@ -64,58 +70,54 @@ fun StudentCard(student: Student, curriculums: List<Curriculum>, viewModel: Admi
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = student.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Text(text = "Email: ${student.email}", fontSize = 16.sp)
-            Text(text = "Current Curriculum: ${student.curriculum ?: "Not Assigned"}", fontSize = 16.sp)
+            Text(text = "Current Curriculum: $curriculumName", fontSize = 16.sp)
 
             Spacer(modifier = Modifier.height(8.dp))
 
             // Curriculum Dropdown
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                curriculums.forEach { curriculum ->
-                    DropdownMenuItem(
-                        text = { Text(curriculum.name) },
-                        onClick = {
-                        selectedCurriculum = curriculum.curriculumID
-                        Log.d("StudentCard", "Updating curriculum for ${student.name} to ${selectedCurriculum}")
-                        viewModel.updateStudentCurriculum(student.studentID, selectedCurriculum)
-                        expanded = false
-                    })
+            Box {
+                Button(onClick = { expanded = true }) {
+                    Text("Update Curriculum")
                 }
-            }
 
-            Button(onClick = {
-                expanded = true
-                Log.d("StudentCard", "Opening curriculum dropdown for ${student.name}")
-            }) {
-                Text("Update Curriculum")
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    curriculums.forEach { curriculum ->
+                        DropdownMenuItem(
+                            text = { Text(curriculum.name) },
+                            onClick = {
+                                selectedCurriculum = curriculum.curriculumID
+                                curriculumName = curriculum.name // Update UI instantly
+                                expanded = false
+                                Log.d("StudentCard", "Updating student ${student.studentID} with curriculum: $selectedCurriculum")
+                                viewModel.updateStudentCurriculum(student.studentID, selectedCurriculum)
+
+                            }
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             // Navigation Buttons
-            Button(onClick = {
-                Log.d("StudentCard", "Navigating to curriculum details for ${student.name}")
-                navController.navigate("curriculumDetail/${student.studentID}")
-            }) {
+
+            Button(onClick = { navController.navigate("curriculumDetail/${student.studentID}") }) {
                 Text("View Curriculum Details")
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = {
-                Log.d("StudentCard", "Navigating to next available courses for ${student.name}")
-                navController.navigate("nextAvailableCourses/${student.studentID}")
-            }) {
+            Button(onClick = { navController.navigate("nextAvailableCourses/${student.studentID}") }) {
                 Text("Next Available Courses")
             }
+
 
             Spacer(modifier = Modifier.height(8.dp))
 
             // Remove Student Button
             Button(
-                onClick = {
-                    Log.d("StudentCard", "Removing student: ${student.name}")
-                    viewModel.removeStudent(student.studentID) },
+                onClick = { viewModel.removeStudent(student.studentID) },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
                 Text("Remove Student", color = MaterialTheme.colorScheme.onError)
@@ -123,3 +125,4 @@ fun StudentCard(student: Student, curriculums: List<Curriculum>, viewModel: Admi
         }
     }
 }
+

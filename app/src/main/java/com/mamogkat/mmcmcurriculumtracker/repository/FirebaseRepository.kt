@@ -129,7 +129,7 @@ class FirebaseRepository {
             .addOnSuccessListener { result ->
                 val students = result.mapNotNull { document ->
                     try {
-                        document.toObject(Student::class.java)
+                        document.toObject(Student::class.java)?.copy(studentID = document.id)
                     } catch (e: Exception) {
                         Log.e("Firestore", "Failed to deserialize student: ${document.id}", e)
                         null
@@ -162,16 +162,26 @@ class FirebaseRepository {
             }
     }
 
-    fun updateStudentCurriculum(studentId: String, newCurriculumId: String) {
+    fun updateStudentCurriculum(studentId: String, newCurriculumId: String, callback: (Boolean) -> Unit) {
+        if (studentId.isEmpty()) {
+            Log.e("Firebase", "Error: studentId is empty, cannot update curriculum")
+            callback(false)
+            return
+        }
+
         db.collection("students").document(studentId)
-            .update("curriculumId", newCurriculumId)
+            .update("curriculum", newCurriculumId)
             .addOnSuccessListener {
-                Log.d("FirebaseRepository", "Curriculum updated successfully")
+                Log.d("Firebase", "Updated curriculum for student: $studentId")
+                callback(true)
             }
-            .addOnFailureListener {
-                Log.e("FirebaseRepository", "Failed to update curriculum", it)
+            .addOnFailureListener { exception ->
+                Log.e("Firebase", "Error updating curriculum: $studentId", exception)
+                callback(false)
             }
     }
+
+
 
     fun removeStudent(studentId: String) {
         db.collection("students").document(studentId).delete()
