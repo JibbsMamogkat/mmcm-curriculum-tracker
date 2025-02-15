@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.mamogkat.mmcmcurriculumtracker"
-        minSdk = 24
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -67,7 +67,7 @@ dependencies {
     implementation ("androidx.compose.compiler:compiler:1.5.10")
 
     // Material Design (Compose)
-    implementation(libs.androidx.material3) // Material 3
+    implementation ("androidx.compose.material3:material3:1.0.0-alpha15")
     implementation("androidx.compose.material:material:1.7.6") // Material 2 (Optional, but widely used)
 
     // Navigation for Jetpack Compose
@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.androidx.compose.material3)
 
     // Test dependencies
     testImplementation(libs.junit)

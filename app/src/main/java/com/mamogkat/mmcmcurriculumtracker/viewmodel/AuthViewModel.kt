@@ -104,7 +104,7 @@ class AuthViewModel: ViewModel() {
 
                                 when (role) {
                                     "Student" -> navController.navigate("choose_curriculum")
-                                    "Admin" -> navController.navigate("admin_page")
+                                    "Admin" -> navController.navigate("admin_home_page")
                                     null -> _errorMessage.value = "Account role is missing. Contact support."
                                     else -> _errorMessage.value = "Unknown role: $role"
                                 }

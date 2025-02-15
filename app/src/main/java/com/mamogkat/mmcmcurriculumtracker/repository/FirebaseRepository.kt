@@ -6,6 +6,8 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
+import com.mamogkat.mmcmcurriculumtracker.models.Curriculum
+import com.mamogkat.mmcmcurriculumtracker.models.Student
 
 class FirebaseRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -119,6 +121,66 @@ class FirebaseRepository {
                 Log.e("FirestoreUpdate", "🔥 Failed to fetch courses in category $categoryName: ${e.message}")
             }
         }
+    }
+
+    fun getAllStudents(callback: (List<Student>) -> Unit) {
+        db.collection("students")
+            .get()
+            .addOnSuccessListener { result ->
+                val students = result.mapNotNull { document ->
+                    try {
+                        document.toObject(Student::class.java)
+                    } catch (e: Exception) {
+                        Log.e("Firestore", "Failed to deserialize student: ${document.id}", e)
+                        null
+                    }
+                }
+                callback(students)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "Error fetching students", exception)
+            }
+    }
+
+
+    fun getAllCurriculums(callback: (List<Curriculum>) -> Unit) {
+        db.collection("curriculums")
+            .get()
+            .addOnSuccessListener { result ->
+                val curriculums = result.mapNotNull { document ->
+                    try {
+                        document.toObject(Curriculum::class.java)
+                    } catch (e: Exception) {
+                        Log.e("Firestore", "Failed to deserialize curriculum: ${document.id}", e)
+                        null
+                    }
+                }
+                callback(curriculums)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "Error fetching curriculums", exception)
+            }
+    }
+
+    fun updateStudentCurriculum(studentId: String, newCurriculumId: String) {
+        db.collection("students").document(studentId)
+            .update("curriculumId", newCurriculumId)
+            .addOnSuccessListener {
+                Log.d("FirebaseRepository", "Curriculum updated successfully")
+            }
+            .addOnFailureListener {
+                Log.e("FirebaseRepository", "Failed to update curriculum", it)
+            }
+    }
+
+    fun removeStudent(studentId: String) {
+        db.collection("students").document(studentId).delete()
+            .addOnSuccessListener {
+                Log.d("FirebaseRepository", "Student removed successfully")
+            }
+            .addOnFailureListener {
+                Log.e("FirebaseRepository", "Failed to remove student", it)
+            }
     }
 
 
