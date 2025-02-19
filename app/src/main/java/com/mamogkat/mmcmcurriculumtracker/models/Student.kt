@@ -7,11 +7,11 @@ data class Student(
     val email: String = "",          // Student's email
     val studentNumber: String = "",  // Student number
     val program: String = "",        // Program (e.g., "BS Computer Engineering")
-    val termEnrolling: String = "",  // The term the student is enrolling in
+    val termEnrolling: Int = 1,  // The term the student is enrolling in
     val curriculum: String? = null,     // Curriculum ID or name
-    val coursesCompleted: List<String> = emptyList() // List of completed course IDs
-
+    val coursesCompleted: List<String> = emptyList(), // List of completed course IDs
+    val approvalStatus: String = ""  // Approval status (e.g., "Pending", "Approved", "Rejected")
 ){
     // Firestore requires a no-argument constructor
-    constructor() : this("", "", "Unknown", "", "", "", "", null, emptyList())
+    constructor() : this("", "", "Unknown", "", "", "", 1, null, emptyList(), "")
 }

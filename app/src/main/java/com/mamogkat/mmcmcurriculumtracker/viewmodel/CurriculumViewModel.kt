@@ -867,6 +867,25 @@ class CurriculumViewModel : ViewModel() {
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // Duff added feb - 15
     fun updateCurriculumInFirestore(selectedCurriculum: String, selectedTerm: Int, onSuccess: () -> Unit) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid

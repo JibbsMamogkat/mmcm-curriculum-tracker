@@ -124,17 +124,25 @@ class FirebaseRepository {
     }
 
     fun getAllStudents(callback: (List<Student>) -> Unit) {
+        Log.d("Firestore", "Fetching all students from Firestore...")
+
         db.collection("students")
             .get()
             .addOnSuccessListener { result ->
+                Log.d("Firestore", "Successfully fetched ${result.size()} students.")
+
                 val students = result.mapNotNull { document ->
                     try {
-                        document.toObject(Student::class.java)?.copy(studentID = document.id)
+                        val student = document.toObject(Student::class.java)?.copy(studentID = document.id)
+                        Log.d("Firestore", "Fetched Student ID: ${document.id}, Name: ${student?.name}, Email: ${student?.email}, ApprovalStatus: ${student?.approvalStatus}")
+                        student
                     } catch (e: Exception) {
                         Log.e("Firestore", "Failed to deserialize student: ${document.id}", e)
                         null
                     }
                 }
+
+                Log.d("Firestore", "Total students after filtering: ${students.size}")
                 callback(students)
             }
             .addOnFailureListener { exception ->

@@ -1,7 +1,6 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens.student
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -81,7 +80,8 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -182,7 +182,7 @@ fun CurriculumDropdown(navController: NavController, viewModel: CurriculumViewMo
     }
 
 
-    Spacer(modifier = Modifier.height(24.dp))
+    Spacer(modifier = Modifier.height(8.dp))
 
 
     Button(

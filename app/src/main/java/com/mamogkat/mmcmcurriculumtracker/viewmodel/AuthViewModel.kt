@@ -1,5 +1,6 @@
 package com.mamogkat.mmcmcurriculumtracker.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -95,6 +96,9 @@ class AuthViewModel: ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
+
+                    Log.d("AuthViewModel", "User ID: $userId")
+
 
                     // First, get user role from "users" collection
                     db.collection("users").document(userId)

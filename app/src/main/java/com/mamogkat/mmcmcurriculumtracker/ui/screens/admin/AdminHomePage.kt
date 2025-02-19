@@ -1,6 +1,7 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens.admin
 
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -108,7 +109,11 @@ fun AdminNavigationDrawer(navController: NavController, drawerState: DrawerState
                     coroutineScope.launch { drawerState.close() }
                 }
                 DrawerItem("Manage Curriculums", Icons.Default.Menu) {
-                    navController.navigate("ManageCurriculumsPage")
+
+                    Log.d("AdminHomePage", "Navigating to ManageCurriculumsPage")
+                    navController.navigate("manage_curriculum_page")
+
+                    Log.d("AdminHomePage", "Successfully Navigated to ManageCurriculumsPage")
                     coroutineScope.launch { drawerState.close() }
                 }
             }

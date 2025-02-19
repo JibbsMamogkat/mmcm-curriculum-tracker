@@ -15,7 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
 
 @Composable
-fun UploadCoursesScreen(
+fun ManageCurriculumsPage(
     navController: NavController
 ){
     Column {
@@ -60,8 +60,4 @@ fun UploadCPE2022Courses(viewModel: CurriculumViewModel = androidx.lifecycle.vie
     }
 }
 
-@Preview
-@Composable
-fun PreviewUploadCoursesScreen(){
-    UploadCoursesScreen(navController = rememberNavController())
-}
+
