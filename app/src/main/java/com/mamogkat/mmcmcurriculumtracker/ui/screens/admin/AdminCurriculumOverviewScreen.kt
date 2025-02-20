@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -17,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.mamogkat.mmcmcurriculumtracker.R
 import kotlinx.coroutines.launch
 
 
@@ -62,6 +64,10 @@ fun AdminCurriculumOverviewScreen(
             topBar = {
                 TopAppBar(
                     title = { Text("Curriculum Overview") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = colorResource(id = R.color.mmcm_blue),
+                        titleContentColor = colorResource(id = R.color.mmcm_white)
+                    ),
                     navigationIcon = {
                         IconButton(onClick = {
                             coroutineScope.launch { drawerState.open() }

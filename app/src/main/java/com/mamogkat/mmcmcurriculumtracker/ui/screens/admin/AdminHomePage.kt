@@ -2,6 +2,7 @@ package com.mamogkat.mmcmcurriculumtracker.ui.screens.admin
 
 
 import android.util.Log
+import androidx.annotation.ColorRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,6 +50,10 @@ fun AdminHomePage(navController: NavController, viewModel: AdminViewModel) {
             topBar = {
                 TopAppBar(
                     title = { Text(text = "Admin Dashboard", ) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = colorResource(id = R.color.mmcm_blue),
+                        titleContentColor = colorResource(id = R.color.mmcm_white)
+                    ),
                     navigationIcon = {
                         IconButton(onClick = {
                             coroutineScope.launch {
@@ -87,16 +94,43 @@ fun AdminNavigationDrawer(navController: NavController, drawerState: DrawerState
     val coroutineScope = rememberCoroutineScope()
 
     ModalDrawerSheet {
+        Row(
+            modifier = Modifier
+                .background(colorResource(id = R.color.mmcm_blue))
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+             Image(
+                painter = painterResource(id = R.drawable.mmcm_logo),
+                contentDescription = "MMCM Logo",
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(bottom = 24.dp)
+
+            )
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            ) {
+            Text(
+                text = "Admin Panel",
+                color = colorResource(id = R.color.mmcm_white),
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxHeight()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
         ) {
-            Spacer(Modifier.height(12.dp))
-            Text("Admin Panel", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
-
-
             NavigationDrawerSection("Navigation") {
                 DrawerItem("Student Master List", Icons.Default.Person) {
                     navController.navigate("student_master_list")
@@ -105,7 +139,7 @@ fun AdminNavigationDrawer(navController: NavController, drawerState: DrawerState
                 DrawerItem("Next Available Courses",
                            Icons.AutoMirrored.Filled.List
                 ) {
-                    navController.navigate("next_available_courses")
+                    navController.navigate("admin_next_available_courses_screen")
                     coroutineScope.launch { drawerState.close() }
                 }
                 DrawerItem("Manage Curriculums", Icons.Default.Menu) {
@@ -138,9 +172,9 @@ fun AdminNavigationDrawer(navController: NavController, drawerState: DrawerState
 @Composable
 fun DrawerItem(label: String, icon: ImageVector, onClick: () -> Unit) {
     NavigationDrawerItem(
-        label = { Text(label) },
+        label = { Text(label, style = MaterialTheme.typography.titleMedium) },
         selected = false,
-        icon = { Icon(icon, contentDescription = null) },
+        icon = { Icon(icon, tint = colorResource(R.color.mmcm_blue), contentDescription = null) },
         onClick = onClick,
         modifier = Modifier.padding(12.dp)
     )
@@ -150,7 +184,8 @@ fun DrawerItem(label: String, icon: ImageVector, onClick: () -> Unit) {
 fun NavigationDrawerSection(title: String, content: @Composable ColumnScope.() -> Unit) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleMedium,
+        color = colorResource(id = R.color.mmcm_red),
+        style = MaterialTheme.typography.headlineSmall,
         modifier = Modifier.padding(16.dp)
     )
     Column(content = content)
@@ -158,8 +193,6 @@ fun NavigationDrawerSection(title: String, content: @Composable ColumnScope.() -
 
 @Preview
 @Composable
-fun AdminHomePagePreview() {
-    val navController = rememberNavController()
-    val viewModel = AdminViewModel()
-    AdminHomePage(navController, viewModel)
+fun AdminNavigationDrawerPreview() {
+    AdminNavigationDrawer(rememberNavController(), rememberDrawerState(DrawerValue.Closed))
 }

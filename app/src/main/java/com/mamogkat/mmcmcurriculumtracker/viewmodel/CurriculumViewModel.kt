@@ -36,13 +36,6 @@ class CurriculumViewModel : ViewModel() {
         _selectedCurriculum.postValue(curriculum)
     }
 
-    fun getAvailableCourses() : List<Pair<CourseNode,String>>{
-        val graph = _courseGraph.value ?: return emptyList()
-        val completed = _completedCourses.value ?: emptySet()
-        val term = _enrolledTerm.value ?: 1 //Default to Term 1 if not set
-        return graph.getNextAvailableCourses(term, completed)
-    }
-
     //ADMIN Curriculum Overview functions
     fun fetchStudentData(studentId: String) {
         val studentRef = repository.getStudentDocument(studentId)
@@ -172,8 +165,33 @@ class CurriculumViewModel : ViewModel() {
         Log.d("CurriculumViewModel", "Updated completedCourses for student: $studentId")
     }
 
+    // Functions for Next Available Courses
+    fun getAvailableCourses(): List<Pair<CourseNode, String>> {
+        Log.d("CurriculumViewModel", "Starting getAvailableCourses()")
 
- // functions to upload BS CPE 2022-2023 CURRICULUM
+        val graph = _courseGraph.value
+        if (graph == null) {
+            Log.e("CurriculumViewModel", "Course graph is null, returning empty list")
+            return emptyList()
+        }
+
+        Log.d("CurriculumViewModel", "Course graph successfully retrieved")
+
+        val completed = _completedCourses.value ?: emptySet()
+        Log.d("CurriculumViewModel", "Student's Completed Courses: $completed")
+
+        val enrolledTerm = _enrolledTerm.value ?: 1 // Default to Term 1 if not set
+        Log.d("CurriculumViewModel", "Student's Enrolled Term: $enrolledTerm")
+
+        Log.d("CurriculumViewModel", "Fetching next available courses...")
+        val availableCourses = graph.getNextAvailableCourses(enrolledTerm, completed)
+
+        Log.d("CurriculumViewModel", "Available Courses Retrieved: ${availableCourses.map { it.first.code }}")
+
+        return availableCourses
+    }
+
+    // functions to upload BS CPE 2022-2023 CURRICULUM
     fun uploadFirstYearTerm1() {
         val firstYearTerm1Courses = listOf(
             mapOf(

@@ -12,6 +12,7 @@ import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminHomePage
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.StudentMasterListScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.ManageCurriculumsPage
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminCurriculumOverviewScreen
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminNextAvailableCoursesScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.ForgotPassword
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.LoginScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.RegisterUI
@@ -31,6 +32,7 @@ sealed class Screen(val route: String) {
     object StudentMasterList: Screen("student_master_list")
     object ManageCurriculumsPage: Screen("manage_curriculum_page")
     object AdminCurriculumOverviewScreen: Screen("admin_curriculum_overview_screen")
+    object AdminNextAvailableCoursesScreen: Screen("admin_next_available_courses_screen")
 }
 
 
@@ -64,7 +66,18 @@ fun AppNavHost(navController: NavHostController, adminViewModel: AdminViewModel,
             val studentId = backStackEntry.arguments?.getString("studentId") ?: return@composable
             AdminCurriculumOverviewScreen(navController, studentId, curriculumViewModel)  // ✅ Pass studentId
         }
+        composable(
+            route = "admin_next_available_courses_screen/{studentId}",  // ✅ Define studentId as a route argument
+            arguments = listOf(navArgument("studentId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val studentId = backStackEntry.arguments?.getString("studentId") ?: return@composable
+            AdminNextAvailableCoursesScreen(
+                studentId,
+                navController,
+                curriculumViewModel
+            )// ✅ Pass studentId
         }
     }
+}
 
 

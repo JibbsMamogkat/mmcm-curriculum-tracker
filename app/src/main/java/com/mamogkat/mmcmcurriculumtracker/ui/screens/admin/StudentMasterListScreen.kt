@@ -4,22 +4,31 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.models.Curriculum
 import com.mamogkat.mmcmcurriculumtracker.models.Student
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AdminViewModel
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StudentMasterListScreen(viewModel: AdminViewModel, navController: NavController) {
     val students by viewModel.studentList.observeAsState(emptyList())
     val curriculums by viewModel.curriculumList.observeAsState(emptyList())
+
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         Log.d("StudentMasterListScreen", "Fetching students and curriculums")
@@ -34,19 +43,47 @@ fun StudentMasterListScreen(viewModel: AdminViewModel, navController: NavControl
         Log.d("StudentMasterListScreen", "Student ID: ${student.studentID}, Name: ${student.name}")
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            AdminNavigationDrawer(navController, drawerState)
+        }
     ) {
-        Text("Admin Dashboard - Student List", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = "Admin Dashboard", ) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = colorResource(id = R.color.mmcm_blue),
+                        titleContentColor = colorResource(id = R.color.mmcm_white)
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            coroutineScope.launch {
+                                drawerState.open()
+                            }
+                        }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        }
+                    }
+                )
+            }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier.fillMaxSize().padding(paddingValues)
+            ) {
+                Text("Admin Dashboard - Student List", fontSize = 24.sp, fontWeight = FontWeight.Bold)
 
-        if (students.isEmpty()) {
-            Text("No students found", modifier = Modifier.padding(top = 16.dp))
-            Log.d("StudentMasterListScreen", "No students found")
-        } else {
-            LazyColumn {
-                items(students) { student ->
-                    Log.d("StudentMasterListScreen", "Displaying student: ${student.name}")
-                    StudentCard(student, curriculums, viewModel, navController)
+                if (students.isEmpty()) {
+                    Text("No students found", modifier = Modifier.padding(top = 16.dp))
+                    Log.d("StudentMasterListScreen", "No students found")
+                } else {
+                    LazyColumn {
+                        items(students) { student ->
+                            Log.d("StudentMasterListScreen", "Displaying student: ${student.name}")
+                            StudentCard(student, curriculums, viewModel, navController)
+                        }
+                    }
                 }
             }
         }
@@ -108,7 +145,7 @@ fun StudentCard(student: Student, curriculums: List<Curriculum>, viewModel: Admi
                 Text("View Curriculum Details")
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { navController.navigate("nextAvailableCourses/${student.studentID}") }) {
+            Button(onClick = { navController.navigate("admin_next_available_courses_screen/${student.studentID}") }) {
                 Text("Next Available Courses")
             }
 
