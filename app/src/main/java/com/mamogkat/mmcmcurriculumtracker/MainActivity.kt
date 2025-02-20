@@ -19,6 +19,7 @@ import com.mamogkat.mmcmcurriculumtracker.viewmodel.AdminViewModel
     class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         setContent {
             MMCMCurriculumTrackerTheme {
                 // A surface container using the 'background' color from the theme

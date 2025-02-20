@@ -12,6 +12,7 @@ import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.ManageCurriculumsPage
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.ForgotPassword
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.LoginScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.RegisterUI
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.VerifyOtpScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.*
 import com.mamogkat.mmcmcurriculumtracker.ui.studentscreens.StudentMainScreen
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AdminViewModel
@@ -52,7 +53,7 @@ fun AppNavHost(navController: NavHostController, adminViewModel: AdminViewModel)
         composable(Screen.Student.route) { StudentMainScreen(navController)  }
         composable(Screen.StudentMasterList.route) { StudentMasterListScreen(adminViewModel, navController)}
         composable(Screen.ManageCurriculumsPage.route) { ManageCurriculumsPage(navController) }
-        }
     }
+}
 
 
