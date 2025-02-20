@@ -4,20 +4,27 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import com.mamogkat.mmcmcurriculumtracker.models.CourseGraph
 import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
 import com.mamogkat.mmcmcurriculumtracker.repository.FirebaseRepository
 
 class CurriculumViewModel : ViewModel() {
     private val repository = FirebaseRepository()
+
     private val _courseGraph = MutableLiveData<CourseGraph>()
     val courseGraph: LiveData<CourseGraph> = _courseGraph
+
     private val _completedCourses = MutableLiveData<Set<String>>()
     val completedCourses: LiveData<Set<String>> = _completedCourses
+
     private val _enrolledTerm = MutableLiveData<Int>()
     val enrolledTerm: LiveData<Int> = _enrolledTerm
+
     private val _selectedCurriculum = MutableLiveData<String>()
     val selectedCurriculum: LiveData<String> = _selectedCurriculum
 
@@ -29,13 +36,162 @@ class CurriculumViewModel : ViewModel() {
         _selectedCurriculum.postValue(curriculum)
     }
 
-    fun getAvailableCourses() : List<Pair<CourseNode,String>>{
-        val graph = _courseGraph.value ?: return emptyList()
-        val completed = _completedCourses.value ?: emptySet()
-        val term = _enrolledTerm.value ?: 1 //Default to Term 1 if not set
-        return graph.getNextAvailableCourses(term, completed)
+    //ADMIN Curriculum Overview functions
+    fun fetchStudentData(studentId: String) {
+        val studentRef = repository.getStudentDocument(studentId)
+
+        Log.d("CurriculumViewModel", "Fetching Firestore document for student: $studentId")
+
+        studentRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                Log.d("CurriculumViewModel", "Student document found: $document")
+
+                val completed = document.get("completedCourses") as? List<String> ?: emptyList()
+                _completedCourses.postValue(completed.toSet())
+
+                val enrolledTerm = document.getLong("enrolledTerm")?.toInt() ?: 1
+                _enrolledTerm.postValue(enrolledTerm)
+
+                // ✅ FIX: Use "curriculum" instead of "curriculumId" and map it correctly
+                val curriculumId = document.getString("curriculum")?.let { id ->
+                    when (id) {
+                        "1" -> "bscpe_2022_2023" // ✅ Map curriculum ID 1 to actual Firestore ID
+                        else -> null
+                    }
+                }
+
+                if (curriculumId != null) {
+                    fetchCurriculum(curriculumId)  // Fetch courseGraph from Firestore
+                } else {
+                    Log.e("CurriculumViewModel", "curriculumId is null for student: $studentId")
+                }
+            } else {
+                Log.e("CurriculumViewModel", "Student document does not exist!")
+            }
+        }.addOnFailureListener { e ->
+            Log.e("CurriculumViewModel", "Error fetching student document", e)
+        }
     }
 
+    fun fetchCurriculum(curriculumId: String) {
+        val curriculumRef = repository.getCurriculumDocument(curriculumId)
+
+        Log.d("CurriculumViewModel", "Fetching all courses for curriculum: $curriculumId")
+
+        val groupedCourses = mutableMapOf<Int, MutableMap<Int, MutableList<CourseNode>>>()
+        val electiveCourses = mutableListOf<CourseNode>()
+
+        val years = listOf("1", "2", "3", "4") // 🔹 Years inferred from Firestore path
+        val terms = listOf("term_1", "term_2", "term_3") // 🔹 Terms inferred from Firestore path
+        val electiveCategories = listOf("AWS171P", "EMSY171P", "GEN_ED", "MACH171P", "MICR172P", "NETA172P", "SDEV173P", "SNAD174P")
+
+        val tasks = mutableListOf<Task<QuerySnapshot>>()
+
+        // 🔹 Fetch all regular courses (Loop through all years and terms)
+        for (year in years) {
+            for (term in terms) {
+                val termPath = curriculumRef.collection(year).document(term).collection("courses")
+
+                val task = termPath.get().addOnSuccessListener { snapshot ->
+                    val courses = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(CourseNode::class.java)?.copy(
+                            regularTerms = listOf(term.removePrefix("term_").toInt()) // ✅ Set term correctly
+                        )
+                    }
+
+                    if (courses.isNotEmpty()) {
+                        groupedCourses.getOrPut(year.toInt()) { mutableMapOf() }
+                            .getOrPut(term.removePrefix("term_").toInt()) { mutableListOf() }
+                            .addAll(courses)
+                    }
+                }.addOnFailureListener { e ->
+                    Log.e("CurriculumViewModel", "Error fetching courses for Year $year - Term $term", e)
+                }
+                tasks.add(task)
+            }
+        }
+
+        // 🔹 Fetch all electives (Loop through elective categories)
+        for (category in electiveCategories) {
+            val electivePath = curriculumRef.collection("electives").document(category).collection("courses")
+
+            val electiveTask = electivePath.get().addOnSuccessListener { snapshot ->
+                val electives = snapshot.documents.mapNotNull { it.toObject(CourseNode::class.java) }
+                electiveCourses.addAll(electives)
+            }.addOnFailureListener { e ->
+                Log.e("CurriculumViewModel", "Error fetching electives for $category", e)
+            }
+            tasks.add(electiveTask)
+        }
+
+        // 🔹 Wait for all tasks to complete before updating the UI
+        Tasks.whenAllSuccess<Void>(tasks).addOnSuccessListener {
+            if (groupedCourses.isNotEmpty() || electiveCourses.isNotEmpty()) {
+                Log.d("CurriculumViewModel", "Total courses fetched (including electives): ${groupedCourses.size}")
+
+                _courseGraph.postValue(
+                    CourseGraph(
+                        groupedCourses = groupedCourses.mapValues { (_, terms) ->
+                            terms.mapValues { (_, courses) -> courses.toList() }
+                        },
+                        electives = electiveCourses
+                    )
+                )
+
+            } else {
+                Log.e("CurriculumViewModel", "No courses found in curriculum: $curriculumId")
+            }
+        }.addOnFailureListener { e ->
+            Log.e("CurriculumViewModel", "Error fetching curriculum data", e)
+        }
+    }
+
+    fun toggleCourseCompletion(studentId: String, courseCode: String) {
+        val updatedCourses = _completedCourses.value?.toMutableSet() ?: mutableSetOf()
+
+        if (updatedCourses.contains(courseCode)) {
+            updatedCourses.remove(courseCode)  // Uncheck course
+            Log.d("CurriculumViewModel", "Course $courseCode unchecked")
+        } else {
+            updatedCourses.add(courseCode)  // Mark as completed
+            Log.d("CurriculumViewModel", "Course $courseCode checked")
+        }
+
+        _completedCourses.postValue(updatedCourses)
+
+        // Update Firestore
+        val studentRef = repository.getStudentDocument(studentId)
+        studentRef.update("completedCourses", updatedCourses.toList())
+        Log.d("CurriculumViewModel", "Updated completedCourses for student: $studentId")
+    }
+
+    // Functions for Next Available Courses
+    fun getAvailableCourses(): List<Pair<CourseNode, String>> {
+        Log.d("CurriculumViewModel", "Starting getAvailableCourses()")
+
+        val graph = _courseGraph.value
+        if (graph == null) {
+            Log.e("CurriculumViewModel", "Course graph is null, returning empty list")
+            return emptyList()
+        }
+
+        Log.d("CurriculumViewModel", "Course graph successfully retrieved")
+
+        val completed = _completedCourses.value ?: emptySet()
+        Log.d("CurriculumViewModel", "Student's Completed Courses: $completed")
+
+        val enrolledTerm = _enrolledTerm.value ?: 1 // Default to Term 1 if not set
+        Log.d("CurriculumViewModel", "Student's Enrolled Term: $enrolledTerm")
+
+        Log.d("CurriculumViewModel", "Fetching next available courses...")
+        val availableCourses = graph.getNextAvailableCourses(enrolledTerm, completed)
+
+        Log.d("CurriculumViewModel", "Available Courses Retrieved: ${availableCourses.map { it.first.code }}")
+
+        return availableCourses
+    }
+
+    // functions to upload BS CPE 2022-2023 CURRICULUM
     fun uploadFirstYearTerm1() {
         val firstYearTerm1Courses = listOf(
             mapOf(
@@ -865,6 +1021,8 @@ class CurriculumViewModel : ViewModel() {
     fun updateRegularTermsForElectives() {
         repository.updateElectivesWithRegularTerms("bscpe_2022_2023")
     }
+
+
 
 
 

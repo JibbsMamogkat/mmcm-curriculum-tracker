@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 });
 
 exports.sendOtpEmail = onRequest(
-  { timeoutSeconds: 30, memory: "256MB" },
+  { timeoutSeconds: 60, memory: "256MB" },
   async (req, res) => {
     console.log("sendOtpEmail function called with body:", JSON.stringify(req.body));
 
