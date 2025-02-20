@@ -3,6 +3,7 @@ package com.mamogkat.mmcmcurriculumtracker.repository
 import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
@@ -202,8 +203,16 @@ class FirebaseRepository {
     }
 
 
+    //functions for curriculum admin overview screen
+    fun getStudentDocument(studentId: String): DocumentReference {
+        return db.collection("students").document(studentId)
+    }
 
-
+    fun getCurriculumDocument(curriculumId: String): DocumentReference {
+        return FirebaseFirestore.getInstance()
+            .collection("curriculums")
+            .document(curriculumId)
+    }
 
 
 }

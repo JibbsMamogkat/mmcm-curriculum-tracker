@@ -15,6 +15,7 @@ import com.google.firebase.FirebaseApp
 import com.mamogkat.mmcmcurriculumtracker.navigation.AppNavHost
 import com.mamogkat.mmcmcurriculumtracker.ui.theme.MMCMCurriculumTrackerTheme
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AdminViewModel
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
 
     class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +28,7 @@ import com.mamogkat.mmcmcurriculumtracker.viewmodel.AdminViewModel
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    AppNavHost(navController = navController, adminViewModel = AdminViewModel())
+                    AppNavHost(navController = navController, adminViewModel = AdminViewModel(), curriculumViewModel = CurriculumViewModel())
 
                     FirebaseApp.initializeApp(this)
                 }

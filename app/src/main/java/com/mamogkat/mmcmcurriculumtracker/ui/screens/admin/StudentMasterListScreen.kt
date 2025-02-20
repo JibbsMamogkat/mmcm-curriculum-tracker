@@ -104,7 +104,7 @@ fun StudentCard(student: Student, curriculums: List<Curriculum>, viewModel: Admi
 
             // Navigation Buttons
 
-            Button(onClick = { navController.navigate("curriculumDetail/${student.studentID}") }) {
+            Button(onClick = { navController.navigate("admin_curriculum_overview/${student.studentID}") }) {
                 Text("View Curriculum Details")
             }
             Spacer(modifier = Modifier.width(8.dp))
