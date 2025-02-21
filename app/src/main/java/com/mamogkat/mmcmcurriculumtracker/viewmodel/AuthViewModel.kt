@@ -292,7 +292,10 @@ class AuthViewModel: ViewModel() {
                                     .set(studentData)
                                     .addOnSuccessListener {
                                         _isSuccess.value = true
-                                        navController.navigate("login")
+                                        navController.navigate("login") {
+                                            popUpTo(0) { inclusive = true }
+                                            launchSingleTop = true
+                                        }
                                     }
                             } else {
                                 val adminData = hashMapOf(
@@ -306,7 +309,10 @@ class AuthViewModel: ViewModel() {
                                     .set(adminData)
                                     .addOnSuccessListener {
                                         _isSuccess.value = true
-                                        navController.navigate("login")
+                                        navController.navigate("login") {
+                                            popUpTo(0) { inclusive = true }
+                                            launchSingleTop = true
+                                        }
                                     }
                             }
                         }

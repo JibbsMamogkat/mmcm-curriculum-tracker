@@ -40,9 +40,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,6 +62,17 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
     val isSuccess by authViewModel.isSuccess
     var selectedProgram by remember { mutableStateOf("") }
 
+    // Email
+    var email by remember { mutableStateOf("") }
+    var emailError by remember { mutableStateOf<String?>(null) }
+
+    // Password
+    var password by remember { mutableStateOf("") }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+
+    // Confirm Password
+    var confirmPassword by remember { mutableStateOf("") }
+    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
 
     Box(
         modifier = Modifier
@@ -79,8 +92,7 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
             Image(
                 painter = painterResource(id = R.drawable.mmcm_logo),
                 contentDescription = "MMCM Logo",
-                modifier = Modifier
-                    .size(150.dp)
+                modifier = Modifier.size(150.dp)
             )
 
             // Title
@@ -91,70 +103,87 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                 fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
                 color = colorResource(id = R.color.mmcm_red),
                 modifier = Modifier.offset(y = (-20).dp)
-
             )
 
             // Email
-            var email by remember { mutableStateOf("") }
-            Row (
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = {
+                    if (emailError != null) {
+                        Text(emailError!!, color = colorResource(id = R.color.mmcm_red))
+                    } else {
+                        Text("MMCM Email")
+                    }
+                },
+                isError = emailError != null,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                textStyle = TextStyle(color = colorResource(id = R.color.mmcm_black)),
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("MMCM Email") },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email
-                    ),
-                    singleLine = true,
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(WhiteColor, RoundedCornerShape(8.dp))
-                        .border(1.dp, WhiteColor, RoundedCornerShape(8.dp))
-                        .padding(2.dp)
-                )
-            }
+            )
+            var passwordVisible by remember { mutableStateOf(false) }
             // Password
-            var password by remember { mutableStateOf("") }
-
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = {
+                    if (passwordError != null) {
+                        Text(passwordError!!, color = colorResource(id = R.color.mmcm_red))
+                    } else {
+                        Text("Password")
+                    }
+                },
+                isError = passwordError != null,
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(WhiteColor, RoundedCornerShape(8.dp))
-                    .border(1.dp, WhiteColor, RoundedCornerShape(8.dp))
-                    .padding(2.dp)
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                textStyle = TextStyle(color = colorResource(id = R.color.mmcm_black)),
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            painter = painterResource(
+                                id = if (passwordVisible) R.drawable.ic_eye_open else R.drawable.ic_eye_closed
+                            ),
+                            contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
             )
-
+            var confirmPasswordVisible by remember { mutableStateOf(false) }
             // Confirm password
-            var confirmPassword by remember { mutableStateOf("") }
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password") },
+                label = {
+                    if (confirmPasswordError != null) {
+                        Text(confirmPasswordError!!, color = colorResource(id = R.color.mmcm_red))
+                    } else {
+                        Text("Confirm Password")
+                    }
+                },
+                isError = confirmPasswordError != null,
+                textStyle = TextStyle(color = colorResource(id = R.color.mmcm_black)),
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(WhiteColor, RoundedCornerShape(8.dp))
-                    .border(1.dp, WhiteColor, RoundedCornerShape(8.dp))
-                    .padding(2.dp)
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        Icon(
+                            painter = painterResource(
+                                id = if (confirmPasswordVisible) R.drawable.ic_eye_open else R.drawable.ic_eye_closed
+                            ),
+                            contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
             )
-            // Admin or Student hehe
+            // Admin or Student
             var selectedRole by remember { mutableStateOf("Student") }
-            ProgramDropdown(selectedRole) {selectedProgram = it}
+            ProgramDropdown(selectedRole) { selectedProgram = it }
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -162,9 +191,7 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
             ) {
                 Text("Register as:", style = MaterialTheme.typography.bodyMedium)
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
                         selected = selectedRole == "Admin",
                         onClick = { selectedRole = "Admin" }
@@ -172,9 +199,7 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                     Text("Admin", modifier = Modifier.clickable { selectedRole = "Admin" })
                 }
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
                         selected = selectedRole == "Student",
                         onClick = { selectedRole = "Student" }
@@ -182,7 +207,9 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                     Text("Student", modifier = Modifier.clickable { selectedRole = "Student" })
                 }
             }
-            if(errorMessage != null){
+
+            // General Error Message
+            if (errorMessage != null) {
                 Text(
                     text = errorMessage!!,
                     color = colorResource(id = R.color.mmcm_red),
@@ -190,19 +217,26 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                 )
             }
 
-            // Register
+            // Register Button
             Button(
                 onClick = {
-                    if(password != confirmPassword){
-                        authViewModel.setErrorMessage("Passwords do not match!")
-                        return@Button
+                    // Reset Errors
+                    emailError = null
+                    passwordError = null
+                    confirmPasswordError = null
+
+                    // Validation
+                    if (email.isBlank()) emailError = "Email is required"
+                    if (password.length < 6) passwordError = "Password must be at least 6 characters"
+                    if (confirmPassword != password) confirmPasswordError = "Passwords do not match"
+
+                    // Register if no errors
+                    if (emailError == null && passwordError == null && confirmPasswordError == null) {
+                        authViewModel.registerUser(email, password, selectedRole, selectedProgram, navController)
                     }
-                    authViewModel.registerUser(email, password, selectedRole, selectedProgram, navController)
                 },
                 enabled = !isLoading,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.mmcm_blue)
-                ),
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mmcm_blue)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
@@ -213,14 +247,11 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                     fontSize = 16.sp
                 )
             }
+
             // Back to Login
             Button(
-                onClick = {
-                    navController?.popBackStack()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.mmcm_silver)
-                ),
+                onClick = { navController.popBackStack() },
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mmcm_silver)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
@@ -235,10 +266,13 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
     }
 }
 
-
 @Composable
 fun ProgramDropdown(selectedRole: String, onProgramSelected: (String) -> Unit) {
-    val programList = listOf("BS Computer Engineering", "BS Electronics and Communications Engineering", "BS Electrical Engineering")
+    val programList = listOf(
+        "BS Computer Engineering",
+        "BS Electronics and Communications Engineering",
+        "BS Electrical Engineering"
+    )
     var selectedProgramList by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
 
@@ -250,7 +284,7 @@ fun ProgramDropdown(selectedRole: String, onProgramSelected: (String) -> Unit) {
             enabled = selectedRole == "Student",
             label = { Text("Program") },
             trailingIcon = {
-                if(selectedRole == "Student") {
+                if (selectedRole == "Student") {
                     IconButton(onClick = { expanded = !expanded }) {
                         Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
                     }
@@ -266,12 +300,13 @@ fun ProgramDropdown(selectedRole: String, onProgramSelected: (String) -> Unit) {
         ) {
             programList.forEach { program ->
                 DropdownMenuItem(
-                    text = {Text(text = program )},
+                    text = { Text(text = program) },
                     onClick = {
                         selectedProgramList = program
                         expanded = false
                         onProgramSelected(program)
-                    })
+                    }
+                )
             }
         }
     }
