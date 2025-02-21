@@ -197,7 +197,6 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                         authViewModel.setErrorMessage("Passwords do not match!")
                         return@Button
                     }
-
                     authViewModel.registerUser(email, password, selectedRole, selectedProgram, navController)
                 },
                 enabled = !isLoading,

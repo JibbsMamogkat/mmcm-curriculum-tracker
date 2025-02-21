@@ -9,8 +9,11 @@ import androidx.compose.runtime.*
 import androidx.navigation.NavController
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
-import com.google.firebase.functions.FirebaseFunctions
-import com.google.firebase.functions.HttpsCallableResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -22,6 +25,8 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.Date
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 class AuthViewModel: ViewModel() {
@@ -129,7 +134,6 @@ class AuthViewModel: ViewModel() {
         _isLoading.value = true
         _errorMessage.value = null
 
-        // Check if email already exists
         db.collection("users")
             .whereEqualTo("email", email)
             .get()
@@ -138,10 +142,33 @@ class AuthViewModel: ViewModel() {
                     _errorMessage.value = "Email already registered."
                     _isLoading.value = false
                 } else {
-                    // Email does not exist, send OTP and navigate to OTP verification screen
-                    sendOtp(email) // Calls function to send OTP
-                    navController.navigate("verify_otp/$email/$password/$role/$program") // Pass data to OTP screen
-                    _isLoading.value = false
+                    navController.navigate("loadingOTP")
+                    // ✅ Timeout logic added here
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val result = withTimeoutOrNull(120_000) {  // Timeout after 2 minutes
+                            suspendCoroutine { continuation ->
+                                sendOtp(email) { success ->
+                                    continuation.resume(success)
+                                }
+                            }
+                        }
+                        withContext(Dispatchers.Main) {
+                            _isLoading.value = false
+                            if (result == true) {
+                                navController.navigate("verify_otp/$email/$password/$role/$program") {
+                                    popUpTo(0) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                _errorMessage.value = if (result == null) {
+                                    "Request timed out. Please try again. If the issue persists, contact Jameel or Duff."
+                                } else {
+                                    "Failed to send OTP. Please try again. If the issue persists, contact Jameel or Duff. Note: OTP requests may take longer during periods of high demand."
+                                }
+                                navController.navigate("error")
+                            }
+                        }
+                    }
                 }
             }
             .addOnFailureListener { e ->
@@ -149,8 +176,7 @@ class AuthViewModel: ViewModel() {
                 _isLoading.value = false
             }
     }
-
-    fun sendOtp(email: String) {
+    fun sendOtp(email: String, onResult: (Boolean) -> Unit) {
         _isLoading.value = true
         _errorMessage.value = null
 
@@ -191,15 +217,18 @@ class AuthViewModel: ViewModel() {
                         Log.e("AuthViewModel", "Failed to send OTP email: ${e.message}", e)
                         _errorMessage.value = "Failed to send OTP email: ${e.message}"
                         _isLoading.value = false
+                        onResult(false)
                     }
 
                     override fun onResponse(call: Call, response: Response) {
                         if (response.isSuccessful) {
                             val bodyString = response.body?.string()
                             Log.d("AuthViewModel", "OTP email sent successfully: $bodyString")
+                            onResult(true)
                         } else {
                             Log.e("AuthViewModel", "Failed to send OTP email: HTTP ${response.code}")
                             _errorMessage.value = "Failed to send OTP email: HTTP ${response.code}"
+                            onResult(false)
                         }
                         _isLoading.value = false
                     }

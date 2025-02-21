@@ -13,7 +13,9 @@ import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.StudentMasterListScre
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.ManageCurriculumsPage
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminCurriculumOverviewScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminNextAvailableCoursesScreen
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.ErrorScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.ForgotPassword
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.LoadingScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.LoginScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.RegisterUI
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.VerifyOtpScreen
@@ -85,6 +87,15 @@ fun AppNavHost(navController: NavHostController, adminViewModel: AdminViewModel,
             val program = backStackEntry.arguments?.getString("program") ?: ""
             VerifyOtpScreen(email, password, role, program, navController, authViewModel)
         }
+        // duff for OTP loading:
+        composable("loadingOTP") { LoadingScreen() }
+        composable("error") { ErrorScreen(message = "Failed to send OTP. Please try again. If the issue persists, contact Jameel or Duff. Note: OTP requests may take longer during periods of high demand.") {
+            navController.navigate("login") {
+                popUpTo(0) { inclusive = true } // Removes 'error' from back stack
+                launchSingleTop = true
+            }
+        }}
+        // ------------------------------------------------
     }
 }
 
