@@ -28,6 +28,9 @@ class CurriculumViewModel : ViewModel() {
     private val _selectedCurriculum = MutableLiveData<String>()
     val selectedCurriculum: LiveData<String> = _selectedCurriculum
 
+    private val _studentEmail = MutableLiveData<String>()
+    val studentEmail: LiveData<String> get() = _studentEmail
+
     fun setEnrolledTerm(term: Int) {
         _enrolledTerm.postValue(term)
     }
@@ -71,6 +74,18 @@ class CurriculumViewModel : ViewModel() {
         }.addOnFailureListener { e ->
             Log.e("CurriculumViewModel", "Error fetching student document", e)
         }
+
+        repository.getStudentEmail(
+            studentId,
+            onSuccess = { email ->
+                _studentEmail.value = email
+                Log.d("CurriculumViewModel", "Fetched student email: $email")
+            },
+            onFailure = { exception ->
+                _studentEmail.value = "Error Fetching Email"
+                Log.e("CurriculumViewModel", "Failed to fetch student email", exception)
+            }
+        )
     }
 
     fun fetchCurriculum(curriculumId: String) {
@@ -165,9 +180,8 @@ class CurriculumViewModel : ViewModel() {
         Log.d("CurriculumViewModel", "Updated completedCourses for student: $studentId")
     }
 
-    // Functions for Next Available Courses
-    fun getAvailableCourses(): List<Pair<CourseNode, String>> {
-        Log.d("CurriculumViewModel", "Starting getAvailableCourses()")
+    fun getAvailableCourses(selectedTerm: Int): List<Pair<CourseNode, String>> {
+        Log.d("CurriculumViewModel", "Starting getAvailableCourses() for Term $selectedTerm")
 
         val graph = _courseGraph.value
         if (graph == null) {
@@ -180,16 +194,17 @@ class CurriculumViewModel : ViewModel() {
         val completed = _completedCourses.value ?: emptySet()
         Log.d("CurriculumViewModel", "Student's Completed Courses: $completed")
 
-        val enrolledTerm = _enrolledTerm.value ?: 1 // Default to Term 1 if not set
-        Log.d("CurriculumViewModel", "Student's Enrolled Term: $enrolledTerm")
+        Log.d("CurriculumViewModel", "Fetching next available courses for Term $selectedTerm...")
+        val availableCourses = graph.getNextAvailableCourses(selectedTerm, completed)
 
-        Log.d("CurriculumViewModel", "Fetching next available courses...")
-        val availableCourses = graph.getNextAvailableCourses(enrolledTerm, completed)
-
-        Log.d("CurriculumViewModel", "Available Courses Retrieved: ${availableCourses.map { it.first.code }}")
+        Log.d(
+            "CurriculumViewModel",
+            "Available Courses for Term $selectedTerm: ${availableCourses.map { it.first.code }}"
+        )
 
         return availableCourses
     }
+
 
     // functions to upload BS CPE 2022-2023 CURRICULUM
     fun uploadFirstYearTerm1() {

@@ -13,30 +13,27 @@ class CourseGraph(
 
     init {
         Log.d("CourseGraph", "Initializing CourseGraph with grouped courses and electives.")
-
+        Log.d("CourseGraph", "Populating graph with courses...")
         // ✅ Populate Graph with Courses
         groupedCourses.values.forEach { termMap ->
             termMap.values.flatten().forEach {
-                Log.d("CourseGraph", "Adding course: ${it.code}")
                 addCourse(it)
             }
         }
+        Log.d("CourseGraph", "Total courses added to graph: ${courses.size}")
+        Log.d("CourseGraph", "Populating graph with electives...")
         electives.forEach {
-            Log.d("CourseGraph", "Adding elective: ${it.code}")
             addCourse(it)
         } // ✅ Include electives
+        Log.d("CourseGraph", "Total electives added to graph: ${electives.size}")
     }
 
     fun addCourse(course: CourseNode) {
-        Log.d("CourseGraph", "Adding course to graph: ${course.code}")
-
         courses[course.code] = course
         adjacencyList.putIfAbsent(course.code, mutableListOf())
         inDegree[course.code] = 0 // Initialize in-degree for each course
 
         for (prerequisite in course.prerequisites) {
-            Log.d("CourseGraph", "Processing prerequisite for ${course.code}: $prerequisite")
-
             if (prerequisite in courses) {
                 adjacencyList.putIfAbsent(prerequisite, mutableListOf())
                 adjacencyList[prerequisite]?.add(course.code)
@@ -59,19 +56,19 @@ class CourseGraph(
 
         val availableCourses = mutableListOf<Pair<CourseNode, String>>() // Stores available courses with color codes
 
+        Log.d("CourseGraph", "Initializing queue with courses that have all prerequisites completed...")
+
         // Step 1: Initialize queue with courses that have **all prerequisites completed**
         val queue = ArrayDeque<String>()
         for ((courseCode, course) in courses) {
             val prerequisitesMet = course.prerequisites.all { completedCourses.contains(it) }
 
             if (prerequisitesMet && courseCode !in completedCourses) {
-                Log.d("CourseGraph", "Adding to queue: $courseCode (All prerequisites met)")
                 queue.add(courseCode)
-            } else {
-                Log.d("CourseGraph", "Skipping $courseCode, unmet prerequisites: ${course.prerequisites.filter { it !in completedCourses }}")
             }
         }
-
+        Log.d("CourseGraph", "Total courses added to queue: ${queue.size}")
+        Log.d("CourseGraph", "Processing courses using Kahn’s Algorithm...")
         // Step 2: Process courses using Kahn’s Algorithm
         while (queue.isNotEmpty()) {
             val courseCode = queue.removeFirst()
@@ -83,7 +80,6 @@ class CourseGraph(
                 else -> "orange" // ✅ Eligible but not regularly offered this term
             }
 
-            Log.d("CourseGraph", "Course added to available list: ${course.code} with color $colorCode")
             availableCourses.add(Pair(course, colorCode))
 
             // Step 4: Reduce in-degree for dependent courses **ONLY if prerequisites are met**
@@ -95,24 +91,24 @@ class CourseGraph(
                     val allPrerequisitesMet = dependentCourse.prerequisites.all { completedCourses.contains(it) }
 
                     if (inDegree[dependent] == 0 && allPrerequisitesMet && dependent !in completedCourses) {
-                        Log.d("CourseGraph", "Adding dependent course to queue: $dependent")
                         queue.add(dependent)
-                    } else {
-                        Log.d("CourseGraph", "Skipping dependent course $dependent, unmet prerequisites: ${dependentCourse.prerequisites.filter { it !in completedCourses }}")
                     }
                 }
             }
         }
+        Log.d("CourseGraph", "Total available non-elective courses found: ${availableCourses.size}")
+        Log.d("CourseGraph", "Processing electives...")
 
         // Step 5: Ensure electives are always available if not completed
         electives.forEach { elective ->
             if (elective.code !in completedCourses) {
-                Log.d("CourseGraph", "Adding elective to available courses: ${elective.code}")
                 availableCourses.add(Pair(elective, "blue")) // ✅ Special case for electives
             }
         }
+        Log.d("CourseGraph", "Total electives processed: ${electives.size}")
 
         Log.d("CourseGraph", "Total available courses found: ${availableCourses.size}")
+
         return availableCourses
     }
 

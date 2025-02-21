@@ -72,7 +72,7 @@ fun AdminCurriculumOverviewScreen(
                         IconButton(onClick = {
                             coroutineScope.launch { drawerState.open() }
                         }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = colorResource(id = R.color.mmcm_white))
                         }
                     })
             }
@@ -90,7 +90,8 @@ fun AdminCurriculumOverviewScreen(
 
                     LazyColumn(modifier = Modifier.padding(16.dp)) {
                         // 🔹 Iterate over Years
-                        groupedCourses.forEach { (year, terms) ->
+                        groupedCourses.toSortedMap(compareBy { it }) // 🔥 Ensure years are sorted numerically
+                            .forEach { (year, terms) ->
                             item {
                                 Text(
                                     text = "Year $year",

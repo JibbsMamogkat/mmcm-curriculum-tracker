@@ -52,7 +52,7 @@ fun StudentMasterListScreen(viewModel: AdminViewModel, navController: NavControl
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = "Admin Dashboard", ) },
+                    title = { Text(text = "Admin Dashboard - Student List", ) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = colorResource(id = R.color.mmcm_blue),
                         titleContentColor = colorResource(id = R.color.mmcm_white)
@@ -63,7 +63,7 @@ fun StudentMasterListScreen(viewModel: AdminViewModel, navController: NavControl
                                 drawerState.open()
                             }
                         }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = colorResource(id = R.color.mmcm_white))
                         }
                     }
                 )
@@ -72,8 +72,6 @@ fun StudentMasterListScreen(viewModel: AdminViewModel, navController: NavControl
             Column(
                 modifier = Modifier.fillMaxSize().padding(paddingValues)
             ) {
-                Text("Admin Dashboard - Student List", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-
                 if (students.isEmpty()) {
                     Text("No students found", modifier = Modifier.padding(top = 16.dp))
                     Log.d("StudentMasterListScreen", "No students found")
@@ -96,6 +94,10 @@ fun StudentCard(student: Student, curriculums: List<Curriculum>, viewModel: Admi
     var selectedCurriculum by remember { mutableStateOf(student.curriculum ?: "") }
     var curriculumName by remember { mutableStateOf(curriculumMap[selectedCurriculum] ?: "Not Assigned") }
     var expanded by remember { mutableStateOf(false) }
+
+    Log.d("StudentCard", " Tracking whether the curriculum details have been viewed")
+    // ✅ Get state from ViewModel (Ensures it's remembered across recompositions)
+    val hasViewedCurriculum = viewModel.hasViewedCurriculum(student.studentID)
 
     Log.d("StudentCard", "Displaying student: ${student.name} with curriculum: ${student.curriculum}")
 
@@ -141,11 +143,18 @@ fun StudentCard(student: Student, curriculums: List<Curriculum>, viewModel: Admi
 
             // Navigation Buttons
 
-            Button(onClick = { navController.navigate("admin_curriculum_overview/${student.studentID}") }) {
+            Button(onClick = {
+                navController.navigate("admin_curriculum_overview/${student.studentID}")
+                viewModel.markCurriculumViewed(student.studentID) // ✅ Store that curriculum was viewed
+                Log.d("StudentCard", "Enabling Next Available Courses button for student: ${student.studentID}")
+            }) {
                 Text("View Curriculum Details")
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { navController.navigate("admin_next_available_courses_screen/${student.studentID}") }) {
+            Button(
+                onClick = { navController.navigate("admin_next_available_courses_screen/${student.studentID}") },
+                enabled = hasViewedCurriculum // ✅ Disable if curriculum details have not been viewed
+            ) {
                 Text("Next Available Courses")
             }
 

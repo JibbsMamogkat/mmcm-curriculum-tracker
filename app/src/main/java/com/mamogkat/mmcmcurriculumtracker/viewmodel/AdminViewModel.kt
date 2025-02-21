@@ -1,6 +1,7 @@
 package com.mamogkat.mmcmcurriculumtracker.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,6 +18,9 @@ class AdminViewModel : ViewModel() {
 
     private val _curriculumList = MutableLiveData<List<Curriculum>>()
     val curriculumList: LiveData<List<Curriculum>> = _curriculumList
+
+    private val _curriculumViewedMap = mutableStateMapOf<String, Boolean>() // Tracks if a student's curriculum was viewed
+    val curriculumViewedMap: Map<String, Boolean> get() = _curriculumViewedMap
 
     fun fetchStudents() {
         repository.getAllStudents { students ->
@@ -53,6 +57,14 @@ class AdminViewModel : ViewModel() {
     fun removeStudent(studentId: String) {
         repository.removeStudent(studentId)
         fetchStudents()  // Refresh the student list
+    }
+
+    fun markCurriculumViewed(studentId: String) {
+        _curriculumViewedMap[studentId] = true
+    }
+
+    fun hasViewedCurriculum(studentId: String): Boolean {
+        return _curriculumViewedMap[studentId] ?: false
     }
 
     fun logoutAdmin() {

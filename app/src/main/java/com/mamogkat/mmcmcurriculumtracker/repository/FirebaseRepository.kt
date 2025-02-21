@@ -190,8 +190,6 @@ class FirebaseRepository {
             }
     }
 
-
-
     fun removeStudent(studentId: String) {
         db.collection("students").document(studentId).delete()
             .addOnSuccessListener {
@@ -214,7 +212,22 @@ class FirebaseRepository {
             .document(curriculumId)
     }
 
-
+    fun getStudentEmail(studentId: String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("students")
+            .document(studentId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val email = document.getString("email") ?: "No Email Found"
+                    onSuccess(email) // Return email if found
+                } else {
+                    onSuccess("No Email Found") // Default value
+                }
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception) // Handle failure
+            }
+    }
 }
 
 

@@ -60,7 +60,7 @@ fun AdminHomePage(navController: NavController, viewModel: AdminViewModel) {
                                 drawerState.open()
                             }
                         }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = colorResource(id = R.color.mmcm_white))
                         }
                     }
                 )

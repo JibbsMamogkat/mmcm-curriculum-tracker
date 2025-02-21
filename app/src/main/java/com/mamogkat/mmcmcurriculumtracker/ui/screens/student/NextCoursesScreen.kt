@@ -76,7 +76,7 @@ fun NextCoursesContent(
     currentTerm: Int,
     completedCourses: Set<String>
 ) {
-    val availableCourses by remember{ mutableStateOf(viewModel.getAvailableCourses())}
+    val availableCourses by remember{ mutableStateOf(viewModel.getAvailableCourses(1))}
 
     Column(
         modifier = Modifier

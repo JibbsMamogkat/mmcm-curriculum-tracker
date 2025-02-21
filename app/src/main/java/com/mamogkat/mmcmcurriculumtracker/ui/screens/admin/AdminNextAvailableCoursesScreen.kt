@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +23,8 @@ import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
 import com.mamogkat.mmcmcurriculumtracker.navigation.Screen
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
+import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,63 +34,99 @@ fun AdminNextAvailableCoursesScreen(
     viewModel: CurriculumViewModel = viewModel()
 ) {
     Log.d("AdminNextAvailableCoursesScreen", "Initializing screen for Student ID: $studentId")
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
 
-    val availableCourses by remember { mutableStateOf(emptyList<Pair<CourseNode, String>>()) }
+    // ✅ Ensure available courses reset when studentId changes
+    var availableCourses by remember(studentId) { mutableStateOf(emptyList<Pair<CourseNode, String>>()) }
     val completedCourses by viewModel.completedCourses.observeAsState(emptySet())
-    val enrolledTerm by viewModel.enrolledTerm.observeAsState(1)
+    var selectedTerm by remember { mutableStateOf(1) } // Default term
+
+    val studentEmail by viewModel.studentEmail.observeAsState("Fetching Email...") // 🔹 Observe student email
 
     Log.d("AdminNextAvailableCoursesScreen", "Fetching available courses for Student ID: $studentId")
 
-    // Fetch data when screen loads
+    // ✅ Fetch student data when studentId changes
     LaunchedEffect(studentId) {
-        Log.d("AdminNextAvailableCoursesScreen", "LaunchedEffect triggered for Student ID: $studentId")
-        viewModel.fetchStudentData(studentId) // Fetch curriculum and completed courses
-        Log.d("AdminNextAvailableCoursesScreen", "Completed fetching student data for Student ID: $studentId")
+        Log.d("AdminNextAvailableCoursesScreen", "Fetching student data for Student ID: $studentId")
+        viewModel.fetchStudentData(studentId)
+        availableCourses = emptyList() // 🔥 Reset to avoid showing old data
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Next Available Courses") },
+    // ✅ Fetch available courses when studentId or selectedTerm changes
+    LaunchedEffect(studentId, selectedTerm) {
+        Log.d("AdminNextAvailableCoursesScreen", "Fetching available courses for term: $selectedTerm")
+        availableCourses = viewModel.getAvailableCourses(selectedTerm)
+        Log.d("AdminNextAvailableCoursesScreen", "Available courses updated: ${availableCourses.size}")
+    }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            AdminNavigationDrawer(navController, drawerState)
+        }
+    ) {
+        Scaffold(
+            topBar = {TopAppBar(
+                title = { Text(text = "Next Available Courses...", ) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorResource(id = R.color.mmcm_blue),
+                    titleContentColor = colorResource(id = R.color.mmcm_white)
+                ),
                 navigationIcon = {
                     IconButton(onClick = {
-                        Log.d("AdminNextAvailableCoursesScreen", "Back button clicked")
-                        navController.popBackStack()
+                        coroutineScope.launch {
+                            drawerState.open()
+                        }
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = colorResource(id = R.color.mmcm_white))
                     }
                 }
             )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Available Courses for Student: $studentId",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Available Courses for Student: $studentEmail",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
 
-            // Fetch and display available courses
-            Log.d("AdminNextAvailableCoursesScreen", "Fetching available courses for term: $enrolledTerm")
-            val courses = viewModel.getAvailableCourses()
-            Log.d("AdminNextAvailableCoursesScreen", "Available courses fetched: ${courses.size}")
+                // 🔹 Term Filter Dropdown
+                Log.d(
+                    "AdminNextAvailableCoursesScreen",
+                    "Rendering term filter dropdown"
+                )
+                TermFilterDropdown(selectedTerm) { newTerm ->
+                    selectedTerm = newTerm
+                }
 
-            if (courses.isEmpty()) {
-                Log.w("AdminNextAvailableCoursesScreen", "No available courses found for student $studentId")
-                Text("No available courses at this time.", color = colorResource(id = R.color.mmcm_red))
-            } else {
-                LazyColumn {
-                    items(courses) { (course, color) ->
-                        Log.d(
-                            "AdminNextAvailableCoursesScreen",
-                            "Displaying course: ${course.name} (Code: ${course.code}), Color: $color"
-                        )
-                        CourseItem(course, color)
+                // 🔹 Display available courses
+                if (availableCourses.isEmpty()) {
+                    Log.w(
+                        "AdminNextAvailableCoursesScreen",
+                        "No available courses found for student $studentId"
+                    )
+                    Text(
+                        "No available courses at this time.",
+                        color = colorResource(id = R.color.mmcm_red)
+                    )
+                } else {
+                    LazyColumn {
+                        items(availableCourses) { (course, color) ->
+                            Log.d(
+                                "AdminNextAvailableCoursesScreen",
+                                "Displaying course: ${course.name} (Code: ${course.code}), Color: $color"
+                            )
+                            CourseItem(
+                                course,
+                                color
+                            )
+                        }
                     }
                 }
             }
@@ -97,7 +136,6 @@ fun AdminNextAvailableCoursesScreen(
 
 @Composable
 fun CourseItem(course: CourseNode, colorCode: String) {
-    Log.d("CourseItem", "Rendering course: ${course.name} (Code: ${course.code}), Color: $colorCode")
 
     Card(
         modifier = Modifier
@@ -119,7 +157,33 @@ fun CourseItem(course: CourseNode, colorCode: String) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = course.name, fontWeight = FontWeight.Bold, color = Color.White)
                 Text(text = "Course Code: ${course.code}", color = Color.White)
+                }
+        }
+    }
+}
+
+@Composable
+fun TermFilterDropdown(selectedTerm: Int, onTermSelected: (Int) -> Unit) {
+    val terms = listOf(1, 2, 3)
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        Button(onClick = { expanded = true }) {
+            Text("Enrolling in Term: $selectedTerm")
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            terms.forEach { term ->
+                DropdownMenuItem(
+                    text = { Text("Term $term") }, // Explicitly pass text here
+                    onClick = {
+                        onTermSelected(term)  // Updates selectedTerm in the parent composable
+                        Log.d("TermFilterDropdown", "User selected term: $term")
+                        expanded = false
+                    }
+                )
+
             }
         }
     }
 }
+
