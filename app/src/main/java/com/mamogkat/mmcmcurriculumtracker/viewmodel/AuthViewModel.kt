@@ -367,7 +367,19 @@ class AuthViewModel: ViewModel() {
                                             }
                                         } else {
                                             _errorMessage.value = "Student record not found. Contact support."
+                                            navController.navigate("login") {
+                                                popUpTo(0) { inclusive = true }
+                                                launchSingleTop = true
+                                            }
                                         }
+                                        _isSplash.value = false
+                                    }
+                                    .addOnFailureListener {
+                                        _errorMessage.value = "No internet connection or Firestore error."
+                                        navController.navigate("login") {
+                                            popUpTo(0) { inclusive = true }
+                                            launchSingleTop = true
+                                        } // ✅ Go to login on Firestore fail
                                         _isSplash.value = false
                                     }
                             }
@@ -382,6 +394,10 @@ class AuthViewModel: ViewModel() {
 
                             else -> {
                                 _errorMessage.value = "Unknown role: $role. Contact support."
+                                navController.navigate("login") {
+                                    popUpTo(0) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                                 _isSplash.value = false
                             }
                         }
@@ -393,6 +409,12 @@ class AuthViewModel: ViewModel() {
                         } // ✅ Navigate to login if not found
                         _isSplash.value = false
                     }
+
+                }
+                .addOnFailureListener {
+                    _errorMessage.value = "No internet connection or Firestore error."
+                    navController.navigate("login") // ✅ Handle no internet
+                    _isSplash.value = false
                 }
         } else {
             navController.navigate("login") {
