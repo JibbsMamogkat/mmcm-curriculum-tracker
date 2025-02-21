@@ -110,13 +110,16 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                 value = email,
                 onValueChange = { email = it },
                 label = {
+                    // add if errorMessage is equal to "Email already registered." display here
                     if (emailError != null) {
                         Text(emailError!!, color = colorResource(id = R.color.mmcm_red))
+                    } else if (errorMessage == "Email already registered.") {
+                        Text(errorMessage!!, color = colorResource(id = R.color.mmcm_red))
                     } else {
                         Text("MMCM Email")
                     }
                 },
-                isError = emailError != null,
+                isError = emailError != null || errorMessage == "Email already registered.",
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 textStyle = TextStyle(color = colorResource(id = R.color.mmcm_black)),
                 singleLine = true,
@@ -181,8 +184,9 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                 modifier = Modifier.fillMaxWidth()
             )
             // Admin or Student
+            var programError by remember { mutableStateOf<String?>(null) }
             var selectedRole by remember { mutableStateOf("Student") }
-            ProgramDropdown(selectedRole) { selectedProgram = it }
+            ProgramDropdown(selectedRole, programError) { selectedProgram = it }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -209,7 +213,7 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
             }
 
             // General Error Message
-            if (errorMessage != null) {
+            if (errorMessage != null && errorMessage != "Email already registered.") {
                 Text(
                     text = errorMessage!!,
                     color = colorResource(id = R.color.mmcm_red),
@@ -224,14 +228,16 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                     emailError = null
                     passwordError = null
                     confirmPasswordError = null
+                    programError = null
 
                     // Validation
                     if (email.isBlank()) emailError = "Email is required"
                     if (password.length < 6) passwordError = "Password must be at least 6 characters"
                     if (confirmPassword != password) confirmPasswordError = "Passwords do not match"
+                    if (selectedRole == "Student" && selectedProgram.isBlank()) programError = "Program is required"
 
                     // Register if no errors
-                    if (emailError == null && passwordError == null && confirmPasswordError == null) {
+                    if (emailError == null && passwordError == null && confirmPasswordError == null && programError == null) {
                         authViewModel.registerUser(email, password, selectedRole, selectedProgram, navController)
                     }
                 },
@@ -247,10 +253,15 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                     fontSize = 16.sp
                 )
             }
-
             // Back to Login
             Button(
-                onClick = { navController.popBackStack() },
+                onClick = {
+                    authViewModel.clearState()
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mmcm_silver)),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -267,7 +278,7 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
 }
 
 @Composable
-fun ProgramDropdown(selectedRole: String, onProgramSelected: (String) -> Unit) {
+fun ProgramDropdown(selectedRole: String, programError: String?, onProgramSelected: (String) -> Unit) {
     val programList = listOf(
         "BS Computer Engineering",
         "BS Electronics and Communications Engineering",
@@ -282,7 +293,13 @@ fun ProgramDropdown(selectedRole: String, onProgramSelected: (String) -> Unit) {
             onValueChange = { },
             readOnly = true,
             enabled = selectedRole == "Student",
-            label = { Text("Program") },
+            label = {
+                if (programError != null) {
+                    Text(programError, color = colorResource(id = R.color.mmcm_red)) // ✅ Display Error
+                } else {
+                    Text("Program")
+                }
+            },
             trailingIcon = {
                 if (selectedRole == "Student") {
                     IconButton(onClick = { expanded = !expanded }) {
