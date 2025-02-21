@@ -28,10 +28,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AdminViewModel
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -158,12 +160,13 @@ fun AdminNavigationDrawer(navController: NavController, drawerState: DrawerState
                     navController.navigate("AdminSettingsPage")
                     coroutineScope.launch { drawerState.close() }
                 }
+                // DUFF ADDED for LOGOUT
+                val authViewModel: AuthViewModel = viewModel()
                 DrawerItem("Logout", Icons.Default.ExitToApp) {
-                    navController.navigate("login")
+                    authViewModel.logoutUser(navController)
                     coroutineScope.launch { drawerState.close() }
                 }
             }
-
             Spacer(Modifier.height(12.dp))
         }
     }

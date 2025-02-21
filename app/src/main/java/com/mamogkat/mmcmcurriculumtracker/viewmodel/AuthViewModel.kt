@@ -71,9 +71,16 @@ class AuthViewModel: ViewModel() {
                                                     val curriculum = studentDoc.getString("curriculum")
 
                                                     if (curriculum.isNullOrEmpty()) {
-                                                        navController.navigate("choose_curriculum")
+                                                        navController.navigate("choose_curriculum"){
+                                                            popUpTo(0) { inclusive = true }
+                                                            launchSingleTop = true
+                                                        }
+
                                                     } else {
-                                                        navController.navigate("student_main")
+                                                        navController.navigate("student_main") {
+                                                            popUpTo(0) { inclusive = true }
+                                                            launchSingleTop = true
+                                                        }
                                                     }
                                                 } else {
                                                     _errorMessage.value = "Student record not found. Contact support."
@@ -87,7 +94,10 @@ class AuthViewModel: ViewModel() {
                                     }
 
                                     "Admin" -> {
-                                        navController.navigate("admin_home_page")
+                                        navController.navigate("admin_home_page") {
+                                            popUpTo(0) { inclusive = true }
+                                            launchSingleTop = true
+                                        }
                                         _isLoading.value = false
                                     }
 
@@ -329,5 +339,75 @@ class AuthViewModel: ViewModel() {
         _isLoading.value = false
         _errorMessage.value = null
         _isSuccess.value = false
+    }
+    private val _isSplash = mutableStateOf(true)  // New variable for the splash state
+    val isSplash: State<Boolean> = _isSplash
+
+
+    fun checkUserLogin(navController: NavController) {
+        val user = auth.currentUser
+        Log.d("AuthViewModel", "User: $user")
+        if (user != null) {
+            val userId = user.uid
+            db.collection("users").document(userId).get()
+                .addOnSuccessListener { userDoc ->
+                    if (userDoc.exists()) {
+                        val role = userDoc.getString("role") ?: "Unknown"
+                        when (role) {
+                            "Student" -> {
+                                db.collection("students").document(userId).get()
+                                    .addOnSuccessListener { studentDoc ->
+                                        if (studentDoc.exists()) {
+                                            val curriculum = studentDoc.getString("curriculum")
+                                            navController.navigate(
+                                                if (curriculum.isNullOrEmpty()) "choose_curriculum" else "student_main"
+                                            ) {
+                                                popUpTo("splash_screen") { inclusive = true }
+                                                launchSingleTop = true
+                                            }
+                                        } else {
+                                            _errorMessage.value = "Student record not found. Contact support."
+                                        }
+                                        _isSplash.value = false
+                                    }
+                            }
+
+                            "Admin" -> {
+                                navController.navigate("admin_home_page") {
+                                    popUpTo("splash_screen") { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                                _isSplash.value = false
+                            }
+
+                            else -> {
+                                _errorMessage.value = "Unknown role: $role. Contact support."
+                                _isSplash.value = false
+                            }
+                        }
+                    } else {
+                        _errorMessage.value = "Account not found. Please register first."
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        } // ✅ Navigate to login if not found
+                        _isSplash.value = false
+                    }
+                }
+        } else {
+            navController.navigate("login") {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            } // ✅ Navigate to login if user is null
+            _isSplash.value = false
+        }
+    }
+
+
+    fun logoutUser(navController: NavController) {
+        auth.signOut() // Firebase sign out
+        navController.navigate("login") {
+            popUpTo(0) { inclusive = true } // Clear back stack so user can't go back
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens.student
 
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.BottomNavigation
@@ -17,6 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,20 +31,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.TimerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: CurriculumViewModel = viewModel()) {
-
-    // duff added - feb 15
-    val selectedCurriculum by curriculumViewModel.selectedCurriculum.observeAsState()
-    LaunchedEffect(selectedCurriculum) {
-        if (!selectedCurriculum.isNullOrEmpty()) {
-            navController.navigate("student_main") {
-                popUpTo("choose_curriculum") { inclusive = true } // Prevent going back
-            }
-        }
+    var showExitDialog by remember { mutableStateOf(false) }
+    val authViewModel: AuthViewModel = viewModel()
+    // Intercept the system back button
+    BackHandler {
+        showExitDialog = true
     }
     // ---------------------------------
     Scaffold(
@@ -85,6 +87,48 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val context = LocalContext.current  // Store context outside
+
+            // Back confirmation dialog
+            if (showExitDialog) {
+                AlertDialog(
+                    onDismissRequest = { showExitDialog = false },
+                    title = { Text("Are you sure you want to exit?") },
+                    text = { Text("If you go back, you will have to login again.") },
+                    confirmButton = {
+                        androidx.compose.material3.IconButton(onClick = {
+                            showExitDialog = false
+                            Toast.makeText(
+                                context,
+                                "You need to login again.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            authViewModel.clearState()
+                            navController.navigate("login") {
+                                popUpTo(0) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }) {
+                            Icon(
+                                Icons.Filled.Check,
+                                contentDescription = "Confirm",
+                                tint = Color.Green
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        androidx.compose.material3.IconButton(onClick = {
+                            showExitDialog = false
+                        }) {
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = "Cancel",
+                                tint = Color.Red
+                            )
+                        }
+                    }
+                )
+            }
             // Dropdown and Next Button
             Column(
                 modifier = Modifier
@@ -112,10 +156,17 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
 
 @Composable
 fun CurriculumDropdown(navController: NavController, viewModel: CurriculumViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
-    val curriculumList = listOf("BS Computer Engineering 2022-2023", "BS Electronics and Communications Engineering 2022-2023", "BS Computer Engineering 2021-2022")
+    val studentProgram by viewModel.studentProgram.observeAsState()
+    val allCurriculums = mapOf(
+        "BS Computer Engineering" to listOf("BS Computer Engineering 2022-2023", "BS Computer Engineering 2021-2022"),
+        "BS Electronics and Communications Engineering" to listOf("BS Electronics and Communications Engineering 2022-2023"),
+        "BS Electrical Engineering" to listOf("BS Electronics and Communications Engineering 2022-2023")
+    )
+    val curriculumList = allCurriculums[studentProgram] ?: emptyList()
     var selectedCurriculum by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     var selectedTerm by remember { mutableStateOf(1) } // Default term is 1
+    var curriculumError by remember { mutableStateOf<String?>(null) } // ✅ For showing error
 
     Text(
         text = "Select a Curriculum",
@@ -131,7 +182,8 @@ fun CurriculumDropdown(navController: NavController, viewModel: CurriculumViewMo
             value = selectedCurriculum,
             onValueChange = { },
             readOnly = true,
-            label = { Text("Curriculum") },
+            label = { Text(if (curriculumError == null) "Curriculum" else curriculumError ?: "") }, // ✅ Show error text in label
+            isError = curriculumError != null, // ✅ Set red border if error
             trailingIcon = {
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
@@ -147,11 +199,13 @@ fun CurriculumDropdown(navController: NavController, viewModel: CurriculumViewMo
         ) {
             curriculumList.forEach { curriculum ->
                 DropdownMenuItem(
-                    text = {Text(text = curriculum )},
+                    text = { Text(text = curriculum) },
                     onClick = {
-                    selectedCurriculum = curriculum
-                    expanded = false
-                })
+                        selectedCurriculum = curriculum
+                        curriculumError = null // ✅ Clear error when selected
+                        expanded = false
+                    }
+                )
             }
         }
     }
@@ -181,29 +235,29 @@ fun CurriculumDropdown(navController: NavController, viewModel: CurriculumViewMo
         }
     }
 
-
     Spacer(modifier = Modifier.height(8.dp))
-
 
     Button(
         onClick = {
             if (selectedCurriculum.isNotEmpty()) {
+                curriculumError = null // ✅ Clear error on success
                 viewModel.updateCurriculumInFirestore(selectedCurriculum, selectedTerm) {
                     navController.navigate("student_main") {
-                        popUpTo("choose_curriculum") { inclusive = true } // Removes ChooseCurriculumScreen from stack
+                        popUpTo("choose_curriculum") { inclusive = true }
                     }
                 }
             } else {
-                // Show error (Snackbar or Toast)
+                curriculumError = "Curriculum must not be empty" // ✅ Show error if empty
             }
         },
         colors = ButtonDefaults.buttonColors(colorResource(id = R.color.mmcm_blue)),
         modifier = Modifier.fillMaxWidth(),
-        enabled = selectedTerm in terms // Ensure term is selected before proceeding
+        enabled = selectedTerm in terms
     ) {
         Text(text = "Next")
     }
 }
+
 
 @Preview
 @Composable

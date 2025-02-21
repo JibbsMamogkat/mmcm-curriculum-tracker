@@ -2,6 +2,8 @@ package com.mamogkat.mmcmcurriculumtracker.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -18,6 +20,7 @@ import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.ForgotPassword
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.LoadingScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.LoginScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.RegisterUI
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.SplashScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.VerifyOtpScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.*
 import com.mamogkat.mmcmcurriculumtracker.ui.studentscreens.StudentMainScreen
@@ -44,16 +47,11 @@ fun AppNavHost(navController: NavHostController, adminViewModel: AdminViewModel,
     // duff added - feb 15
     val authViewModel: AuthViewModel = viewModel()
     LaunchedEffect(Unit) {
-        authViewModel.checkUserCurriculum { hasCurriculum ->
-            if (hasCurriculum) {
-                navController.navigate("student_main") {
-                    popUpTo("choose_curriculum") { inclusive = true } // Prevent going back
-                }
-            }
-        }
+        authViewModel.checkUserLogin(navController)
     }
     // --------------------------------------------------------------
-    NavHost(navController = navController, startDestination = Screen.Login.route) {
+    NavHost(navController = navController, startDestination = "splash") {
+        composable("splash") { SplashScreen() }
         composable(Screen.Login.route) { LoginScreen(navController) }
         composable(Screen.Register.route) { RegisterUI(navController) }
         composable(Screen.ForgotPassword.route) { ForgotPassword(navController) }

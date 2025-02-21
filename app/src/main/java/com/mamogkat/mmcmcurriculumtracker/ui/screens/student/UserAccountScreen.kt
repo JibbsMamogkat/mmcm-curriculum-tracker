@@ -17,9 +17,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mamogkat.mmcmcurriculumtracker.R
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserProfileScreen(username: String, email: String, navController: NavController) {
+fun UserProfileScreen(username: String, email: String, navController: NavController,authViewModel: AuthViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -60,7 +62,7 @@ fun UserProfileScreen(username: String, email: String, navController: NavControl
 
             // Logout Button
             Button(
-                onClick = { navController.navigate("login") },
+                onClick = { authViewModel.logoutUser(navController) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error // Logout color
                 ),
