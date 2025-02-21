@@ -325,4 +325,9 @@ class AuthViewModel: ViewModel() {
                 _isLoading.value = false
             }
     }
+    fun clearState() {
+        _isLoading.value = false
+        _errorMessage.value = null
+        _isSuccess.value = false
+    }
 }

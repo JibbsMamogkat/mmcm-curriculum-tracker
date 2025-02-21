@@ -94,6 +94,7 @@ fun VerifyOtpScreen(email: String, password: String, role: String, program: Stri
                         IconButton(onClick = {
                             showExitDialog = false
                             Toast.makeText(context, "You need to register again.", Toast.LENGTH_SHORT).show()
+                            authViewModel.clearState()
                             navController.navigate("register_ui") {
                                 popUpTo(0) { inclusive = true }
                                 launchSingleTop = true
@@ -207,6 +208,7 @@ fun VerifyOtpScreen(email: String, password: String, role: String, program: Stri
                 color = colorResource(id = R.color.mmcm_blue),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.clickable {
+                    authViewModel.clearState()
                     navController.navigate("login") {
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
