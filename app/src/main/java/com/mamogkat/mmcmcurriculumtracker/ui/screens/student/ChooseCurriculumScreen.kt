@@ -104,10 +104,7 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
                                 Toast.LENGTH_SHORT
                             ).show()
                             authViewModel.clearState()
-                            navController.navigate("login") {
-                                popUpTo(0) { inclusive = true }
-                                launchSingleTop = true
-                            }
+                            authViewModel.logoutUser(navController)
                         }) {
                             Icon(
                                 Icons.Filled.Check,

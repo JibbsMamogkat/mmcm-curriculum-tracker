@@ -27,10 +27,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -54,7 +57,7 @@ import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.ui.theme.WhiteColor
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
     val isLoading by authViewModel.isLoading
@@ -110,13 +113,13 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                 value = email,
                 onValueChange = { email = it },
                 label = {
-                    // add if errorMessage is equal to "Email already registered." display here
+
                     if (emailError != null) {
                         Text(emailError!!, color = colorResource(id = R.color.mmcm_red))
                     } else if (errorMessage == "Email already registered.") {
                         Text(errorMessage!!, color = colorResource(id = R.color.mmcm_red))
                     } else {
-                        Text("MMCM Email")
+                        Text("MMCM Email", color = colorResource(R.color.mmcm_black))
                     }
                 },
                 isError = emailError != null || errorMessage == "Email already registered.",
@@ -134,7 +137,7 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                     if (passwordError != null) {
                         Text(passwordError!!, color = colorResource(id = R.color.mmcm_red))
                     } else {
-                        Text("Password")
+                        Text("Password", color = colorResource(R.color.mmcm_black))
                     }
                 },
                 isError = passwordError != null,
@@ -163,7 +166,7 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                     if (confirmPasswordError != null) {
                         Text(confirmPasswordError!!, color = colorResource(id = R.color.mmcm_red))
                     } else {
-                        Text("Confirm Password")
+                        Text("Confirm Password", color = colorResource(R.color.mmcm_black))
                     }
                 },
                 isError = confirmPasswordError != null,
@@ -193,14 +196,14 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth().padding(4.dp)
             ) {
-                Text("Register as:", style = MaterialTheme.typography.bodyMedium)
+                Text("Register as:", style = MaterialTheme.typography.bodyMedium, color = colorResource(R.color.mmcm_black))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
                         selected = selectedRole == "Admin",
                         onClick = { selectedRole = "Admin" }
                     )
-                    Text("Admin", modifier = Modifier.clickable { selectedRole = "Admin" })
+                    Text("Admin", color = colorResource(R.color.mmcm_black), modifier = Modifier.clickable { selectedRole = "Admin" })
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -208,7 +211,7 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                         selected = selectedRole == "Student",
                         onClick = { selectedRole = "Student" }
                     )
-                    Text("Student", modifier = Modifier.clickable { selectedRole = "Student" })
+                    Text("Student", color = colorResource(R.color.mmcm_black), modifier = Modifier.clickable { selectedRole = "Student" })
                 }
             }
 
@@ -297,7 +300,7 @@ fun ProgramDropdown(selectedRole: String, programError: String?, onProgramSelect
                 if (programError != null) {
                     Text(programError, color = colorResource(id = R.color.mmcm_red)) // ✅ Display Error
                 } else {
-                    Text("Program")
+                    Text("Program", color = colorResource(R.color.mmcm_black))
                 }
             },
             trailingIcon = {
@@ -317,7 +320,7 @@ fun ProgramDropdown(selectedRole: String, programError: String?, onProgramSelect
         ) {
             programList.forEach { program ->
                 DropdownMenuItem(
-                    text = { Text(text = program) },
+                    text = { Text(text = program, color = colorResource(R.color.mmcm_black)) },
                     onClick = {
                         selectedProgramList = program
                         expanded = false

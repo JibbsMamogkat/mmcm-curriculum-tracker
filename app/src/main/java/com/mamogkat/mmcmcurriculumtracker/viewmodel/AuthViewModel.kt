@@ -8,6 +8,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.runtime.*
 import androidx.navigation.NavController
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,81 +48,101 @@ class AuthViewModel: ViewModel() {
         _isLoading.value = true
         _errorMessage.value = null
 
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
+        // Check if the email exists in the "users" collection
+        db.collection("users")
+            .whereEqualTo("email", email)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // Email found, attempt to authenticate
+                    auth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
+                                Log.d("AuthViewModel", "User ID: $userId")
 
-                    Log.d("AuthViewModel", "User ID: $userId")
+                                db.collection("users").document(userId)
+                                    .get()
+                                    .addOnSuccessListener { userDoc ->
+                                        if (userDoc.exists()) {
+                                            val role = userDoc.getString("role") ?: "Unknown"
 
+                                            when (role) {
+                                                "Student" -> {
+                                                    db.collection("students").document(userId)
+                                                        .get()
+                                                        .addOnSuccessListener { studentDoc ->
+                                                            if (studentDoc.exists()) {
+                                                                val curriculum = studentDoc.getString("curriculum")
 
-                    // First, get user role from "users" collection
-                    db.collection("users").document(userId)
-                        .get()
-                        .addOnSuccessListener { userDoc ->
-                            if (userDoc != null && userDoc.exists()) {
-                                val role = userDoc.getString("role") ?: "Unknown"
-
-                                when (role) {
-                                    "Student" -> {
-                                        // Now fetch curriculum info from "students" collection
-                                        db.collection("students").document(userId)
-                                            .get()
-                                            .addOnSuccessListener { studentDoc ->
-                                                if (studentDoc != null && studentDoc.exists()) {
-                                                    val curriculum = studentDoc.getString("curriculum")
-
-                                                    if (curriculum.isNullOrEmpty()) {
-                                                        navController.navigate("choose_curriculum"){
-                                                            popUpTo(0) { inclusive = true }
-                                                            launchSingleTop = true
+                                                                if (curriculum.isNullOrEmpty()) {
+                                                                    navController.navigate("choose_curriculum") {
+                                                                        popUpTo(0) { inclusive = true }
+                                                                        launchSingleTop = true
+                                                                    }
+                                                                } else {
+                                                                    navController.navigate("student_main") {
+                                                                        popUpTo(0) { inclusive = true }
+                                                                        launchSingleTop = true
+                                                                    }
+                                                                }
+                                                            } else {
+                                                                _errorMessage.value = "Student record not found. Contact support."
+                                                            }
+                                                            _isLoading.value = false
                                                         }
-
-                                                    } else {
-                                                        navController.navigate("student_main") {
-                                                            popUpTo(0) { inclusive = true }
-                                                            launchSingleTop = true
+                                                        .addOnFailureListener { e ->
+                                                            _errorMessage.value = "Error retrieving student data: ${e.message}"
+                                                            _isLoading.value = false
                                                         }
-                                                    }
-                                                } else {
-                                                    _errorMessage.value = "Student record not found. Contact support."
                                                 }
-                                                _isLoading.value = false
-                                            }
-                                            .addOnFailureListener { e ->
-                                                _errorMessage.value = "Error retrieving student data: ${e.message}"
-                                                _isLoading.value = false
-                                            }
-                                    }
 
-                                    "Admin" -> {
-                                        navController.navigate("admin_home_page") {
-                                            popUpTo(0) { inclusive = true }
-                                            launchSingleTop = true
+                                                "Admin" -> {
+                                                    navController.navigate("admin_home_page") {
+                                                        popUpTo(0) { inclusive = true }
+                                                        launchSingleTop = true
+                                                    }
+                                                    _isLoading.value = false
+                                                }
+
+                                                else -> {
+                                                    _errorMessage.value = "Unknown role: $role. Contact support."
+                                                    _isLoading.value = false
+                                                }
+                                            }
+                                        } else {
+                                            _errorMessage.value = "Account not found. Please register first."
+                                            _isLoading.value = false
                                         }
+                                    }
+                                    .addOnFailureListener { e ->
+                                        _errorMessage.value = "Error retrieving user data: ${e.message}"
                                         _isLoading.value = false
                                     }
-
-                                    else -> {
-                                        _errorMessage.value = "Unknown role: $role. Contact support."
-                                        _isLoading.value = false
-                                    }
-                                }
                             } else {
-                                _errorMessage.value = "Account not found. Please register first."
+                                // Handle specific FirebaseAuth exceptions
+                                val exception = task.exception
+                                _errorMessage.value = when (exception) {
+                                    is FirebaseAuthInvalidCredentialsException -> "Incorrect password. Please try again."
+                                    is FirebaseAuthInvalidUserException -> "User account not found. Please register."
+                                    else -> "Login failed: ${exception?.message}"
+                                }
                                 _isLoading.value = false
                             }
                         }
-                        .addOnFailureListener { e ->
-                            _errorMessage.value = "Error retrieving user data: ${e.message}"
-                            _isLoading.value = false
-                        }
                 } else {
-                    _errorMessage.value = "Login failed: ${task.exception?.message}"
+                    // Email not found in Firestore
+                    _errorMessage.value = "Email is not registered."
                     _isLoading.value = false
                 }
             }
+            .addOnFailureListener { e ->
+                _errorMessage.value = "Error checking email: ${e.message}"
+                _isLoading.value = false
+            }
     }
+
+
     fun setErrorMessage(s: String) {
         _errorMessage.value = s
     }
