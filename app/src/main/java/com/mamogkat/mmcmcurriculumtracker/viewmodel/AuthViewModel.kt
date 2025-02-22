@@ -384,7 +384,7 @@ class AuthViewModel: ViewModel() {
                                             navController.navigate(
                                                 if (curriculum.isNullOrEmpty()) "choose_curriculum" else "student_main"
                                             ) {
-                                                popUpTo("splash_screen") { inclusive = true }
+                                                popUpTo(0) { inclusive = true }
                                                 launchSingleTop = true
                                             }
                                         } else {
@@ -408,7 +408,7 @@ class AuthViewModel: ViewModel() {
 
                             "Admin" -> {
                                 navController.navigate("admin_home_page") {
-                                    popUpTo("splash_screen") { inclusive = true }
+                                    popUpTo(0) { inclusive = true }
                                     launchSingleTop = true
                                 }
                                 _isSplash.value = false
