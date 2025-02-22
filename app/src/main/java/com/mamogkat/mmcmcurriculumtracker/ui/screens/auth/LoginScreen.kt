@@ -197,14 +197,24 @@ fun LoginScreen(navController: NavController?, authViewModel: AuthViewModel = vi
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.clickable {
-                        navController?.navigate("forgot_password_screen")
+                        authViewModel.clearState()
+                        navController?.navigate("forgot_password_screen") {
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
                 )
 
                 // Sign Up Link
                 Spacer(modifier = Modifier.height(10.dp))
                 Button(
-                    onClick = { navController?.navigate("register_ui") },
+                    onClick = {
+                        authViewModel.clearState()
+                        navController?.navigate("register_ui") {
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                              },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colorResource(id = R.color.mmcm_silver)
                     ),

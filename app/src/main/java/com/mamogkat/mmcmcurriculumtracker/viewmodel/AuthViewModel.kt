@@ -1,5 +1,7 @@
 package com.mamogkat.mmcmcurriculumtracker.viewmodel
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -366,9 +368,13 @@ class AuthViewModel: ViewModel() {
     val isSplash: State<Boolean> = _isSplash
 
 
+    private val _isUserChecked = mutableStateOf(false)
+    val isUserChecked: State<Boolean> get() = _isUserChecked
+
     fun checkUserLogin(navController: NavController) {
+        if (_isUserChecked.value) return  // ✅ Avoid rechecking after rotation
+
         val user = auth.currentUser
-        Log.d("AuthViewModel", "User: $user")
         if (user != null) {
             val userId = user.uid
             db.collection("users").document(userId).get()
@@ -379,29 +385,16 @@ class AuthViewModel: ViewModel() {
                             "Student" -> {
                                 db.collection("students").document(userId).get()
                                     .addOnSuccessListener { studentDoc ->
-                                        if (studentDoc.exists()) {
-                                            val curriculum = studentDoc.getString("curriculum")
-                                            navController.navigate(
-                                                if (curriculum.isNullOrEmpty()) "choose_curriculum" else "student_main"
-                                            ) {
-                                                popUpTo(0) { inclusive = true }
-                                                launchSingleTop = true
-                                            }
+                                        val destination = if (studentDoc.exists() && !studentDoc.getString("curriculum").isNullOrEmpty()) {
+                                            "student_main"
                                         } else {
-                                            _errorMessage.value = "Student record not found. Contact support."
-                                            navController.navigate("login") {
-                                                popUpTo(0) { inclusive = true }
-                                                launchSingleTop = true
-                                            }
+                                            "choose_curriculum"
                                         }
-                                        _isSplash.value = false
-                                    }
-                                    .addOnFailureListener {
-                                        _errorMessage.value = "No internet connection or Firestore error."
-                                        navController.navigate("login") {
+                                        navController.navigate(destination) {
                                             popUpTo(0) { inclusive = true }
                                             launchSingleTop = true
-                                        } // ✅ Go to login on Firestore fail
+                                        }
+                                        _isUserChecked.value = true  // ✅ Set after navigation
                                         _isSplash.value = false
                                     }
                             }
@@ -411,6 +404,7 @@ class AuthViewModel: ViewModel() {
                                     popUpTo(0) { inclusive = true }
                                     launchSingleTop = true
                                 }
+                                _isUserChecked.value = true
                                 _isSplash.value = false
                             }
 
@@ -420,6 +414,7 @@ class AuthViewModel: ViewModel() {
                                     popUpTo(0) { inclusive = true }
                                     launchSingleTop = true
                                 }
+                                _isUserChecked.value = true
                                 _isSplash.value = false
                             }
                         }
@@ -428,21 +423,26 @@ class AuthViewModel: ViewModel() {
                         navController.navigate("login") {
                             popUpTo(0) { inclusive = true }
                             launchSingleTop = true
-                        } // ✅ Navigate to login if not found
+                        }
+                        _isUserChecked.value = true
                         _isSplash.value = false
                     }
-
                 }
                 .addOnFailureListener {
                     _errorMessage.value = "No internet connection or Firestore error."
-                    navController.navigate("login") // ✅ Handle no internet
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                    _isUserChecked.value = true
                     _isSplash.value = false
                 }
         } else {
             navController.navigate("login") {
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true
-            } // ✅ Navigate to login if user is null
+            }
+            _isUserChecked.value = true
             _isSplash.value = false
         }
     }
@@ -453,5 +453,121 @@ class AuthViewModel: ViewModel() {
         navController.navigate("login") {
             popUpTo(0) { inclusive = true } // Clear back stack so user can't go back
         }
+    }
+    // for FORGOT PASSWORD
+    fun forgotPassword(email: String, navController: NavController) {
+        _isLoading.value = true
+        _errorMessage.value = null
+
+        db.collection("users")
+            .whereEqualTo("email", email)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    navController.navigate("loadingOTP")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val result = withTimeoutOrNull(120_000) {
+                            suspendCoroutine { continuation ->
+                                sendOtp(email) { success ->
+                                    continuation.resume(success)
+                                }
+                            }
+                        }
+                        withContext(Dispatchers.Main) {
+                            _isLoading.value = false
+                            if (result == true) {
+                                navController.navigate("verify_forgot_password_otp/$email") {
+                                    popUpTo(0) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                _errorMessage.value = if (result == null) {
+                                    "Request timed out. Please try again."
+                                } else {
+                                    "Failed to send OTP. Please try again."
+                                }
+                                navController.navigate("error")
+                            }
+                        }
+                    }
+                } else {
+                    _errorMessage.value = "Email not found. Please register first."
+                    _isLoading.value = false
+                }
+            }
+            .addOnFailureListener { e ->
+                _errorMessage.value = "Error checking email: ${e.message}"
+                _isLoading.value = false
+            }
+    }
+
+    fun verifyForgotPasswordOtp(email: String, enteredOtp: String, navController: NavController) {
+        _isLoading.value = true
+        _errorMessage.value = null
+
+        db.collection("otps").document(email)
+            .get()
+            .addOnSuccessListener { document ->
+                val storedOtp = document.getString("otp")
+                val expiresAt = document.getTimestamp("expiresAt")
+
+                if (storedOtp == enteredOtp && expiresAt != null && expiresAt.toDate().after(Date())) {
+                    navController.navigate("change_password/$email") {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                } else {
+                    _errorMessage.value = "Invalid or expired OTP."
+                }
+                _isLoading.value = false
+            }
+            .addOnFailureListener { e ->
+                _errorMessage.value = "Error verifying OTP: ${e.message}"
+                _isLoading.value = false
+            }
+    }
+    fun changePassword(email: String, newPassword: String, navController: NavController) {
+        _isLoading.value = true
+        _errorMessage.value = null
+
+        val json = JSONObject().apply {
+            put("email", email)
+            put("newPassword", newPassword)
+        }
+
+        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+        val requestBody = json.toString().toRequestBody(mediaType)
+
+        val request = Request.Builder()
+            .url("https://us-central1-mmcm-curriculum-tracker-app.cloudfunctions.net/updateUserPassword")
+            .post(requestBody)
+            .build()
+
+        val client = OkHttpClient.Builder()
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                _isLoading.value = false
+                _errorMessage.value = "Error updating password: ${e.message}"
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                _isLoading.value = false
+                if (response.isSuccessful) {
+                    Handler(Looper.getMainLooper()).post {
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                } else {
+                    _errorMessage.value = "Error updating password: HTTP ${response.code}"
+                }
+            }
+        })
     }
 }
