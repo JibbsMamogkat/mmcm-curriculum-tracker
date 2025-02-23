@@ -1,5 +1,6 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens.auth
 
+import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -29,6 +30,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mamogkat.mmcmcurriculumtracker.R
+import androidx.compose.foundation.layout.size
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.decode.GifDecoder
+import coil.request.ImageRequest
+
+@Composable
+fun RunningGif(context: Context) {
+    val imageLoader = ImageLoader.Builder(context)
+        .components { add(GifDecoder.Factory()) }
+        .build()
+
+    AsyncImage(
+        model = ImageRequest.Builder(context)
+            .data(R.drawable.running_avatar)
+            .build(),
+        imageLoader = imageLoader,
+        contentDescription = "Running Avatar",
+        modifier = Modifier.size(250.dp)
+    )
+}
 
 @Composable
 fun LoadingScreen() {

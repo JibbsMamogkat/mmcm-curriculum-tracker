@@ -40,62 +40,67 @@ fun UserProfileScreen(navController: NavController, authViewModel: AuthViewModel
     val email = auth.currentUser?.email ?: "No email available"
     val name by authViewModel.studentName.collectAsState()
 
-    Box(
+    Surface(
         modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(id = R.color.mmcm_white))
-            .padding(16.dp)
+            .fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.AccountCircle,
-                contentDescription = "User Icon",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(bottom = 16.dp)
-            )
-
-            // ✅ Improved Name Display with truncation and ellipsis
-            when (name) {
-                null -> CircularProgressIndicator() // 👈 Loading indicator
-                "" -> Spacer(modifier = Modifier.height(24.dp)) // 👈 Empty space if name is empty
-                else -> Text(
-                    text = name ?: "", // Name or empty if null
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    maxLines = 1,                 // 👈 Limit to a single line
-                    overflow = TextOverflow.Ellipsis // 👈 Show "..." if the name is too long
-                )
-            }
-
-            Text(
-                text = email,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.Gray,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
-
-            Button(
-                onClick = { authViewModel.logoutUser(navController) },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                modifier = Modifier
-                    .width(200.dp)
-                    .height(50.dp)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Text(text = "Log Out", color = Color.White, style = MaterialTheme.typography.bodyLarge)
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "User Icon",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(bottom = 16.dp)
+                )
+
+                // ✅ Improved Name Display with Loading & Empty State
+                when (name) {
+                    null -> CircularProgressIndicator() // 👈 Loading indicator
+                    "" -> Spacer(modifier = Modifier.height(24.dp)) // 👈 Empty space if name is empty
+                    else -> Text(
+                        text = name ?: "",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        color = colorResource(R.color.mmcm_black),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Text(
+                    text = email,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = colorResource(R.color.mmcm_silver),
+                    modifier = Modifier.padding(bottom = 32.dp)
+                )
+
+                Button(
+                    onClick = { authViewModel.logoutUser(navController) },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(50.dp)
+                ) {
+                    Text(
+                        text = "Log Out",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
         }
     }
 }
-
 
 
 

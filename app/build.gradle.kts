@@ -60,6 +60,8 @@ dependencies {
     // duff addded
     implementation("com.google.firebase:firebase-functions-ktx:21.1.0")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("io.coil-kt:coil-compose:2.0.0")
+    implementation("io.coil-kt:coil-gif:2.0.0")
     // --------------------------------------------------------------
 
     // Compose BOM (Bill of Materials)
@@ -86,6 +88,9 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
 
     // Test dependencies
     testImplementation(libs.junit)

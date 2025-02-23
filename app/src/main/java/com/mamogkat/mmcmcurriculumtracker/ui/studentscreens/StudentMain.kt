@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -27,6 +28,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -34,6 +36,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,12 +56,16 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminNextAvailableCoursesScreen
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.LoadingScreen
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.RunningGif
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.AboutDevelopersScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.ChooseCurriculumScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.CurriculumOverviewScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.NextCoursesScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.StudentHomeScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.UserProfileScreen
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.WaitingForApprovalScreen
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.StudentViewModel
 import kotlinx.coroutines.delay
 
 
@@ -68,6 +75,14 @@ fun StudentMainScreen(navController: NavController) {
     var backPressedOnce by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val studentId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    val studentViewModel: StudentViewModel = viewModel()
+
+    // Fetch approval status ONCE when Composable loads
+    LaunchedEffect(studentId) {
+        studentViewModel.fetchApprovalStatus(studentId)
+    }
+
+    val approvalStatus by studentViewModel.approvalStatus.collectAsState()
 
     // ✅ Reset backPressedOnce after 2 seconds using LaunchedEffect outside BackHandler
     LaunchedEffect(backPressedOnce) {
@@ -87,86 +102,106 @@ fun StudentMainScreen(navController: NavController) {
             Toast.makeText(context, "Tap again to exit", Toast.LENGTH_SHORT).show()
         }
     }
-    Scaffold (
-        bottomBar = {
-            NavigationBar (
-                containerColor = colorResource(id = R.color.mmcm_blue),
-                contentColor = colorResource(id = R.color.mmcm_white),
-            ) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.CheckCircle, contentDescription = "Curriculum") },
-                    label = { Text("Curriculum") },
-                    selected = selectedScreen.value == "Curriculum",
-                    onClick = { selectedScreen.value = "Curriculum" },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = colorResource(id = R.color.mmcm_blue),
-                        unselectedIconColor = colorResource(id = R.color.white),
-                        selectedTextColor = colorResource(id = R.color.mmcm_red),
-                        unselectedTextColor = colorResource(id = R.color.white)
-                    )
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.List, contentDescription = "Next Courses") },
-                    label = { Text("Next Courses", fontSize = 10.sp) },
-                    selected = selectedScreen.value == "Next Courses",
-                    onClick = { selectedScreen.value = "Next Courses" },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = colorResource(id = R.color.mmcm_blue),
-                        unselectedIconColor = colorResource(id = R.color.white),
-                        selectedTextColor = colorResource(id = R.color.mmcm_red),
-                        unselectedTextColor = colorResource(id = R.color.white)
-                    )
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Home") },
-                    selected = selectedScreen.value == "Home",
-                    onClick = { selectedScreen.value = "Home" },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = colorResource(id = R.color.mmcm_blue),
-                        unselectedIconColor = colorResource(id = R.color.white),
-                        selectedTextColor = colorResource(id = R.color.mmcm_red),
-                        unselectedTextColor = colorResource(id = R.color.white)
-                    )
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.AccountBox, contentDescription = "Account") },
-                    label = { Text("Account", fontSize = 10.sp) },
-                    selected = selectedScreen.value == "Account",
-                    onClick = { selectedScreen.value = "Account" },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = colorResource(id = R.color.mmcm_blue),
-                        unselectedIconColor = colorResource(id = R.color.white),
-                        selectedTextColor = colorResource(id = R.color.mmcm_red),
-                        unselectedTextColor = colorResource(id = R.color.white)
-                    )
-                )
-                NavigationBarItem(
-                    icon = {Icon(Icons.Default.Info, contentDescription = "DevInfo") },
-                    label = { Text("Info", fontSize = 10.sp) },
-                    selected = selectedScreen.value == "Info",
-                    onClick = { selectedScreen.value = "Info"},
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = colorResource(id = R.color.mmcm_blue),
-                        unselectedIconColor = colorResource(id = R.color.white),
-                        selectedTextColor = colorResource(id = R.color.mmcm_red),
-                        unselectedTextColor = colorResource(id = R.color.white)
-                    )
-                )
-            }
-        }
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = colorResource(id = R.color.mmcm_white) // Background for entire app
     ) {
-            paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
-            when (selectedScreen.value) {
-                "Home" -> StudentHomeScreen()
-                "Curriculum" -> CurriculumOverviewScreen()
-                "Next Courses" -> NextCoursesScreen(studentId, viewModel())
-                "Account" -> UserProfileScreen(navController = navController,authViewModel = viewModel())
-                "Info" -> AboutDevelopersScreen()
+        Scaffold (
+            bottomBar = {
+                NavigationBar (
+                    containerColor = colorResource(id = R.color.mmcm_blue),
+                    contentColor = colorResource(id = R.color.mmcm_white),
+                ) {
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.CheckCircle, contentDescription = "Curriculum") },
+                        label = { Text("Curriculum") },
+                        selected = selectedScreen.value == "Curriculum",
+                        onClick = { selectedScreen.value = "Curriculum" },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = colorResource(id = R.color.mmcm_blue),
+                            unselectedIconColor = colorResource(id = R.color.white),
+                            selectedTextColor = colorResource(id = R.color.mmcm_red),
+                            unselectedTextColor = colorResource(id = R.color.white)
+                        )
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.List, contentDescription = "Next Courses") },
+                        label = { Text("Next Courses", fontSize = 10.sp) },
+                        selected = selectedScreen.value == "Next Courses",
+                        onClick = { selectedScreen.value = "Next Courses" },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = colorResource(id = R.color.mmcm_blue),
+                            unselectedIconColor = colorResource(id = R.color.white),
+                            selectedTextColor = colorResource(id = R.color.mmcm_red),
+                            unselectedTextColor = colorResource(id = R.color.white)
+                        )
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                        label = { Text("Home") },
+                        selected = selectedScreen.value == "Home",
+                        onClick = { selectedScreen.value = "Home" },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = colorResource(id = R.color.mmcm_blue),
+                            unselectedIconColor = colorResource(id = R.color.white),
+                            selectedTextColor = colorResource(id = R.color.mmcm_red),
+                            unselectedTextColor = colorResource(id = R.color.white)
+                        )
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.AccountBox, contentDescription = "Account") },
+                        label = { Text("Account", fontSize = 10.sp) },
+                        selected = selectedScreen.value == "Account",
+                        onClick = { selectedScreen.value = "Account" },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = colorResource(id = R.color.mmcm_blue),
+                            unselectedIconColor = colorResource(id = R.color.white),
+                            selectedTextColor = colorResource(id = R.color.mmcm_red),
+                            unselectedTextColor = colorResource(id = R.color.white)
+                        )
+                    )
+                    NavigationBarItem(
+                        icon = {Icon(Icons.Default.Info, contentDescription = "DevInfo") },
+                        label = { Text("Info", fontSize = 10.sp) },
+                        selected = selectedScreen.value == "Info",
+                        onClick = { selectedScreen.value = "Info"},
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = colorResource(id = R.color.mmcm_blue),
+                            unselectedIconColor = colorResource(id = R.color.white),
+                            selectedTextColor = colorResource(id = R.color.mmcm_red),
+                            unselectedTextColor = colorResource(id = R.color.white)
+                        )
+                    )
+                }
+            }
+        ) {
+                paddingValues ->
+            Box(modifier = Modifier.padding(paddingValues)) {
+                when (selectedScreen.value) {
+                    "Home" -> RunningGif(context)
+                    "Curriculum" -> {
+                        when (approvalStatus) {
+                            "pending" -> WaitingForApprovalScreen(context)
+                            "approved" -> CurriculumOverviewScreen()
+                            else -> LoadingScreen() // Or handle errors gracefully
+                        }
+                    }
+
+                    "Next Courses" -> {
+                        when (approvalStatus) {
+                            "pending" -> WaitingForApprovalScreen(context)
+                            "approved" -> NextCoursesScreen(studentId, viewModel())
+                            else -> LoadingScreen()
+                        }
+                    }
+
+                    "Account" -> UserProfileScreen(navController = navController, authViewModel = viewModel())
+                    "Info" -> AboutDevelopersScreen()
+                }
             }
         }
     }
+
 }
 
 @Preview
