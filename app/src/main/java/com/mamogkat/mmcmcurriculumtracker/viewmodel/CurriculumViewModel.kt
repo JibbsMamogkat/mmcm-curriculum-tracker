@@ -1091,7 +1091,6 @@ class CurriculumViewModel : ViewModel() {
         if (userId == null) {
             return
         }
-
         val db = FirebaseFirestore.getInstance()
         db.collection("students").document(userId)
             .update(
@@ -1105,6 +1104,29 @@ class CurriculumViewModel : ViewModel() {
             .addOnFailureListener { e ->
                 Log.e("Firestore", "Failed to update curriculum: ${e.message}")
             }
+    }
+    // duff added feb 22
+    private val _studentProgram = MutableLiveData<String>()
+    val studentProgram: LiveData<String> get() = _studentProgram
+
+    init {
+        getStudentProgramFromFirestore()
+    }
+    private fun getStudentProgramFromFirestore() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("students").document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null && document.exists()) {
+                        _studentProgram.value = document.getString("program") ?: ""
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Firestore", "Failed to fetch student program: ${e.message}")
+                }
+        }
     }
     // ----------------------------------
 

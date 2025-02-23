@@ -1,5 +1,6 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens.auth
 
+
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -25,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -51,17 +53,15 @@ import com.mamogkat.mmcmcurriculumtracker.viewmodel.TimerViewModel
 import java.util.Locale
 
 @Composable
-fun VerifyOtpScreen(email: String, password: String, role: String, program: String, navController: NavController, authViewModel: AuthViewModel) {
+fun VerifyForgotOtpScreen(email: String, navController: NavController, authViewModel: AuthViewModel) {
     var otp by remember { mutableStateOf("") }
-    val isLoading by remember { mutableStateOf(false) }
+    val isLoading by authViewModel.isLoading
     val errorMessage by authViewModel.errorMessage
-
     var showExitDialog by remember { mutableStateOf(false) }
     // Intercept the system back button
     BackHandler {
         showExitDialog = true
     }
-
     val timerViewModel: TimerViewModel = viewModel()
 
     fun formatTime(seconds: Int): String {
@@ -83,19 +83,18 @@ fun VerifyOtpScreen(email: String, password: String, role: String, program: Stri
             verticalArrangement = Arrangement.Center
         ) {
             val context = LocalContext.current  // Store context outside
-
             // Back confirmation dialog
             if (showExitDialog) {
                 AlertDialog(
                     onDismissRequest = { showExitDialog = false },
                     title = { Text("Are you sure you want to exit?") },
-                    text = { Text("If you go back, you will have to register again.") },
+                    text = { Text("If you go back, you will have to login again.") },
                     confirmButton = {
                         IconButton(onClick = {
                             showExitDialog = false
-                            Toast.makeText(context, "You need to register again.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "You need to login again.", Toast.LENGTH_SHORT).show()
                             authViewModel.clearState()
-                            navController.navigate("register_ui") {
+                            navController.navigate("login") {
                                 popUpTo(0) { inclusive = true }
                                 launchSingleTop = true
                             }
@@ -115,28 +114,25 @@ fun VerifyOtpScreen(email: String, password: String, role: String, program: Stri
                 contentDescription = "MMCM Logo",
                 modifier = Modifier.size(150.dp)
             )
+
             Text(
                 text = "MMCM Curriculum Tracker",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = colorResource(id = R.color.mmcm_red)
-                )
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                color = colorResource(id = R.color.mmcm_red)
             )
+
             Spacer(modifier = Modifier.height(24.dp))
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "Enter the verification code sent to:",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = colorResource(id = R.color.mmcm_blue)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = email,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colorResource(id = R.color.mmcm_black)
-                )
-            }
+            Text(
+                text = "Enter the verification code sent to:",
+                style = MaterialTheme.typography.bodyLarge,
+                color = colorResource(id = R.color.mmcm_blue)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(email, style = MaterialTheme.typography.bodyMedium)
+
             Spacer(modifier = Modifier.height(16.dp))
 
             val isError = errorMessage != null
@@ -147,36 +143,24 @@ fun VerifyOtpScreen(email: String, password: String, role: String, program: Stri
                 label = {
                     Text(
                         text = if (isError) errorMessage!! else "OTP",
-                        color = if (isError) colorResource(id = R.color.mmcm_red) else colorResource(id = R.color.mmcm_black)
+                        color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                     )
                 },
-                textStyle = TextStyle(color = colorResource(id = R.color.mmcm_black)),
-                modifier = Modifier.fillMaxWidth(0.7f),
-                isError = isError,  // ✅ Highlights border in red when true
                 singleLine = true,
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedContainerColor = Color.Transparent,
-                    errorContainerColor = Color.Transparent,  // Remove background color when error
-                    errorIndicatorColor = colorResource(id = R.color.mmcm_red), // ✅ Border color on error
-                    focusedIndicatorColor = colorResource(id = R.color.mmcm_black),
-                    unfocusedIndicatorColor = Color.Gray
-                )
+                isError = isError,
+                modifier = Modifier.fillMaxWidth(0.7f)
             )
+
             Spacer(modifier = Modifier.height(4.dp))
 
             Button(
                 onClick = {
-                    authViewModel.verifyOtp(email, otp, password, role, program, navController)
+                    authViewModel.verifyForgotPasswordOtp(email, otp, navController)
                 },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.mmcm_blue),
-                    contentColor = colorResource(id = R.color.mmcm_white)
-                ),
                 enabled = !isLoading,
-                modifier = Modifier.fillMaxWidth(0.5f)
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mmcm_blue))
             ) {
-                Text(text = if (isLoading) "Verifying..." else "Verify")
+                Text(if (isLoading) "Verifying..." else "Verify")
             }
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -201,20 +185,18 @@ fun VerifyOtpScreen(email: String, password: String, role: String, program: Stri
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "Back to Login",
-                color = colorResource(id = R.color.mmcm_blue),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.clickable {
-                    authViewModel.clearState()
-                    navController.navigate("login") {
-                        popUpTo(0) { inclusive = true }
-                        launchSingleTop = true
-                    }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(onClick = {
+                authViewModel.clearState()
+                navController.navigate("login") {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
                 }
-            )
+            }) {
+                Text("Back to Login")
+            }
         }
     }
 }

@@ -44,3 +44,27 @@ exports.sendOtpEmail = onRequest(
     }
   }
 );
+
+
+exports.updateUserPassword = onRequest(
+    { timeoutSeconds: 60, memory: "256MB" }, // <-- Added options here
+    async (req, res) => {
+        const email = req.body.email ? req.body.email.trim() : "";
+        const newPassword = req.body.newPassword ? req.body.newPassword.trim() : "";
+
+        if (!email || !newPassword) {
+            res.status(400).json({ success: false, message: "Missing email or password" });
+            return;
+        }
+
+        try {
+            // Get the user by email
+            const userRecord = await admin.auth().getUserByEmail(email);
+            await admin.auth().updateUser(userRecord.uid, { password: newPassword });
+
+            res.status(200).json({ success: true, message: "Password updated successfully" });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+);

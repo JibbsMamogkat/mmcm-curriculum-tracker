@@ -57,12 +57,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
-    
+    // duff addded
     implementation("com.google.firebase:firebase-functions-ktx:21.1.0")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
-
-
-
+    // --------------------------------------------------------------
 
     // Compose BOM (Bill of Materials)
     implementation(platform(libs.androidx.compose.bom))

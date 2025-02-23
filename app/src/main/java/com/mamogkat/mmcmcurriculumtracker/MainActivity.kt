@@ -15,9 +15,14 @@ import com.google.firebase.FirebaseApp
 import com.mamogkat.mmcmcurriculumtracker.navigation.AppNavHost
 import com.mamogkat.mmcmcurriculumtracker.ui.theme.MMCMCurriculumTrackerTheme
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AdminViewModel
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
+import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
+
 
     class MainActivity : ComponentActivity() {
+        private val authViewModel: AuthViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
@@ -29,7 +34,10 @@ import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    AppNavHost(navController = navController, adminViewModel = AdminViewModel(), curriculumViewModel = CurriculumViewModel())
+                    LaunchedEffect(Unit) {
+                        authViewModel.checkUserLogin(navController)
+                    }
+                    AppNavHost(navController = navController, adminViewModel = AdminViewModel(), curriculumViewModel = CurriculumViewModel(), authViewModel = authViewModel)
 
                     FirebaseApp.initializeApp(this)
                 }
