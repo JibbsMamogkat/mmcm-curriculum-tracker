@@ -1,18 +1,25 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens.auth
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,6 +36,7 @@ fun ForgotPassword(navController: NavController, authViewModel: AuthViewModel) {
     var email by remember { mutableStateOf("") }
     val errorMessage by authViewModel.errorMessage
     val isLoading by authViewModel.isLoading
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -52,6 +61,7 @@ fun ForgotPassword(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {

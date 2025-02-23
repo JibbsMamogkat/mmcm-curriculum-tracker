@@ -1,6 +1,9 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens.auth
 
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +37,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -57,6 +62,8 @@ import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.ui.theme.WhiteColor
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.delay
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
@@ -76,6 +83,28 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
     // Confirm Password
     var confirmPassword by remember { mutableStateOf("") }
     var confirmPasswordError by remember { mutableStateOf<String?>(null) }
+    var backPressedOnce by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    // ✅ Reset backPressedOnce after 2 seconds using LaunchedEffect outside BackHandler
+    LaunchedEffect(backPressedOnce) {
+        if (backPressedOnce) {
+            delay(2000L)
+            backPressedOnce = false
+        }
+    }
+
+    // Back button behavior
+    BackHandler {
+        if (backPressedOnce) {
+            // Exit the app
+            (context as? Activity)?.finish()
+        } else {
+            backPressedOnce = true
+            Toast.makeText(context, "Tap again to exit", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     Box(
         modifier = Modifier

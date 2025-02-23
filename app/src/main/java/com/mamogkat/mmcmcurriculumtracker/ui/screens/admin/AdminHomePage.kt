@@ -1,7 +1,10 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens.admin
 
 
+import android.app.Activity
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.annotation.ColorRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -16,11 +19,17 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -34,6 +43,7 @@ import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AdminViewModel
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,6 +51,28 @@ import kotlinx.coroutines.launch
 fun AdminHomePage(navController: NavController, viewModel: AdminViewModel) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+    var backPressedOnce by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    // ✅ Reset backPressedOnce after 2 seconds using LaunchedEffect outside BackHandler
+    LaunchedEffect(backPressedOnce) {
+        if (backPressedOnce) {
+            delay(2000L)
+            backPressedOnce = false
+        }
+    }
+
+    // Back button behavior
+    BackHandler {
+        if (backPressedOnce) {
+            // Exit the app
+            (context as? Activity)?.finish()
+        } else {
+            backPressedOnce = true
+            Toast.makeText(context, "Tap again to exit", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,

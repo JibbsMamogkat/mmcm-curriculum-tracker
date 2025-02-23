@@ -1,5 +1,7 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens.auth
 
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -20,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,9 +32,15 @@ import com.mamogkat.mmcmcurriculumtracker.R
 
 @Composable
 fun LoadingScreen() {
+    val context = LocalContext.current
+
+    BackHandler {
+        Toast.makeText(context, "Please wait", Toast.LENGTH_SHORT).show()
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .background(Color.White),
         contentAlignment = Alignment.Center
     ) {
@@ -48,6 +57,12 @@ fun LoadingScreen() {
 
 @Composable
 fun ErrorScreen(message: String, onRetry: () -> Unit) {
+    val context = LocalContext.current
+
+    // Disable the system back button and show toast
+    BackHandler {
+        Toast.makeText(context, "Press back to login", Toast.LENGTH_SHORT).show()
+    }
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color(0xFFF5F7FA) // Light background similar to uploaded image
