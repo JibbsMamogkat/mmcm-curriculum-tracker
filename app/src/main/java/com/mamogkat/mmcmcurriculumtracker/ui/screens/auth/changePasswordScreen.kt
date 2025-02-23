@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -16,8 +17,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -32,9 +36,14 @@ fun ChangePasswordScreen(
 ) {
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var newPasswordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
     val isLoading by viewModel.isLoading
     val errorMessage by viewModel.errorMessage
     var showExitDialog by remember { mutableStateOf(false) }
+
+    var newPasswordError by remember { mutableStateOf<String?>(null) }
+    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
     // Intercept the system back button
     BackHandler {
         showExitDialog = true
@@ -94,21 +103,62 @@ fun ChangePasswordScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+        // New Password
         OutlinedTextField(
             value = newPassword,
             onValueChange = { newPassword = it },
-            label = { Text("New Password") },
-            visualTransformation = PasswordVisualTransformation(),
+            label = {
+                if (newPasswordError != null) {
+                    Text(newPasswordError!!, color = colorResource(id = R.color.mmcm_red))
+                } else {
+                    Text("New Password", color = colorResource(id = R.color.mmcm_black))
+                }
+            },
+            isError = newPasswordError != null,
+            singleLine = true,
+            visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            textStyle = TextStyle(color = colorResource(id = R.color.mmcm_black)),
+            trailingIcon = {
+                IconButton(onClick = { newPasswordVisible = !newPasswordVisible }) {
+                    Icon(
+                        painter = painterResource(
+                            id = if (newPasswordVisible) R.drawable.ic_eye_open else R.drawable.ic_eye_closed
+                        ),
+                        contentDescription = if (newPasswordVisible) "Hide password" else "Show password"
+                    )
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
-
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Confirm Password
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            label = { Text("Confirm Password") },
-            visualTransformation = PasswordVisualTransformation(),
+            label = {
+                if (confirmPasswordError != null) {
+                    Text(confirmPasswordError!!, color = colorResource(id = R.color.mmcm_red))
+                } else {
+                    Text("Confirm Password", color = colorResource(id = R.color.mmcm_black))
+                }
+            },
+            isError = confirmPasswordError != null,
+            singleLine = true,
+            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            textStyle = TextStyle(color = colorResource(id = R.color.mmcm_black)),
+            trailingIcon = {
+                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                    Icon(
+                        painter = painterResource(
+                            id = if (confirmPasswordVisible) R.drawable.ic_eye_open else R.drawable.ic_eye_closed
+                        ),
+                        contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password"
+                    )
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -122,21 +172,31 @@ fun ChangePasswordScreen(
             )
         }
 
+        // Change Password Button
         Button(
             onClick = {
-                if (newPassword == confirmPassword) {
+                // Reset errors
+                newPasswordError = null
+                confirmPasswordError = null
+
+                // Validation
+                if (newPassword.length < 6) newPasswordError = "Password must be at least 6 characters"
+                if (confirmPassword != newPassword) confirmPasswordError = "Passwords do not match"
+
+                if (newPasswordError == null && confirmPasswordError == null) {
                     viewModel.changePassword(email, newPassword, navController)
-                } else {
-                    viewModel.setErrorMessage("Passwords do not match.")
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
+            enabled = !isLoading,
+            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mmcm_blue)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
         ) {
             if (isLoading) {
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
             } else {
-                Text("Change Password")
+                Text("Change Password", color = colorResource(id = R.color.mmcm_white), fontSize = 16.sp)
             }
         }
     }
