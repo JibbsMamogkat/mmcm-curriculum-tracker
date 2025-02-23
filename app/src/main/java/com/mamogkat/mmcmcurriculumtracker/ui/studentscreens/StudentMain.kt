@@ -50,7 +50,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.mamogkat.mmcmcurriculumtracker.R
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminNextAvailableCoursesScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.AboutDevelopersScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.ChooseCurriculumScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.CurriculumOverviewScreen
@@ -65,6 +67,7 @@ fun StudentMainScreen(navController: NavController) {
     val selectedScreen = remember { mutableStateOf("Home")}
     var backPressedOnce by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val studentId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     // ✅ Reset backPressedOnce after 2 seconds using LaunchedEffect outside BackHandler
     LaunchedEffect(backPressedOnce) {
@@ -158,8 +161,8 @@ fun StudentMainScreen(navController: NavController) {
             when (selectedScreen.value) {
                 "Home" -> StudentHomeScreen()
                 "Curriculum" -> CurriculumOverviewScreen()
-                "Next Courses" -> NextCoursesScreen()
-                "Account" -> UserProfileScreen(username = String(), email = String(), navController = navController, authViewModel = viewModel())
+                "Next Courses" -> NextCoursesScreen(studentId, viewModel())
+                "Account" -> UserProfileScreen(navController = navController,authViewModel = viewModel())
                 "Info" -> AboutDevelopersScreen()
             }
         }

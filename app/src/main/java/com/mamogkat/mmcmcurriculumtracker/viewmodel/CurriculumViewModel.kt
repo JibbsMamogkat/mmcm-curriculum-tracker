@@ -1088,7 +1088,7 @@ class CurriculumViewModel : ViewModel() {
 
 
     // Duff added feb - 15
-    fun updateCurriculumInFirestore(selectedCurriculum: String, selectedTerm: Int, onSuccess: () -> Unit) {
+    fun updateCurriculumInFirestore(name: String, selectedCurriculum: String, onSuccess: () -> Unit) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId == null) {
             return
@@ -1096,9 +1096,8 @@ class CurriculumViewModel : ViewModel() {
         val db = FirebaseFirestore.getInstance()
         db.collection("students").document(userId)
             .update(
+                "name", name,
                 "curriculum", selectedCurriculum,
-                "termEnrolling", selectedTerm,
-                "approvalStatus", "pending"
             )
             .addOnSuccessListener {
                 onSuccess() // Calls navigation logic after update

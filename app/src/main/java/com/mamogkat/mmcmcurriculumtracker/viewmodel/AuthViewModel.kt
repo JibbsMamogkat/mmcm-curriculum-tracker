@@ -15,6 +15,9 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -360,6 +363,7 @@ class AuthViewModel: ViewModel() {
                 _isLoading.value = false
             }
     }
+
     fun clearState() {
         _isLoading.value = false
         _errorMessage.value = null
@@ -445,6 +449,27 @@ class AuthViewModel: ViewModel() {
             }
             _isUserChecked.value = true
             _isSplash.value = false
+        }
+    }
+    private val _studentName = MutableStateFlow<String?>(null) // 👈 Null means loading state
+    val studentName: StateFlow<String?> = _studentName.asStateFlow()
+
+    init {
+        fetchStudentName()
+    }
+
+    private fun fetchStudentName() {
+        val currentUser = auth.currentUser
+        currentUser?.uid?.let { uid ->
+            db.collection("students").document(uid).get()
+                .addOnSuccessListener { document ->
+                    _studentName.value = document.getString("name") ?: "No name available"
+                }
+                .addOnFailureListener {
+                    _studentName.value = "Failed to fetch name"
+                }
+        } ?: run {
+            _studentName.value = "No user logged in"
         }
     }
 

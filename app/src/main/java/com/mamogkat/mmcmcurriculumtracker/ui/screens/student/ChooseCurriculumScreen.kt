@@ -49,7 +49,7 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
         topBar = {
             TopAppBar(
                 title = { Text("Choose Curriculum") },
-                colors =  TopAppBarDefaults.topAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorResource(id = R.color.mmcm_blue), // mmcm_blue
                     titleContentColor = colorResource(id = R.color.mmcm_white) // mmcm_white
                 )
@@ -61,7 +61,13 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
                 contentColor = colorResource(id = R.color.mmcm_white), // mmcm_silver
             ) {
                 BottomNavigationItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home", tint = colorResource(id = R.color.mmcm_white)) },
+                    icon = {
+                        Icon(
+                            Icons.Default.Home,
+                            contentDescription = "Home",
+                            tint = colorResource(id = R.color.mmcm_white)
+                        )
+                    },
                     label = { Text("Home", color = colorResource(id = R.color.mmcm_white)) },
                     selected = false,
                     selectedContentColor = colorResource(id = R.color.mmcm_red),
@@ -69,7 +75,13 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
                     onClick = { /* Handle Home Navigation */ }
                 )
                 BottomNavigationItem(
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings", tint = colorResource(id = R.color.mmcm_white)) },
+                    icon = {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = colorResource(id = R.color.mmcm_white)
+                        )
+                    },
                     label = { Text("Settings", color = colorResource(id = R.color.mmcm_white)) },
                     selected = false,
                     onClick = { /* Handle Settings Navigation */ }
@@ -77,7 +89,6 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
             }
         }
     ) { innerPadding ->
-        // Main content with padding from Scaffold
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -87,7 +98,10 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val context = LocalContext.current  // Store context outside
+            val context = LocalContext.current
+            var firstName by remember { mutableStateOf("") }
+            var lastName by remember { mutableStateOf("") }
+            var nameError by remember { mutableStateOf<String?>(null) }
 
             // Back confirmation dialog
             if (showExitDialog) {
@@ -96,13 +110,10 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
                     title = { Text("Are you sure you want to exit?") },
                     text = { Text("If you go back, you will have to login again.") },
                     confirmButton = {
-                        androidx.compose.material3.IconButton(onClick = {
+                        IconButton(onClick = {
                             showExitDialog = false
-                            Toast.makeText(
-                                context,
-                                "You need to login again.",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(context, "You need to login again.", Toast.LENGTH_SHORT)
+                                .show()
                             authViewModel.clearState()
                             authViewModel.logoutUser(navController)
                         }) {
@@ -114,9 +125,7 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
                         }
                     },
                     dismissButton = {
-                        androidx.compose.material3.IconButton(onClick = {
-                            showExitDialog = false
-                        }) {
+                        IconButton(onClick = { showExitDialog = false }) {
                             Icon(
                                 Icons.Filled.Close,
                                 contentDescription = "Cancel",
@@ -126,6 +135,7 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
                     }
                 )
             }
+
             // Dropdown and Next Button
             Column(
                 modifier = Modifier
@@ -142,122 +152,124 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
                         .padding(bottom = 24.dp)
                 )
 
+                // First Name
+                OutlinedTextField(
+                    value = firstName,
+                    onValueChange = { firstName = it },
+                    label = { Text("First Name") },
+                    isError = nameError != null && firstName.isBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Last Name
+                OutlinedTextField(
+                    value = lastName,
+                    onValueChange = { lastName = it },
+                    label = { Text("Last Name") },
+                    isError = nameError != null && lastName.isBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 Spacer(modifier = Modifier.height(24.dp))
 
-                CurriculumDropdown(navController)
-            }
-
-        }
-    }
-}
-
-@Composable
-fun CurriculumDropdown(navController: NavController, viewModel: CurriculumViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
-    val studentProgram by viewModel.studentProgram.observeAsState()
-    val allCurriculums = mapOf(
-        "BS Computer Engineering" to listOf("BS Computer Engineering 2022-2023", "BS Computer Engineering 2021-2022"),
-        "BS Electronics and Communications Engineering" to listOf("BS Electronics and Communications Engineering 2022-2023"),
-        "BS Electrical Engineering" to listOf("BS Electronics and Communications Engineering 2022-2023")
-    )
-    val curriculumList = allCurriculums[studentProgram] ?: emptyList()
-    var selectedCurriculum by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
-    var selectedTerm by remember { mutableStateOf(1) } // Default term is 1
-    var curriculumError by remember { mutableStateOf<String?>(null) } // ✅ For showing error
-
-    Text(
-        text = "Select a Curriculum",
-        color = colorResource(id = R.color.mmcm_red),
-        fontSize = 24.sp,
-        fontWeight = FontWeight.Bold,
-        fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-        modifier = Modifier.padding(bottom = 16.dp)
-    )
-
-    Box(modifier = Modifier.fillMaxWidth()) {
-        OutlinedTextField(
-            value = selectedCurriculum,
-            onValueChange = { },
-            readOnly = true,
-            label = { Text(if (curriculumError == null) "Curriculum" else curriculumError ?: "") }, // ✅ Show error text in label
-            isError = curriculumError != null, // ✅ Set red border if error
-            trailingIcon = {
-                IconButton(onClick = { expanded = !expanded }) {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = !expanded }
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            curriculumList.forEach { curriculum ->
-                DropdownMenuItem(
-                    text = { Text(text = curriculum) },
-                    onClick = {
-                        selectedCurriculum = curriculum
-                        curriculumError = null // ✅ Clear error when selected
-                        expanded = false
-                    }
+                // Pass the combined name to CurriculumDropdown
+                CurriculumDropdown(
+                    navController = navController,
+                    combinedName = "$firstName $lastName".trim(),
+                    onNameError = { nameError = it } // Lambda to update the error state
                 )
             }
         }
     }
+}
 
-    Spacer(modifier = Modifier.height(16.dp))
+@Composable
+fun CurriculumDropdown(
+        navController: NavController,
+        combinedName: String,
+        onNameError: (String?) -> Unit,
+        viewModel: CurriculumViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    ) {
+        val studentProgram by viewModel.studentProgram.observeAsState()
+        val allCurriculums = mapOf(
+            "BS Computer Engineering" to listOf(
+                "BS Computer Engineering 2022-2023",
+                "BS Computer Engineering 2021-2022"
+            ),
+            "BS Electronics and Communications Engineering" to listOf("BS Electronics and Communications Engineering 2022-2023"),
+            "BS Electrical Engineering" to listOf("BS Electronics and Communications Engineering 2022-2023")
+        )
+        val curriculumList = allCurriculums[studentProgram] ?: emptyList()
+        var selectedCurriculum by remember { mutableStateOf("") }
+        var expanded by remember { mutableStateOf(false) }
+        var curriculumError by remember { mutableStateOf<String?>(null) }
 
-    Text("Select the Term You Are Enrolling In", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = colorResource(id = R.color.mmcm_red))
+        Text(
+            text = "Select a Curriculum",
+            color = colorResource(id = R.color.mmcm_red),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
 
-    Spacer(modifier = Modifier.height(16.dp))
-
-    // Radio button group for selecting term
-    val terms = listOf(1, 2, 3)
-    terms.forEach { term ->
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { selectedTerm = term }
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            RadioButton(
-                selected = (selectedTerm == term),
-                onClick = { selectedTerm = term }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = selectedCurriculum,
+                onValueChange = {},
+                readOnly = true,
+                label = {
+                    Text(
+                        if (curriculumError == null) "Curriculum" else curriculumError ?: ""
+                    )
+                },
+                isError = curriculumError != null,
+                trailingIcon = {
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Term $term", fontSize = 18.sp)
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                curriculumList.forEach { curriculum ->
+                    DropdownMenuItem(
+                        text = { Text(text = curriculum) },
+                        onClick = {
+                            selectedCurriculum = curriculum
+                            curriculumError = null
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                if (combinedName.isNotBlank() && selectedCurriculum.isNotEmpty()) {
+                    curriculumError = null
+                    onNameError(null) // Clear name error if any
+                    viewModel.updateCurriculumInFirestore(combinedName, selectedCurriculum) {
+                        navController.navigate("student_main") {
+                            popUpTo("choose_curriculum") { inclusive = true }
+                        }
+                    }
+                } else {
+                    if (combinedName.isBlank()) onNameError("Name must not be empty")
+                    if (selectedCurriculum.isEmpty()) curriculumError =
+                        "Curriculum must not be empty"
+                }
+            },
+            colors = ButtonDefaults.buttonColors(colorResource(id = R.color.mmcm_blue)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Next")
         }
     }
-
-    Spacer(modifier = Modifier.height(8.dp))
-
-    Button(
-        onClick = {
-            if (selectedCurriculum.isNotEmpty()) {
-                curriculumError = null // ✅ Clear error on success
-                viewModel.updateCurriculumInFirestore(selectedCurriculum, selectedTerm) {
-                    navController.navigate("student_main") {
-                        popUpTo("choose_curriculum") { inclusive = true }
-                    }
-                }
-            } else {
-                curriculumError = "Curriculum must not be empty" // ✅ Show error if empty
-            }
-        },
-        colors = ButtonDefaults.buttonColors(colorResource(id = R.color.mmcm_blue)),
-        modifier = Modifier.fillMaxWidth(),
-        enabled = selectedTerm in terms
-    ) {
-        Text(text = "Next")
-    }
-}
-
-
-@Preview
-@Composable
-fun ChooseCurriculumScreenPreview() {
-    ChooseCurriculumScreen(rememberNavController())
-}
