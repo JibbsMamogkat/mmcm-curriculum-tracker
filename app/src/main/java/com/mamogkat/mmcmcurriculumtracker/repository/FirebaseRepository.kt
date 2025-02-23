@@ -9,6 +9,7 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
 import com.mamogkat.mmcmcurriculumtracker.models.Curriculum
 import com.mamogkat.mmcmcurriculumtracker.models.Student
+import kotlinx.coroutines.tasks.await
 
 class FirebaseRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -88,6 +89,41 @@ class FirebaseRepository {
             }
         }
     }
+
+    fun updateCoursesWithYearLevelAndTerm(program: String) {
+        val dbRef = db.collection("curriculums").document(program)
+
+        for (year in 1..4) {
+            for (term in 1..3) {
+                val termRef = dbRef.collection(year.toString()).document("term_$term").collection("courses")
+
+                termRef.get().addOnSuccessListener { documents ->
+                    for (doc in documents) {
+                        val courseCode = doc.id
+
+                        // 🔥 Assign yearLevel and term based on current loop iteration
+                        val updates = mapOf(
+                            "yearLevel" to year,
+                            "term" to term
+                        )
+
+                        // Update Firestore with yearLevel and term
+                        termRef.document(courseCode)
+                            .update(updates)
+                            .addOnSuccessListener {
+                                Log.d("FirestoreUpdate", "Updated $courseCode with yearLevel: $year, term: $term")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("FirestoreUpdate", "Failed to update $courseCode: ${e.message}")
+                            }
+                    }
+                }.addOnFailureListener { e ->
+                    Log.e("FirestoreUpdate", "Failed to fetch courses for Year $year, Term $term: ${e.message}")
+                }
+            }
+        }
+    }
+
     fun updateElectivesWithRegularTerms(program: String) {
         val electivesRef = db.collection("curriculums").document(program).collection("electives")
 
@@ -123,6 +159,52 @@ class FirebaseRepository {
             }
         }
     }
+
+    fun updateElectivesWithYearLevelAndTerm(program: String) {
+        val electivesRef = db.collection("curriculums").document(program).collection("electives")
+
+        // 🔥 Corrected elective categories with "P" instead of "F"
+        val electiveCategories = listOf(
+            "AWS171P", "EMSY171P", "GEN_ED", "MACH171P", "MICR172P", "NETA172P", "SDEV173P", "SNAD174P"
+        )
+
+        for (categoryName in electiveCategories) {
+            val coursesRef = electivesRef.document(categoryName).collection("courses")
+
+            coursesRef.get().addOnSuccessListener { electiveDocs ->
+                if (electiveDocs.isEmpty) {
+                    Log.e("FirestoreUpdate", "⚠️ No courses found in category: $categoryName")
+                } else {
+                    Log.d("FirestoreUpdate", "✅ Courses in $categoryName: ${electiveDocs.documents.map { it.id }}")
+                }
+
+                // Determine the correct yearLevel and term
+                val yearLevel = if (categoryName == "GEN_ED") 4 else 3
+                val term = if (categoryName == "GEN_ED") 4 else 3
+
+                // Update each elective course
+                for (doc in electiveDocs.documents) {
+                    val courseCode = doc.id
+                    val updates = mapOf(
+                        "yearLevel" to yearLevel,
+                        "term" to term
+                    )
+
+                    coursesRef.document(courseCode)
+                        .update(updates)
+                        .addOnSuccessListener {
+                            Log.d("FirestoreUpdate", "✅ Updated $courseCode with yearLevel: $yearLevel, term: $term")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FirestoreUpdate", "❌ Failed to update $courseCode: ${e.message}")
+                        }
+                }
+            }.addOnFailureListener { e ->
+                Log.e("FirestoreUpdate", "🔥 Failed to fetch courses in category $categoryName: ${e.message}")
+            }
+        }
+    }
+
 
     fun getAllStudents(callback: (List<Student>) -> Unit) {
         Log.d("Firestore", "Fetching all students from Firestore...")
@@ -227,6 +309,26 @@ class FirebaseRepository {
             .addOnFailureListener { exception ->
                 onFailure(exception) // Handle failure
             }
+    }
+
+    suspend fun getStudentCompletedCourses(studentId: String): Set<String> {
+        return try {
+            val snapshot = db.collection("students")
+                .document(studentId)
+                .get()
+                .await() // Suspend function to fetch data asynchronously
+
+            if (snapshot.exists()) {
+                val completedCourses = snapshot.get("completedCourses") as? List<String> ?: emptyList()
+                Log.d("FirebaseRepository", "Fetched completed courses for $studentId: $completedCourses")
+                completedCourses.toSet() // Convert to Set<String> for consistency
+            } else {
+                emptySet()
+            }
+        } catch (e: Exception) {
+            Log.e("FirebaseRepository", "Error fetching completed courses for $studentId", e)
+            emptySet()
+        }
     }
 }
 

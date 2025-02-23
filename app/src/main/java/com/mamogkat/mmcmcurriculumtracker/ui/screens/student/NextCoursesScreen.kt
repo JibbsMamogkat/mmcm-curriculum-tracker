@@ -76,7 +76,7 @@ fun NextCoursesContent(
     currentTerm: Int,
     completedCourses: Set<String>
 ) {
-    val availableCourses by remember{ mutableStateOf(viewModel.getAvailableCourses(1))}
+//    val availableCourses by remember{ mutableStateOf(viewModel.getAvailableCourses(1))}
 
     Column(
         modifier = Modifier
@@ -87,28 +87,28 @@ fun NextCoursesContent(
             "Available Courses",
             style = MaterialTheme.typography.headlineMedium
         )
-        LazyColumn {
-            items(availableCourses) { (course, color) ->
-                val backgroundColor = when (color) {
-                    "green" -> Color(0xFF4CAF50) // Green
-                    "orange" -> Color(0xFFFFA500) // Orange
-                    "red" -> Color(0xFFD32F2F) // Red
-                    else -> Color.White
-                }
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(8.dp)
-                        .background(backgroundColor)
-                        .padding(8.dp)
-                ) {
-                    Text(
-                        text = "${course.code} - ${course.name} (${course.units} units)",
-                        fontSize = 16.sp,
-                        color = Color.White
-                    )
-                }
-            }
-        }
+//        LazyColumn {
+//            items(availableCourses) { (course, color) ->
+//                val backgroundColor = when (color) {
+//                    "green" -> Color(0xFF4CAF50) // Green
+//                    "orange" -> Color(0xFFFFA500) // Orange
+//                    "red" -> Color(0xFFD32F2F) // Red
+//                    else -> Color.White
+//                }
+//                Box(
+//                    modifier = Modifier.fillMaxWidth()
+//                        .padding(8.dp)
+//                        .background(backgroundColor)
+//                        .padding(8.dp)
+//                ) {
+//                    Text(
+//                        text = "${course.code} - ${course.name} (${course.units} units)",
+//                        fontSize = 16.sp,
+//                        color = Color.White
+//                    )
+//                }
+//            }
+//        }
     }
 }
 

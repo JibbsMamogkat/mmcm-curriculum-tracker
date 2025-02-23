@@ -39,7 +39,8 @@ fun UploadCPE2022Courses(viewModel: CurriculumViewModel = androidx.lifecycle.vie
         "Upload BS CPE 2022 Fourth Year Term 3 Courses" to { viewModel.uploadFourthYearTerm3() },
         "Upload BS CPE 2022 Elective Courses" to { viewModel.uploadElectives() },
         "Update Regular Terms in Firestore" to { viewModel.updateRegularTermsInFirestore() },
-        "Update Regular Terms for Electives" to { viewModel.updateRegularTermsForElectives() }
+        "Update Regular Terms for Electives" to { viewModel.updateRegularTermsForElectives() },
+        "Update Year Level and Term for Courses in Firestore" to { viewModel.updateYearLevelandTermInFirestore() }
     )
 
     LazyColumn(

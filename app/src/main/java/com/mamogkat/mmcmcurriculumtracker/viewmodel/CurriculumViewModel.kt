@@ -1,9 +1,10 @@
 package com.mamogkat.mmcmcurriculumtracker.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.lifecycle.*
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +13,7 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.mamogkat.mmcmcurriculumtracker.models.CourseGraph
 import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
 import com.mamogkat.mmcmcurriculumtracker.repository.FirebaseRepository
+import kotlinx.coroutines.launch
 
 class CurriculumViewModel : ViewModel() {
     private val repository = FirebaseRepository()
@@ -21,6 +23,9 @@ class CurriculumViewModel : ViewModel() {
 
     private val _completedCourses = MutableLiveData<Set<String>>()
     val completedCourses: LiveData<Set<String>> = _completedCourses
+
+    private val _studentCompletedCourses = SnapshotStateMap<String, Set<String>>()
+    val studentCompletedCourses: SnapshotStateMap<String, Set<String>> = _studentCompletedCourses
 
     private val _enrolledTerm = MutableLiveData<Int>()
     val enrolledTerm: LiveData<Int> = _enrolledTerm
@@ -180,8 +185,25 @@ class CurriculumViewModel : ViewModel() {
         Log.d("CurriculumViewModel", "Updated completedCourses for student: $studentId")
     }
 
-    fun getAvailableCourses(selectedTerm: Int): List<Pair<CourseNode, String>> {
-        Log.d("CurriculumViewModel", "Starting getAvailableCourses() for Term $selectedTerm")
+    //Admin Next Courses Available functions
+    fun loadStudentCompletedCourses(studentId: String, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            Log.d("CurriculumViewModel", "Loading completed courses for Student ID: $studentId")
+
+            val completedCourses = repository.getStudentCompletedCourses(studentId) // Fetch Firestore data
+
+            _studentCompletedCourses[studentId] = completedCourses
+
+            Log.d("CurriculumViewModel", "Completed courses for Student $studentId: $completedCourses")
+
+            // 🔹 Now that completed courses are loaded, trigger available courses update
+            onComplete()
+        }
+    }
+
+
+    fun getAvailableCourses(studentId: String, selectedTerm: Int): List<Pair<CourseNode, String>> {
+        Log.d("CurriculumViewModel", "Starting getAvailableCourses() for Student ID: $studentId, Term: $selectedTerm")
 
         val graph = _courseGraph.value
         if (graph == null) {
@@ -191,22 +213,22 @@ class CurriculumViewModel : ViewModel() {
 
         Log.d("CurriculumViewModel", "Course graph successfully retrieved")
 
-        val completed = _completedCourses.value ?: emptySet()
-        Log.d("CurriculumViewModel", "Student's Completed Courses: $completed")
+        // Fetch completed courses specific to the student
+        val completed = _studentCompletedCourses[studentId] ?: emptySet()
+        Log.d("CurriculumViewModel", "Student $studentId's Completed Courses: $completed")
 
         Log.d("CurriculumViewModel", "Fetching next available courses for Term $selectedTerm...")
         val availableCourses = graph.getNextAvailableCourses(selectedTerm, completed)
 
         Log.d(
             "CurriculumViewModel",
-            "Available Courses for Term $selectedTerm: ${availableCourses.map { it.first.code }}"
+            "Available Courses for Student $studentId, Term $selectedTerm: ${availableCourses.map { it.first.code }}"
         )
 
         return availableCourses
     }
 
-
-    // functions to upload BS CPE 2022-2023 CURRICULUM
+   // functions to upload BS CPE 2022-2023 CURRICULUM
     fun uploadFirstYearTerm1() {
         val firstYearTerm1Courses = listOf(
             mapOf(
@@ -1035,6 +1057,10 @@ class CurriculumViewModel : ViewModel() {
     }
     fun updateRegularTermsForElectives() {
         repository.updateElectivesWithRegularTerms("bscpe_2022_2023")
+    }
+    fun updateYearLevelandTermInFirestore() {
+        repository.updateCoursesWithYearLevelAndTerm("bscpe_2022_2023")
+        repository.updateElectivesWithYearLevelAndTerm("bscpe_2022_2023")
     }
 
 

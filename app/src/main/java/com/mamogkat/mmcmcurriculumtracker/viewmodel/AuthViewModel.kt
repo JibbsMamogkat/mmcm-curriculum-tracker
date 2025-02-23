@@ -256,7 +256,7 @@ class AuthViewModel: ViewModel() {
                                     "program" to program,
                                     "curriculum" to "",
                                     "coursesCompleted" to emptyList<String>(),
-                                    "termEnrolling" to "1",
+                                    "termEnrolling" to 1,
                                 )
 
                                 db.collection("students").document(userId)

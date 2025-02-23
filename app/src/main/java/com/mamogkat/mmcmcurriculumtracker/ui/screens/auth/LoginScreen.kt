@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -85,6 +86,7 @@ fun LoginScreen(navController: NavController?, authViewModel: AuthViewModel = vi
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("Email") },
+                    textStyle = TextStyle(color = colorResource(id = R.color.mmcm_black)),
                     colors = TextFieldDefaults.textFieldColors(
                         containerColor = colorResource(id = R.color.mmcm_white),
                         focusedIndicatorColor = colorResource(id = R.color.mmcm_blue),
@@ -101,6 +103,7 @@ fun LoginScreen(navController: NavController?, authViewModel: AuthViewModel = vi
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Password") },
+                    textStyle = TextStyle(color = colorResource(id = R.color.mmcm_black)),
                     visualTransformation = PasswordVisualTransformation(),
                     colors = TextFieldDefaults.textFieldColors(
                         containerColor = colorResource(id = R.color.mmcm_white),

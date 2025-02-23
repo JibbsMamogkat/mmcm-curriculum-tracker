@@ -51,14 +51,21 @@ fun AdminNextAvailableCoursesScreen(
         Log.d("AdminNextAvailableCoursesScreen", "Fetching student data for Student ID: $studentId")
         viewModel.fetchStudentData(studentId)
         availableCourses = emptyList() // 🔥 Reset to avoid showing old data
+
+        // 🔹 Load completed courses first, then update available courses
+        viewModel.loadStudentCompletedCourses(studentId) {
+            availableCourses = viewModel.getAvailableCourses(studentId, selectedTerm)
+            Log.d("AdminNextAvailableCoursesScreen", "Available courses updated: ${availableCourses.size} for student: $studentId")
+        }
     }
 
-    // ✅ Fetch available courses when studentId or selectedTerm changes
-    LaunchedEffect(studentId, selectedTerm) {
-        Log.d("AdminNextAvailableCoursesScreen", "Fetching available courses for term: $selectedTerm")
-        availableCourses = viewModel.getAvailableCourses(selectedTerm)
-        Log.d("AdminNextAvailableCoursesScreen", "Available courses updated: ${availableCourses.size}")
+// ✅ Fetch available courses when only the term changes (studentId remains the same)
+    LaunchedEffect(selectedTerm) {
+        Log.d("AdminNextAvailableCoursesScreen", "Fetching available courses for student: $studentId, term: $selectedTerm")
+        availableCourses = viewModel.getAvailableCourses(studentId, selectedTerm)
+        Log.d("AdminNextAvailableCoursesScreen", "Available courses updated: ${availableCourses.size} for student: $studentId")
     }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {

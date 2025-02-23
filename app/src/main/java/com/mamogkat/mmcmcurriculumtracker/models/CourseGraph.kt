@@ -1,6 +1,8 @@
 package com.mamogkat.mmcmcurriculumtracker.models
 
 import android.util.Log
+import java.util.PriorityQueue
+
 
 class CourseGraph(
     val groupedCourses: Map<Int, Map<Int, List<CourseNode>>>, // ✅ Organized by Year → Term
@@ -56,23 +58,32 @@ class CourseGraph(
 
         val availableCourses = mutableListOf<Pair<CourseNode, String>>() // Stores available courses with color codes
 
+        // ✅ PriorityQueue ensures proper ordering (lowest year first, then lowest term)
+        val queue = PriorityQueue<CourseNode> { a, b ->
+            when {
+                a.yearLevel != b.yearLevel -> a.yearLevel - b.yearLevel  // 🔹 Sort by year level first
+                a.term != b.term -> a.term - b.term                      // 🔹 Then by term
+                else -> a.code.compareTo(b.code)                         // 🔹 Lastly, sort alphabetically
+            }
+        }
+
         Log.d("CourseGraph", "Initializing queue with courses that have all prerequisites completed...")
 
         // Step 1: Initialize queue with courses that have **all prerequisites completed**
-        val queue = ArrayDeque<String>()
         for ((courseCode, course) in courses) {
             val prerequisitesMet = course.prerequisites.all { completedCourses.contains(it) }
 
             if (prerequisitesMet && courseCode !in completedCourses) {
-                queue.add(courseCode)
+                queue.add(course)
             }
         }
         Log.d("CourseGraph", "Total courses added to queue: ${queue.size}")
+
         Log.d("CourseGraph", "Processing courses using Kahn’s Algorithm...")
-        // Step 2: Process courses using Kahn’s Algorithm
+        // Step 2: Process courses using Kahn’s Algorithm with priority queue
         while (queue.isNotEmpty()) {
-            val courseCode = queue.removeFirst()
-            val course = courses[courseCode] ?: continue
+            val course = queue.poll() // 🔹 Get the highest-priority course
+            val courseCode = course.code
 
             // Step 3: Determine eligibility color
             val colorCode = when {
@@ -91,12 +102,13 @@ class CourseGraph(
                     val allPrerequisitesMet = dependentCourse.prerequisites.all { completedCourses.contains(it) }
 
                     if (inDegree[dependent] == 0 && allPrerequisitesMet && dependent !in completedCourses) {
-                        queue.add(dependent)
+                        queue.add(dependentCourse) // 🔹 Add to priority queue to maintain sorting
                     }
                 }
             }
         }
         Log.d("CourseGraph", "Total available non-elective courses found: ${availableCourses.size}")
+
         Log.d("CourseGraph", "Processing electives...")
 
         // Step 5: Ensure electives are always available if not completed
@@ -111,6 +123,7 @@ class CourseGraph(
 
         return availableCourses
     }
+
 
 }
 
