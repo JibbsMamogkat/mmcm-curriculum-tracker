@@ -35,23 +35,19 @@ fun NextCoursesScreen(
     var selectedTerm by remember { mutableStateOf(1) } // Default term
     val studentEmail by viewModel.studentEmail.observeAsState("Fetching Email...")
 
-// Fetch student data and load courses immediately
+    // Fetch student data when studentId changes
     LaunchedEffect(studentId) {
         viewModel.fetchStudentData(studentId)
+        availableCourses = emptyList()
 
-        // Wait for completed courses to load, then immediately get available courses
         viewModel.loadStudentCompletedCourses(studentId) {
-            // Only update when load is complete
             availableCourses = viewModel.getAvailableCourses(studentId, selectedTerm)
         }
     }
 
-// Update available courses when the term changes
+    // Fetch available courses when the term changes
     LaunchedEffect(selectedTerm) {
-        // Ensure it's only called if completedCourses are already loaded
-        if (completedCourses.isNotEmpty()) {
-            availableCourses = viewModel.getAvailableCourses(studentId, selectedTerm)
-        }
+        availableCourses = viewModel.getAvailableCourses(studentId, selectedTerm)
     }
 
     Scaffold(
@@ -79,7 +75,6 @@ fun NextCoursesScreen(
 
             TermFilterDropdown(selectedTerm) { newTerm ->
                 selectedTerm = newTerm
-                availableCourses = viewModel.getAvailableCourses(studentId, newTerm)
             }
 
             if (availableCourses.isEmpty()) {

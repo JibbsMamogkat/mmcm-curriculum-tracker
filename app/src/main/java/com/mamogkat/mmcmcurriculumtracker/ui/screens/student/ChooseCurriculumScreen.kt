@@ -187,89 +187,99 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
 
 @Composable
 fun CurriculumDropdown(
-        navController: NavController,
-        combinedName: String,
-        onNameError: (String?) -> Unit,
-        viewModel: CurriculumViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
-    ) {
-        val studentProgram by viewModel.studentProgram.observeAsState()
-        val allCurriculums = mapOf(
-            "BS Computer Engineering" to listOf(
-                "BS Computer Engineering 2022-2023",
-                "BS Computer Engineering 2021-2022"
-            ),
-            "BS Electronics and Communications Engineering" to listOf("BS Electronics and Communications Engineering 2022-2023"),
-            "BS Electrical Engineering" to listOf("BS Electronics and Communications Engineering 2022-2023")
-        )
-        val curriculumList = allCurriculums[studentProgram] ?: emptyList()
-        var selectedCurriculum by remember { mutableStateOf("") }
-        var expanded by remember { mutableStateOf(false) }
-        var curriculumError by remember { mutableStateOf<String?>(null) }
+    navController: NavController,
+    combinedName: String,
+    onNameError: (String?) -> Unit,
+    viewModel: CurriculumViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
+    val studentProgram by viewModel.studentProgram.observeAsState()
 
-        Text(
-            text = "Select a Curriculum",
-            color = colorResource(id = R.color.mmcm_red),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-            modifier = Modifier.padding(bottom = 16.dp)
+    val curriculumMap = mapOf(
+        "BS Computer Engineering" to mapOf(
+            "BS Computer Engineering 2022-2023" to "1",
+            "BS Computer Engineering 2021-2022" to "2"
+        ),
+        "BS Electronics and Communications Engineering" to mapOf(
+            "BS Electronics and Communications Engineering 2022-2023" to "3"
+        ),
+        "BS Electrical Engineering" to mapOf(
+            "BS Electrical Engineering 2022-2023" to "4"
         )
+    )
 
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = selectedCurriculum,
-                onValueChange = {},
-                readOnly = true,
-                label = {
-                    Text(
-                        if (curriculumError == null) "Curriculum" else curriculumError ?: ""
-                    )
-                },
-                isError = curriculumError != null,
-                trailingIcon = {
-                    IconButton(onClick = { expanded = !expanded }) {
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { expanded = !expanded }
-            )
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                curriculumList.forEach { curriculum ->
-                    DropdownMenuItem(
-                        text = { Text(text = curriculum) },
-                        onClick = {
-                            selectedCurriculum = curriculum
-                            curriculumError = null
-                            expanded = false
-                        }
-                    )
+    // Show only curriculums based on the selected program
+    val curriculumList = curriculumMap[studentProgram]?.keys?.toList() ?: emptyList()
+
+    var selectedCurriculum by remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
+    var curriculumError by remember { mutableStateOf<String?>(null) }
+
+    Text(
+        text = "Select a Curriculum",
+        color = colorResource(id = R.color.mmcm_red),
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
+        modifier = Modifier.padding(bottom = 16.dp)
+    )
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = selectedCurriculum,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(if (curriculumError == null) "Curriculum" else curriculumError ?: "") },
+            isError = curriculumError != null,
+            trailingIcon = {
+                IconButton(onClick = { expanded = !expanded }) {
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
                 }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded }
+        )
+
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            curriculumList.forEach { curriculum ->
+                DropdownMenuItem(
+                    text = { Text(text = curriculum) },
+                    onClick = {
+                        selectedCurriculum = curriculum
+                        curriculumError = null
+                        expanded = false
+                    }
+                )
             }
         }
+    }
 
-        Spacer(modifier = Modifier.height(16.dp))
+    Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = {
-                if (combinedName.isNotBlank() && selectedCurriculum.isNotEmpty()) {
-                    curriculumError = null
-                    onNameError(null) // Clear name error if any
-                    viewModel.updateCurriculumInFirestore(combinedName, selectedCurriculum) {
+    Button(
+        onClick = {
+            if (combinedName.isNotBlank() && selectedCurriculum.isNotEmpty()) {
+                curriculumError = null
+                onNameError(null)
+
+                // Retrieve the numeric value from the map
+                val curriculumNumber = curriculumMap[studentProgram]?.get(selectedCurriculum)
+                if (curriculumNumber != null) {
+                    viewModel.updateCurriculumInFirestore(combinedName, curriculumNumber) {
                         navController.navigate("student_main") {
                             popUpTo("choose_curriculum") { inclusive = true }
                         }
                     }
-                } else {
-                    if (combinedName.isBlank()) onNameError("Name must not be empty")
-                    if (selectedCurriculum.isEmpty()) curriculumError =
-                        "Curriculum must not be empty"
                 }
-            },
-            colors = ButtonDefaults.buttonColors(colorResource(id = R.color.mmcm_blue)),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "Next")
-        }
+            } else {
+                if (combinedName.isBlank()) onNameError("Name must not be empty")
+                if (selectedCurriculum.isEmpty()) curriculumError = "Curriculum must not be empty"
+            }
+        },
+        colors = ButtonDefaults.buttonColors(colorResource(id = R.color.mmcm_blue)),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = "Next")
     }
+}
+
