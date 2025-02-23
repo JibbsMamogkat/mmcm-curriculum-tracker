@@ -314,11 +314,12 @@ class AuthViewModel: ViewModel() {
                                 val studentData = hashMapOf(
                                     "userID" to userId,
                                     "email" to email,
+                                    "approvalStatus" to "pending",
                                     "name" to "",
                                     "studentNumber" to "",
                                     "program" to program,
                                     "curriculum" to "",
-                                    "coursesCompleted" to emptyList<String>(),
+                                    "completedCourses" to emptyList<String>(),
                                     "termEnrolling" to 1,
                                 )
 

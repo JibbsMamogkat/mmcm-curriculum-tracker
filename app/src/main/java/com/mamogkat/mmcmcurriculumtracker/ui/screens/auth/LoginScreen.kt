@@ -120,7 +120,7 @@ fun LoginScreen(navController: NavController?, authViewModel: AuthViewModel = vi
                 var email by remember { mutableStateOf("") }
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { },
+                    onValueChange = { email = it},
                     colors = TextFieldDefaults.textFieldColors(
                         containerColor = colorResource(id = R.color.mmcm_white),
                         focusedIndicatorColor = colorResource(id = R.color.mmcm_blue),

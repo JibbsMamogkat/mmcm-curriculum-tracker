@@ -330,6 +330,107 @@ class FirebaseRepository {
             emptySet()
         }
     }
+
+    fun getStudentApprovalStatus(studentId: String, onComplete: (String) -> Unit, onError: (Exception) -> Unit) {
+        db.collection("students").document(studentId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val status = document.getString("approvalStatus") ?: ""
+                    onComplete(status)
+                    Log.d("FirebaseRepository", "Fetched approval status: $status for student $studentId")
+                } else {
+                    Log.e("FirebaseRepository", "Student document not found for ID: $studentId")
+                    onComplete("")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseRepository", "Error fetching approval status: ${e.message}")
+                onError(e)
+            }
+    }
+    fun approveStudentCourses(studentId: String, selectedCourses: Set<String>, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
+        val studentRef = db.collection("students").document(studentId)
+
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(studentRef)
+            if (snapshot.exists()) {
+                val existingCourses = snapshot.get("completedCourses") as? List<String> ?: emptyList()
+                val updatedCourses = existingCourses.toMutableSet().apply { addAll(selectedCourses) }
+
+                transaction.update(studentRef, mapOf(
+                    "completedCourses" to updatedCourses.toList(),
+                    "approvalStatus" to "approved"
+                ))
+            }
+        }.addOnSuccessListener {
+            Log.d("FirebaseRepository", "Successfully approved courses for student: $studentId")
+            onSuccess()
+        }.addOnFailureListener { e ->
+            Log.e("FirebaseRepository", "Failed to approve courses: ${e.message}")
+            onError(e)
+        }
+    }
+
+    fun getStudentCurriculum(studentId: String, onComplete: (String) -> Unit, onError: (Exception) -> Unit) {
+        db.collection("students").document(studentId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val curriculum = document.getString("curriculum") ?: ""
+                    onComplete(curriculum)
+                } else {
+                    onComplete("")
+                }
+            }
+            .addOnFailureListener { e ->
+                onError(e)
+            }
+    }
+
+    fun fetchCompletedCourses(studentId: String, onResult: (List<String>) -> Unit) {
+        db.collection("students").document(studentId)
+            .get()
+            .addOnSuccessListener { document ->
+                val courses = document.get("completedCourses") as? List<String> ?: emptyList()
+                Log.d("FirebaseRepository", "Fetched completedCourses: $courses")
+                onResult(courses)
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseRepository", "Error fetching completed courses", e)
+                onResult(emptyList())
+            }
+    }
+
+    fun updateCompletedCourses(studentId: String, completedCourses: Set<String>) {
+        db.collection("students").document(studentId)
+            .update("completedCourses", completedCourses.toList())
+            .addOnSuccessListener {
+                Log.d("FirebaseRepository", "Updated completedCourses: $completedCourses")
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseRepository", "Error updating completed courses", e)
+            }
+    }
+
+    fun updateStudentApprovalStatus(studentId: String, status: String): Task<Void> {
+        return db.collection("students")
+            .document(studentId)
+            .update("approvalStatus", status)
+    }
+
+    fun fetchStudentProgram(studentId: String, onResult: (String) -> Unit) {
+        db.collection("students").document(studentId)
+            .get()
+            .addOnSuccessListener { document ->
+                val program = document.getString("program") ?: "Unknown"
+                onResult(program)
+            }
+            .addOnFailureListener { onResult("Unknown") }
+    }
+
+
+
 }
 
 

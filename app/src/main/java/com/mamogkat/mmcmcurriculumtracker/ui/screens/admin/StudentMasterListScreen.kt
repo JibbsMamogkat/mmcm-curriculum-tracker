@@ -7,8 +7,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -89,17 +92,47 @@ fun StudentMasterListScreen(viewModel: AdminViewModel, navController: NavControl
 }
 
 @Composable
-fun StudentCard(student: Student, curriculums: List<Curriculum>, viewModel: AdminViewModel, navController: NavController) {
+fun StudentCard(
+    student: Student,
+    curriculums: List<Curriculum>,
+    viewModel: AdminViewModel,
+    navController: NavController
+) {
     val curriculumMap = viewModel.getCurriculumNameMap()
-    var selectedCurriculum by remember { mutableStateOf(student.curriculum ?: "") }
-    var curriculumName by remember { mutableStateOf(curriculumMap[selectedCurriculum] ?: "Not Assigned") }
-    var expanded by remember { mutableStateOf(false) }
+    val selectedCurriculum by viewModel.studentCurriculum.observeAsState(initial = student.curriculum ?: "")
+    var approvalExpanded by remember { mutableStateOf(false) }
+    var curriculumExpanded by remember { mutableStateOf(false) }
 
-    Log.d("StudentCard", " Tracking whether the curriculum details have been viewed")
-    // ✅ Get state from ViewModel (Ensures it's remembered across recompositions)
-    val hasViewedCurriculum = viewModel.hasViewedCurriculum(student.studentID)
+    var studentApprovalStatus by rememberSaveable { mutableStateOf("") }
+    var studentCurriculum by rememberSaveable { mutableStateOf("Not Assigned") }
+    var studentProgram by rememberSaveable { mutableStateOf("Fetching...") } // ✅ Store fetched program
 
-    Log.d("StudentCard", "Displaying student: ${student.name} with curriculum: ${student.curriculum}")
+    // Fetch only once
+    LaunchedEffect(student.studentID) {
+        Log.d("StudentCard", "Fetching data for Student ID: ${student.studentID}")
+        viewModel.fetchStudentApprovalStatus(student.studentID)
+        viewModel.fetchStudentCurriculum(student.studentID)
+        viewModel.fetchStudentProgram(student.studentID) // ✅ Fetch program from Firestore
+    }
+
+    // Observe changes from ViewModel
+    val fetchedApprovalStatus = viewModel.studentApprovalStatus.observeAsState("").value
+    val fetchedCurriculum = viewModel.studentCurriculum.observeAsState("Not Assigned").value
+    val fetchedProgram = viewModel.studentProgram.observeAsState("Fetching...").value // ✅ Observe program
+
+    if (fetchedApprovalStatus.isNotEmpty()) {
+        studentApprovalStatus = fetchedApprovalStatus
+    }
+    if (fetchedCurriculum.isNotEmpty()) {
+        studentCurriculum = fetchedCurriculum
+    }
+    if (fetchedProgram.isNotEmpty()) {
+        studentProgram = fetchedProgram
+    }
+
+    Log.d("StudentCard", "Final UI values - Curriculum: $studentCurriculum, Approval Status: $studentApprovalStatus, Program: $studentProgram")
+
+    val curriculumName = curriculumMap[studentCurriculum] ?: "Not Assigned"
 
     Card(
         modifier = Modifier
@@ -109,30 +142,29 @@ fun StudentCard(student: Student, curriculums: List<Curriculum>, viewModel: Admi
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = student.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Text(text = "Email: ${student.email}", fontSize = 16.sp)
-            Text(text = "Current Curriculum: $curriculumName", fontSize = 16.sp)
+            Text(text = "Program: $studentProgram", fontSize = 16.sp, fontStyle = FontStyle.Italic) // ✅ Display program
+            Text(text = "Current Curriculum: $curriculumName", fontSize = 16.sp, fontStyle = FontStyle.Italic)
+            Text(text = "Approval Status: $studentApprovalStatus", fontSize = 16.sp)
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Curriculum Dropdown
+            // **✅ Approval Status Dropdown**
             Box {
-                Button(onClick = { expanded = true }) {
-                    Text("Update Curriculum")
+                Button(onClick = { approvalExpanded = true }) {
+                    Text("Update Approval Status")
                 }
 
                 DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    expanded = approvalExpanded,
+                    onDismissRequest = { approvalExpanded = false }
                 ) {
-                    curriculums.forEach { curriculum ->
+                    listOf("pending", "approved").forEach { status ->
                         DropdownMenuItem(
-                            text = { Text(curriculum.name) },
+                            text = { Text(status.capitalize()) },
                             onClick = {
-                                selectedCurriculum = curriculum.curriculumID
-                                curriculumName = curriculum.name // Update UI instantly
-                                expanded = false
-                                Log.d("StudentCard", "Updating student ${student.studentID} with curriculum: $selectedCurriculum")
-                                viewModel.updateStudentCurriculum(student.studentID, selectedCurriculum)
-
+                                Log.d("StudentCard", "Updating approval status for Student ID: ${student.studentID} to $status")
+                                viewModel.updateStudentApprovalStatus(student.studentID, status) // ✅ Update Firestore
+                                approvalExpanded = false
                             }
                         )
                     }
@@ -141,29 +173,59 @@ fun StudentCard(student: Student, curriculums: List<Curriculum>, viewModel: Admi
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Navigation Buttons
+            // **✅ Curriculum Dropdown**
+            Box {
+                Button(onClick = { curriculumExpanded = true }) {
+                    Text("Update Curriculum")
+                }
 
-            Button(onClick = {
-                navController.navigate("admin_curriculum_overview/${student.studentID}")
-                viewModel.markCurriculumViewed(student.studentID) // ✅ Store that curriculum was viewed
-                Log.d("StudentCard", "Enabling Next Available Courses button for student: ${student.studentID}")
-            }) {
+                DropdownMenu(
+                    expanded = curriculumExpanded,
+                    onDismissRequest = { curriculumExpanded = false }
+                ) {
+                    curriculums.forEach { curriculum ->
+                        DropdownMenuItem(
+                            text = { Text(curriculum.name) },
+                            onClick = {
+                                Log.d("StudentCard", "Updating curriculum for Student ID: ${student.studentID} to ${curriculum.curriculumID}")
+                                viewModel.updateStudentCurriculum(student.studentID, curriculum.curriculumID)
+                                curriculumExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // **✅ Navigation Buttons**
+            Button(
+                onClick = {
+                    Log.d("StudentCard", "Navigating to Curriculum Details for Student ID: ${student.studentID}")
+                    navController.navigate("admin_curriculum_overview/${student.studentID}")
+                }
+            ) {
                 Text("View Curriculum Details")
             }
             Spacer(modifier = Modifier.width(8.dp))
+
             Button(
-                onClick = { navController.navigate("admin_next_available_courses_screen/${student.studentID}") },
-                enabled = hasViewedCurriculum // ✅ Disable if curriculum details have not been viewed
+                onClick = {
+                    Log.d("StudentCard", "Navigating to Next Available Courses for Student ID: ${student.studentID}")
+                    navController.navigate("admin_next_available_courses_screen/${student.studentID}")
+                }
             ) {
                 Text("Next Available Courses")
             }
 
-
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Remove Student Button
+            // **✅ Remove Student Button**
             Button(
-                onClick = { viewModel.removeStudent(student.studentID) },
+                onClick = {
+                    Log.d("StudentCard", "Removing Student ID: ${student.studentID}")
+                    viewModel.removeStudent(student.studentID)
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
                 Text("Remove Student", color = MaterialTheme.colorScheme.onError)
@@ -171,4 +233,7 @@ fun StudentCard(student: Student, curriculums: List<Curriculum>, viewModel: Admi
         }
     }
 }
+
+
+
 

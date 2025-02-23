@@ -2,6 +2,7 @@ package com.mamogkat.mmcmcurriculumtracker.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.lifecycle.*
@@ -35,6 +36,10 @@ class CurriculumViewModel : ViewModel() {
 
     private val _studentEmail = MutableLiveData<String>()
     val studentEmail: LiveData<String> get() = _studentEmail
+
+    private val _studentApprovalStatus = MutableLiveData<String>()
+    val studentApprovalStatus: LiveData<String> get() = _studentApprovalStatus
+
 
     fun setEnrolledTerm(term: Int) {
         _enrolledTerm.postValue(term)
@@ -166,24 +171,21 @@ class CurriculumViewModel : ViewModel() {
         }
     }
 
-    fun toggleCourseCompletion(studentId: String, courseCode: String) {
+    fun updateCompletedCourses(studentId: String, courseCode: String, isChecked: Boolean) {
         val updatedCourses = _completedCourses.value?.toMutableSet() ?: mutableSetOf()
 
-        if (updatedCourses.contains(courseCode)) {
-            updatedCourses.remove(courseCode)  // Uncheck course
-            Log.d("CurriculumViewModel", "Course $courseCode unchecked")
+        if (isChecked) {
+            updatedCourses.add(courseCode)
         } else {
-            updatedCourses.add(courseCode)  // Mark as completed
-            Log.d("CurriculumViewModel", "Course $courseCode checked")
+            updatedCourses.remove(courseCode)
         }
 
-        _completedCourses.postValue(updatedCourses)
+        _completedCourses.value = updatedCourses // ✅ Update LiveData
 
-        // Update Firestore
-        val studentRef = repository.getStudentDocument(studentId)
-        studentRef.update("completedCourses", updatedCourses.toList())
-        Log.d("CurriculumViewModel", "Updated completedCourses for student: $studentId")
+        repository.updateCompletedCourses(studentId, updatedCourses) // ✅ Delegate Firestore update
     }
+
+
 
     //Admin Next Courses Available functions
     fun loadStudentCompletedCourses(studentId: String, onComplete: () -> Unit) {

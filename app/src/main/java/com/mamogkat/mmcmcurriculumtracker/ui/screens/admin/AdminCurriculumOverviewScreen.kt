@@ -29,35 +29,25 @@ fun AdminCurriculumOverviewScreen(
     studentId: String,
     viewModel: CurriculumViewModel = viewModel()
 ) {
-
-    Log.d(
-        "AdminCurriculumOverview",
-        "Screen Loaded for studentId: $studentId"
-    )
+    Log.d("AdminCurriculumOverview", "Screen Loaded for studentId: $studentId")
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
     val courseGraph by viewModel.courseGraph.observeAsState()
-    val completedCourses by viewModel.completedCourses.observeAsState(emptySet())
+    val completedCourses by viewModel.completedCourses.observeAsState(emptySet()) // ✅ Bind directly to Firestore
 
     // Fetch curriculum when screen loads
     LaunchedEffect(studentId) {
-        Log.d(
-            "AdminCurriculumOverview",
-            "Fetching student data for studentId: $studentId"
-        )
+        Log.d("AdminCurriculumOverview", "Fetching student data for studentId: $studentId")
         viewModel.fetchStudentData(studentId)
     }
 
-    //Wrap scaffold inside the ModalNavigationDrawer
+    // Wrap scaffold inside the ModalNavigationDrawer
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            AdminNavigationDrawer(
-                navController,
-                drawerState
-            )
+            AdminNavigationDrawer(navController, drawerState)
         }
     ) {
         Scaffold(
@@ -79,10 +69,7 @@ fun AdminCurriculumOverviewScreen(
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
                 if (courseGraph == null) {
-                    Log.d(
-                        "AdminCurriculumOverview",
-                        "Waiting for courseGraph data..."
-                    )
+                    Log.d("AdminCurriculumOverview", "Waiting for courseGraph data...")
                     CircularProgressIndicator()
                 } else {
                     val groupedCourses = courseGraph!!.groupedCourses
@@ -90,49 +77,40 @@ fun AdminCurriculumOverviewScreen(
 
                     LazyColumn(modifier = Modifier.padding(16.dp)) {
                         // 🔹 Iterate over Years
-                        groupedCourses.toSortedMap(compareBy { it }) // 🔥 Ensure years are sorted numerically
+                        groupedCourses.toSortedMap(compareBy { it }) // Ensure years are sorted numerically
                             .forEach { (year, terms) ->
-                            item {
-                                Text(
-                                    text = "Year $year",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 22.sp,
-                                    modifier = Modifier.padding(
-                                        top = 12.dp,
-                                        bottom = 8.dp
+                                item {
+                                    Text(
+                                        text = "Year $year",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 22.sp,
+                                        modifier = Modifier.padding(top = 12.dp, bottom = 8.dp)
                                     )
-                                )
-                            }
-                            // 🔹 Iterate over Terms
-                            terms.toSortedMap(compareBy { it }) //Sort terms numerically
-                                .forEach { (term, courses) ->
-                                    item {
-                                        Text(
-                                            text = "Term $term",
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontSize = 18.sp,
-                                            modifier = Modifier.padding(
-                                                top = 8.dp,
-                                                bottom = 4.dp
-                                            )
-                                        )
-                                    }
-                                    // 🔹 Display courses for this term
-                                    items(courses) { course ->
-                                        CourseItem(
-                                            courseName = course.name,
-                                            courseCode = course.code,
-                                            isChecked = completedCourses.contains(course.code),
-                                            onCheckChange = {
-                                                viewModel.toggleCourseCompletion(
-                                                    studentId,
-                                                    course.code
-                                                )
-                                            }
-                                        )
-                                    }
                                 }
-                        }
+                                // 🔹 Iterate over Terms
+                                terms.toSortedMap(compareBy { it }) // Sort terms numerically
+                                    .forEach { (term, courses) ->
+                                        item {
+                                            Text(
+                                                text = "Term $term",
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontSize = 18.sp,
+                                                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                                            )
+                                        }
+                                        // 🔹 Display courses for this term
+                                        items(courses) { course ->
+                                            CourseItem(
+                                                courseName = course.name,
+                                                courseCode = course.code,
+                                                isChecked = completedCourses.contains(course.code), // ✅ Reflect real Firestore data
+                                                onCheckChange = { isChecked ->
+                                                    viewModel.updateCompletedCourses(studentId, course.code, isChecked) // ✅ Save instantly
+                                                }
+                                            )
+                                        }
+                                    }
+                            }
 
                         // 🔹 Display Electives Section
                         if (electiveCourses.isNotEmpty()) {
@@ -141,22 +119,16 @@ fun AdminCurriculumOverviewScreen(
                                     text = "Elective Courses",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 22.sp,
-                                    modifier = Modifier.padding(
-                                        top = 12.dp,
-                                        bottom = 8.dp
-                                    )
+                                    modifier = Modifier.padding(top = 12.dp, bottom = 8.dp)
                                 )
                             }
                             items(electiveCourses) { elective ->
                                 CourseItem(
                                     courseName = elective.name,
                                     courseCode = elective.code,
-                                    isChecked = completedCourses.contains(elective.code),
-                                    onCheckChange = {
-                                        viewModel.toggleCourseCompletion(
-                                            studentId,
-                                            elective.code
-                                        )
+                                    isChecked = completedCourses.contains(elective.code), // ✅ Reflect real Firestore data
+                                    onCheckChange = { isChecked ->
+                                        viewModel.updateCompletedCourses(studentId, elective.code, isChecked) // ✅ Save instantly
                                     }
                                 )
                             }
@@ -169,8 +141,6 @@ fun AdminCurriculumOverviewScreen(
 }
 @Composable
 fun CourseItem(courseName: String, courseCode: String, isChecked: Boolean, onCheckChange: (Boolean) -> Unit) {
-    var checkedState by remember { mutableStateOf(isChecked) }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -180,10 +150,8 @@ fun CourseItem(courseName: String, courseCode: String, isChecked: Boolean, onChe
         Text(courseName, modifier = Modifier.weight(1f))
         Checkbox(
             checked = isChecked,
-            onCheckedChange = { isChecked ->
-                checkedState = isChecked // ✅ Update the local state
-                onCheckChange(isChecked) // ✅ Notify the ViewModel
-            }
+            onCheckedChange = { onCheckChange(it) } // ✅ Correctly update state
         )
     }
 }
+

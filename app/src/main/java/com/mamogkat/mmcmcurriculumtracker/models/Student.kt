@@ -9,7 +9,7 @@ data class Student(
     val program: String = "",        // Program (e.g., "BS Computer Engineering")
     val termEnrolling: Int = 1,  // The term the student is enrolling in
     val curriculum: String? = null,     // Curriculum ID or name
-    val coursesCompleted: List<String> = emptyList(), // List of completed course IDs
+    val completedCourses: List<String> = emptyList(), // List of completed course IDs
     val approvalStatus: String = ""  // Approval status (e.g., "Pending", "Approved", "Rejected")
 ){
     // Firestore requires a no-argument constructor

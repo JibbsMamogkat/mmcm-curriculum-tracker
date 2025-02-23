@@ -2,12 +2,12 @@ package com.mamogkat.mmcmcurriculumtracker.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.mamogkat.mmcmcurriculumtracker.models.Curriculum
 import com.mamogkat.mmcmcurriculumtracker.models.Student
 import com.mamogkat.mmcmcurriculumtracker.repository.FirebaseRepository
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class AdminViewModel : ViewModel() {
 
@@ -21,6 +21,16 @@ class AdminViewModel : ViewModel() {
 
     private val _curriculumViewedMap = mutableStateMapOf<String, Boolean>() // Tracks if a student's curriculum was viewed
     val curriculumViewedMap: Map<String, Boolean> get() = _curriculumViewedMap
+
+    private val _studentApprovalStatus = MutableLiveData<String>()
+    val studentApprovalStatus: LiveData<String> get() = _studentApprovalStatus
+
+    private val _studentCurriculum = MutableLiveData<String>()
+    val studentCurriculum: LiveData<String> get() = _studentCurriculum
+
+    private val _studentProgram = MutableLiveData<String>()
+    val studentProgram: LiveData<String> get() = _studentProgram
+
 
     fun fetchStudents() {
         repository.getAllStudents { students ->
@@ -59,13 +69,54 @@ class AdminViewModel : ViewModel() {
         fetchStudents()  // Refresh the student list
     }
 
-    fun markCurriculumViewed(studentId: String) {
-        _curriculumViewedMap[studentId] = true
+    fun fetchStudentApprovalStatus(studentId: String) {
+        repository.getStudentApprovalStatus(
+            studentId,
+            onComplete = { status ->
+                _studentApprovalStatus.postValue(status)  // 🔥 Use postValue to ensure UI update
+                Log.d("AdminViewModel", "Approval status for student $studentId: $status")
+            },
+            onError = { e ->
+                Log.e("AdminViewModel", "Failed to fetch approval status: ${e.message}")
+            }
+        )
     }
 
-    fun hasViewedCurriculum(studentId: String): Boolean {
-        return _curriculumViewedMap[studentId] ?: false
+    fun fetchStudentCurriculum(studentId: String) {
+        repository.getStudentCurriculum(
+            studentId,
+            onComplete = { curriculumId ->
+                _studentCurriculum.postValue(curriculumId)  // 🔥 Use postValue to ensure UI update
+                Log.d("AdminViewModel", "Curriculum for student $studentId: $curriculumId")
+            },
+            onError = { e ->
+                Log.e("AdminViewModel", "Failed to fetch curriculum: ${e.message}")
+            }
+        )
     }
+
+    fun updateStudentApprovalStatus(studentId: String, status: String) {
+        repository.updateStudentApprovalStatus(studentId, status)
+            .addOnSuccessListener {
+                Log.d("AdminViewModel", "Approval status updated successfully to $status for student $studentId")
+                _studentApprovalStatus.value = status  // ✅ Update locally first
+                viewModelScope.launch {
+                    delay(1000) // ✅ Give Firestore time to sync
+                    fetchStudentApprovalStatus(studentId) // ✅ Force re-fetch to avoid stale data
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("AdminViewModel", "Error updating approval status", e)
+            }
+    }
+
+    fun fetchStudentProgram(studentId: String) {
+        repository.fetchStudentProgram(studentId) { program ->
+            _studentProgram.value = program
+        }
+    }
+
+
 
     fun logoutAdmin() {
         TODO("Not yet implemented")
