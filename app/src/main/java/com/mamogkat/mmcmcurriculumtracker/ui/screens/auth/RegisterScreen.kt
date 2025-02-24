@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -117,7 +118,6 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Logo
@@ -128,19 +128,41 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
             )
 
             // Title
-            Text(
-                text = "Register for MMCM Tracker",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                color = colorResource(id = R.color.mmcm_red),
-                modifier = Modifier.offset(y = (-20).dp)
-            )
+            Column (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Title
+                Text(
+                    text = "Register",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
+                    color = colorResource(id = R.color.mmcm_red)
+                )
+                Text(
+                    text = "for",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
+                    color = colorResource(id = R.color.mmcm_red)
+                )
+
+                Text(
+                    text = "MMCM Curriculum Tracker",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = colorResource(id = R.color.mmcm_red)
+                    )
+                )
+            }
 
             // Email
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { email = it.replace(" ", "") },
                 label = {
 
                     if (emailError != null) {
@@ -155,13 +177,13 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 textStyle = TextStyle(color = colorResource(id = R.color.mmcm_black)),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
             )
             var passwordVisible by remember { mutableStateOf(false) }
             // Password
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = { password = it.replace(" ", "") },
                 label = {
                     if (passwordError != null) {
                         Text(passwordError!!, color = colorResource(id = R.color.mmcm_red))
@@ -184,13 +206,13 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                         )
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
             )
             var confirmPasswordVisible by remember { mutableStateOf(false) }
             // Confirm password
             OutlinedTextField(
                 value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                onValueChange = { confirmPassword = it.replace(" ", "") },
                 label = {
                     if (confirmPasswordError != null) {
                         Text(confirmPasswordError!!, color = colorResource(id = R.color.mmcm_red))
@@ -213,7 +235,7 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                         )
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
             )
             // Admin or Student
             var programError by remember { mutableStateOf<String?>(null) }
@@ -223,7 +245,7 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth().padding(4.dp)
+                modifier = Modifier.fillMaxWidth().padding(8.dp)
             ) {
                 Text("Register as:", style = MaterialTheme.typography.bodyMedium, color = colorResource(R.color.mmcm_black))
 
@@ -285,6 +307,7 @@ fun RegisterUI(navController: NavController, authViewModel: AuthViewModel = view
                     fontSize = 16.sp
                 )
             }
+            Spacer(modifier = Modifier.height(12.dp))
             // Back to Login
             Button(
                 onClick = {

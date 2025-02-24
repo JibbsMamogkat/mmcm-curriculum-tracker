@@ -63,6 +63,9 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.0.0")
     implementation("io.coil-kt:coil-gif:2.0.0")
     implementation("com.google.accompanist:accompanist-swiperefresh:0.33.1-alpha")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     // --------------------------------------------------------------
 
     // Compose BOM (Bill of Materials)

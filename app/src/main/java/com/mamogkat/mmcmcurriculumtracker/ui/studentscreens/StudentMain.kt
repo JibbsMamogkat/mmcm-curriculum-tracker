@@ -62,13 +62,13 @@ import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.AboutDevelopersScre
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.ChooseCurriculumScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.CurriculumOverviewScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.NextCoursesScreen
-import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.StudentHomeScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.UserProfileScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.WaitingForApprovalScreen
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.StudentViewModel
 import kotlinx.coroutines.delay
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.HomePageScreen
 
 
 @Composable
@@ -182,7 +182,7 @@ fun StudentMainScreen(navController: NavController) {
                 paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
                 when (selectedScreen.value) {
-                    "Home" -> RunningGif(context)
+                    "Home" -> HomePageScreen()
                     "Curriculum" -> SwipeRefresh(
                         state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
                         onRefresh = { studentViewModel.refreshData(studentId) }

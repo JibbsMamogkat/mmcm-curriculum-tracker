@@ -155,7 +155,8 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
                 // First Name
                 OutlinedTextField(
                     value = firstName,
-                    onValueChange = { firstName = it },
+                    onValueChange = { firstName = it.trimStart().replace(Regex("\\s+"), " ") },
+                    singleLine = true,
                     label = { Text("First Name") },
                     isError = nameError != null && firstName.isBlank(),
                     modifier = Modifier.fillMaxWidth()
@@ -166,7 +167,8 @@ fun ChooseCurriculumScreen(navController: NavController, curriculumViewModel: Cu
                 // Last Name
                 OutlinedTextField(
                     value = lastName,
-                    onValueChange = { lastName = it },
+                    onValueChange = { lastName = it.trimStart().replace(Regex("\\s+"), " ")},
+                    singleLine = true,
                     label = { Text("Last Name") },
                     isError = nameError != null && lastName.isBlank(),
                     modifier = Modifier.fillMaxWidth()
@@ -197,13 +199,13 @@ fun CurriculumDropdown(
     val curriculumMap = mapOf(
         "BS Computer Engineering" to mapOf(
             "BS Computer Engineering 2022-2023" to "1",
-            "BS Computer Engineering 2021-2022" to "2"
+            "BS Computer Engineering 2021-2022" to "4"
         ),
         "BS Electronics and Communications Engineering" to mapOf(
             "BS Electronics and Communications Engineering 2022-2023" to "3"
         ),
         "BS Electrical Engineering" to mapOf(
-            "BS Electrical Engineering 2022-2023" to "4"
+            "BS Electrical Engineering 2024-2025" to "2"
         )
     )
 
@@ -279,7 +281,7 @@ fun CurriculumDropdown(
         colors = ButtonDefaults.buttonColors(colorResource(id = R.color.mmcm_blue)),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(text = "Next")
+        Text(text = "Finish")
     }
 }
 

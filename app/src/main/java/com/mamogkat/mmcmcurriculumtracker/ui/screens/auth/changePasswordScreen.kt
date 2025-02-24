@@ -106,7 +106,7 @@ fun ChangePasswordScreen(
         // New Password
         OutlinedTextField(
             value = newPassword,
-            onValueChange = { newPassword = it },
+            onValueChange = { newPassword = it.replace(" ", "") },
             label = {
                 if (newPasswordError != null) {
                     Text(newPasswordError!!, color = colorResource(id = R.color.mmcm_red))
@@ -136,7 +136,7 @@ fun ChangePasswordScreen(
         // Confirm Password
         OutlinedTextField(
             value = confirmPassword,
-            onValueChange = { confirmPassword = it },
+            onValueChange = { confirmPassword = it.replace(" ", "") },
             label = {
                 if (confirmPasswordError != null) {
                     Text(confirmPasswordError!!, color = colorResource(id = R.color.mmcm_red))

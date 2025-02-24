@@ -90,7 +90,7 @@ fun ForgotPassword(navController: NavController, authViewModel: AuthViewModel) {
 
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = { email = it.replace(" ", "") },
                     label = {
                         Text(
                             text = if (isError) errorMessage!! else "Email Address",

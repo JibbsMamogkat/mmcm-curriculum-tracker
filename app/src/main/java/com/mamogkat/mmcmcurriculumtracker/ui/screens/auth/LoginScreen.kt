@@ -104,28 +104,45 @@ fun LoginScreen(navController: NavController?, authViewModel: AuthViewModel = vi
                     contentDescription = "MMCM Logo",
                     modifier = Modifier
                         .size(150.dp)
-                        .padding(bottom = 24.dp)
                 )
                 // Title
-                Text(
-                    text = "Welcome to MMCM Tracker",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                    color = colorResource(id = R.color.mmcm_red),
-                    modifier = Modifier.padding(bottom = 32.dp)
-                )
+                Column (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Title
+                    Text(
+                        text = "Welcome",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
+                        color = colorResource(id = R.color.mmcm_red)
+                    )
+                    Text(
+                        text = "to",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
+                        color = colorResource(id = R.color.mmcm_red)
+                    )
+
+                    Text(
+                        text = "MMCM Curriculum Tracker",
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = colorResource(id = R.color.mmcm_red)
+                        )
+                    )
+                }
+
 
                 // Email Field
                 var email by remember { mutableStateOf("") }
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it},
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = colorResource(id = R.color.mmcm_white),
-                        focusedIndicatorColor = colorResource(id = R.color.mmcm_blue),
-                        unfocusedIndicatorColor = colorResource(id = R.color.mmcm_silver),
-                    ),
+                    onValueChange = { email = it.replace(" ", "")},
                     label = { if(errorMessage == "Email is not registered.") {
                         Text(errorMessage!!, color = colorResource(id = R.color.mmcm_red))
                     } else if (emailError != null) {
@@ -149,12 +166,7 @@ fun LoginScreen(navController: NavController?, authViewModel: AuthViewModel = vi
                 var passwordVisible by remember { mutableStateOf(false) }
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = colorResource(id = R.color.mmcm_white),
-                        focusedIndicatorColor = colorResource(id = R.color.mmcm_blue),
-                        unfocusedIndicatorColor = colorResource(id = R.color.mmcm_silver),
-                    ),
+                    onValueChange = { password = it.replace(" ", "") },
                     label = {
                         if (errorMessage == "Incorrect password. Please try again." || errorMessage == "User account not found. Please register.") {
                             Text(errorMessage!!, color = colorResource(id = R.color.mmcm_red))

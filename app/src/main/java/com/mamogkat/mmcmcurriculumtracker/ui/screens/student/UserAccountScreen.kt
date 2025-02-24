@@ -70,7 +70,7 @@ fun UserProfileScreen(navController: NavController, authViewModel: AuthViewModel
                         text = name ?: "",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp),
+                        modifier = Modifier.padding(12.dp),
                         color = colorResource(R.color.mmcm_black),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
