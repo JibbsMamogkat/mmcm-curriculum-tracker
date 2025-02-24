@@ -253,24 +253,24 @@ class FirebaseRepository {
             }
     }
 
-    fun updateStudentCurriculum(studentId: String, newCurriculumId: String, callback: (Boolean) -> Unit) {
-        if (studentId.isEmpty()) {
-            Log.e("StudentCardBug", "Error: studentId is empty, cannot update curriculum")
-            callback(false)
-            return
-        }
-
-        db.collection("students").document(studentId)
-            .update("curriculum", newCurriculumId)
-            .addOnSuccessListener {
-                Log.d("StudentCardBug", "Updated curriculum for student: $studentId")
-                callback(true)
-            }
-            .addOnFailureListener { exception ->
-                Log.e("StudentCardBug", "Error updating curriculum: $studentId", exception)
-                callback(false)
-            }
-    }
+//    fun updateStudentCurriculum(studentId: String, newCurriculumId: String, callback: (Boolean) -> Unit) {
+//        if (studentId.isEmpty()) {
+//            Log.e("StudentCardBug", "Error: studentId is empty, cannot update curriculum")
+//            callback(false)
+//            return
+//        }
+//
+//        db.collection("students").document(studentId)
+//            .update("curriculum", newCurriculumId)
+//            .addOnSuccessListener {
+//                Log.d("StudentCardBug", "Updated curriculum for student: $studentId")
+//                callback(true)
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.e("StudentCardBug", "Error updating curriculum: $studentId", exception)
+//                callback(false)
+//            }
+//    }
 
     fun removeStudent(studentId: String) {
         db.collection("students").document(studentId).delete()
@@ -382,6 +382,12 @@ class FirebaseRepository {
         return db.collection("students")
             .document(studentId)
             .update("approvalStatus", status)
+    }
+
+    fun updateStudentCurriculum(studentId: String, curriculumID: String): Task<Void> {
+        return db.collection("students")
+            .document(studentId)
+            .update("curriculum", curriculumID)
     }
 
     fun fetchStudentProgram(studentId: String, onResult: (String) -> Unit) {

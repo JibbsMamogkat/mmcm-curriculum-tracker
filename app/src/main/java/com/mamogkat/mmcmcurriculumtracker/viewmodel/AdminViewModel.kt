@@ -45,21 +45,21 @@ class AdminViewModel : ViewModel() {
     }
 
 
-    fun updateStudentCurriculum(studentId: String?, newCurriculumId: String) {
-        if (studentId.isNullOrEmpty()) {
-            Log.e("StudentCardBug", "Error: studentId is null or empty, cannot update curriculum")
-            return
-        }
-
-        repository.updateStudentCurriculum(studentId, newCurriculumId) { success ->
-            if (success) {
-                Log.d("StudentCardBug", "Successfully updated curriculum for student: $studentId")
-                fetchStudents() //refresh the student list to trigger UI recomposition
-            } else {
-                Log.e("StudentCardBug", "Failed to update curriculum for student: $studentId")
-            }
-        }
-    }
+//    fun updateStudentCurriculum(studentId: String?, newCurriculumId: String) {
+//        if (studentId.isNullOrEmpty()) {
+//            Log.e("StudentCardBug", "Error: studentId is null or empty, cannot update curriculum")
+//            return
+//        }
+//
+//        repository.updateStudentCurriculum(studentId, newCurriculumId) { success ->
+//            if (success) {
+//                Log.d("StudentCardBug", "Successfully updated curriculum for student: $studentId")
+//                fetchStudents() //refresh the student list to trigger UI recomposition
+//            } else {
+//                Log.e("StudentCardBug", "Failed to update curriculum for student: $studentId")
+//            }
+//        }
+//    }
 
     fun getCurriculumNameMap(): Map<String, String> {
         return curriculumList.value?.associate { it.curriculumID to it.name } ?: emptyMap()
@@ -108,6 +108,21 @@ class AdminViewModel : ViewModel() {
             }
             .addOnFailureListener { e ->
                 Log.e("StudentCardBug", "Error updating approval status", e)
+            }
+    }
+
+    fun updateStudentCurriculum(studentId: String, curriculumID: String) {
+        repository.updateStudentCurriculum(studentId, curriculumID)
+            .addOnSuccessListener {
+                Log.d("StudentCardBug", "Curriculum updated successfully to $curriculumID for student $studentId")
+                _studentCurriculum[studentId] = curriculumID  // ✅ Update locally first
+                viewModelScope.launch {
+                    delay(1000) // ✅ Give Firestore time to sync
+                    fetchStudentCurriculum(studentId) // ✅ Force re-fetch to avoid stale data
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("StudentCardBug", "Error updating Student Curriculum", e)
             }
     }
 

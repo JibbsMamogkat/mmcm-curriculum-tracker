@@ -23,9 +23,12 @@ import androidx.compose.runtime.LaunchedEffect
 
     class MainActivity : ComponentActivity() {
         private val authViewModel: AuthViewModel by viewModels()
+        private val curriculumViewModel: CurriculumViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
+        // 🔥 Run the upload function once
+//        curriculumViewModel.uploadBSEE_2024_2025()
         setContent {
             MMCMCurriculumTrackerTheme {
                 // A surface container using the 'background' color from the theme
