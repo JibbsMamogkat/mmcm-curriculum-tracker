@@ -22,14 +22,14 @@ class AdminViewModel : ViewModel() {
     private val _curriculumViewedMap = mutableStateMapOf<String, Boolean>() // Tracks if a student's curriculum was viewed
     val curriculumViewedMap: Map<String, Boolean> get() = _curriculumViewedMap
 
-    private val _studentApprovalStatus = MutableLiveData<String>()
-    val studentApprovalStatus: LiveData<String> get() = _studentApprovalStatus
+    private val _studentApprovalStatus = mutableStateMapOf<String, String>()
+    val studentApprovalStatus: Map<String, String> get() = _studentApprovalStatus
 
-    private val _studentCurriculum = MutableLiveData<String>()
-    val studentCurriculum: LiveData<String> get() = _studentCurriculum
+    private val _studentCurriculum = mutableStateMapOf<String, String>()
+    val studentCurriculum: Map<String, String> get() = _studentCurriculum
 
-    private val _studentProgram = MutableLiveData<String>()
-    val studentProgram: LiveData<String> get() = _studentProgram
+    private val _studentProgram = mutableStateMapOf<String, String>()
+    val studentProgram: Map<String, String> get() = _studentProgram
 
 
     fun fetchStudents() {
@@ -44,18 +44,19 @@ class AdminViewModel : ViewModel() {
         }
     }
 
+
     fun updateStudentCurriculum(studentId: String?, newCurriculumId: String) {
         if (studentId.isNullOrEmpty()) {
-            Log.e("AdminViewModel", "Error: studentId is null or empty, cannot update curriculum")
+            Log.e("StudentCardBug", "Error: studentId is null or empty, cannot update curriculum")
             return
         }
 
         repository.updateStudentCurriculum(studentId, newCurriculumId) { success ->
             if (success) {
-                Log.d("AdminViewModel", "Successfully updated curriculum for student: $studentId")
+                Log.d("StudentCardBug", "Successfully updated curriculum for student: $studentId")
                 fetchStudents() //refresh the student list to trigger UI recomposition
             } else {
-                Log.e("AdminViewModel", "Failed to update curriculum for student: $studentId")
+                Log.e("StudentCardBug", "Failed to update curriculum for student: $studentId")
             }
         }
     }
@@ -73,11 +74,11 @@ class AdminViewModel : ViewModel() {
         repository.getStudentApprovalStatus(
             studentId,
             onComplete = { status ->
-                _studentApprovalStatus.postValue(status)  // 🔥 Use postValue to ensure UI update
-                Log.d("AdminViewModel", "Approval status for student $studentId: $status")
+                _studentApprovalStatus[studentId] = status // 🔥 Use postValue to ensure UI update
+                Log.d("StudentCardBug", "Approval status for student $studentId: $status")
             },
             onError = { e ->
-                Log.e("AdminViewModel", "Failed to fetch approval status: ${e.message}")
+                Log.e("StudentCardBug", "Failed to fetch approval status: ${e.message}")
             }
         )
     }
@@ -86,11 +87,11 @@ class AdminViewModel : ViewModel() {
         repository.getStudentCurriculum(
             studentId,
             onComplete = { curriculumId ->
-                _studentCurriculum.postValue(curriculumId)  // 🔥 Use postValue to ensure UI update
-                Log.d("AdminViewModel", "Curriculum for student $studentId: $curriculumId")
+                _studentCurriculum[studentId] = curriculumId // 🔥 Use postValue to ensure UI update
+                Log.d("StudentCardBug", "Curriculum for student $studentId: $curriculumId")
             },
             onError = { e ->
-                Log.e("AdminViewModel", "Failed to fetch curriculum: ${e.message}")
+                Log.e("StudentCardBug", "Failed to fetch curriculum: ${e.message}")
             }
         )
     }
@@ -98,22 +99,38 @@ class AdminViewModel : ViewModel() {
     fun updateStudentApprovalStatus(studentId: String, status: String) {
         repository.updateStudentApprovalStatus(studentId, status)
             .addOnSuccessListener {
-                Log.d("AdminViewModel", "Approval status updated successfully to $status for student $studentId")
-                _studentApprovalStatus.value = status  // ✅ Update locally first
+                Log.d("StudentCardBug", "Approval status updated successfully to $status for student $studentId")
+                _studentApprovalStatus[studentId] = status  // ✅ Update locally first
                 viewModelScope.launch {
                     delay(1000) // ✅ Give Firestore time to sync
                     fetchStudentApprovalStatus(studentId) // ✅ Force re-fetch to avoid stale data
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("AdminViewModel", "Error updating approval status", e)
+                Log.e("StudentCardBug", "Error updating approval status", e)
             }
     }
 
     fun fetchStudentProgram(studentId: String) {
         repository.fetchStudentProgram(studentId) { program ->
-            _studentProgram.value = program
+            _studentProgram[studentId] = program
+            Log.d("StudentCardBug", "Program for student $studentId: $program")
         }
+    }
+
+    fun updateStudentProgram(studentId: String, program: String) {
+        repository.updateStudentProgram(studentId, program)
+            .addOnSuccessListener {
+                Log.d("StudentCardBug", "Programupdated successfully to $program for student $studentId")
+                _studentProgram[studentId] = program  // ✅ Update locally first
+                viewModelScope.launch {
+                    delay(1000) // ✅ Give Firestore time to sync
+                    fetchStudentProgram(studentId) // ✅ Force re-fetch to avoid stale data
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("StudentCardBug", "Error updating program", e)
+            }
     }
 
     //Admin page functinos

@@ -255,7 +255,7 @@ class FirebaseRepository {
 
     fun updateStudentCurriculum(studentId: String, newCurriculumId: String, callback: (Boolean) -> Unit) {
         if (studentId.isEmpty()) {
-            Log.e("Firebase", "Error: studentId is empty, cannot update curriculum")
+            Log.e("StudentCardBug", "Error: studentId is empty, cannot update curriculum")
             callback(false)
             return
         }
@@ -263,11 +263,11 @@ class FirebaseRepository {
         db.collection("students").document(studentId)
             .update("curriculum", newCurriculumId)
             .addOnSuccessListener {
-                Log.d("Firebase", "Updated curriculum for student: $studentId")
+                Log.d("StudentCardBug", "Updated curriculum for student: $studentId")
                 callback(true)
             }
             .addOnFailureListener { exception ->
-                Log.e("Firebase", "Error updating curriculum: $studentId", exception)
+                Log.e("StudentCardBug", "Error updating curriculum: $studentId", exception)
                 callback(false)
             }
     }
@@ -393,6 +393,13 @@ class FirebaseRepository {
             }
             .addOnFailureListener { onResult("Unknown") }
     }
+
+    fun updateStudentProgram(studentId: String, program: String): Task<Void> {
+        return db.collection("students")
+            .document(studentId)
+            .update("program", program)
+    }
+
 
     fun fetchAdminEmail(userID: String, onResult: (String) -> Unit) {
         db.collection("admins").document(userID)

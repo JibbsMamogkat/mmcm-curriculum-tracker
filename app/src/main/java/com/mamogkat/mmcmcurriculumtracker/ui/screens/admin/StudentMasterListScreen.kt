@@ -101,10 +101,20 @@ fun StudentCard(
     val curriculumMap = viewModel.getCurriculumNameMap()
     var approvalExpanded by remember { mutableStateOf(false) }
     var curriculumExpanded by remember { mutableStateOf(false) }
+    var programExpanded by remember { mutableStateOf(false) }
 
-    var studentApprovalStatus by rememberSaveable { mutableStateOf("Fetching...") }
-    var studentCurriculum by rememberSaveable { mutableStateOf("Fetching...") }
-    var studentProgram by rememberSaveable { mutableStateOf("Fetching...") } // ✅ Store fetched program
+    // Observe student-specific states from ViewModel
+    val studentApprovalStatus by viewModel.studentApprovalStatus[student.studentID]?.let {
+        mutableStateOf(it)
+    } ?: remember { mutableStateOf("Fetching...") }
+
+    val studentCurriculum by viewModel.studentCurriculum[student.studentID]?.let {
+        mutableStateOf(it)
+    } ?: remember { mutableStateOf("Fetching...") }
+
+    val studentProgram by viewModel.studentProgram[student.studentID]?.let {
+        mutableStateOf(it)
+    } ?: remember { mutableStateOf("Fetching...") }
 
     // Fetch only once
     LaunchedEffect(student.studentID) {
@@ -114,20 +124,6 @@ fun StudentCard(
         viewModel.fetchStudentProgram(student.studentID) // ✅ Fetch program from Firestore
     }
 
-    // Observe changes from ViewModel
-    val fetchedApprovalStatus = viewModel.studentApprovalStatus.observeAsState("Fetching...").value
-    val fetchedCurriculum = viewModel.studentCurriculum.observeAsState("Fetching...").value
-    val fetchedProgram = viewModel.studentProgram.observeAsState("Fetching...").value // ✅ Observe program
-
-    if (fetchedApprovalStatus.isNotEmpty()) {
-        studentApprovalStatus = fetchedApprovalStatus
-    }
-    if (fetchedCurriculum.isNotEmpty()) {
-        studentCurriculum = fetchedCurriculum
-    }
-    if (fetchedProgram.isNotEmpty()) {
-        studentProgram = fetchedProgram
-    }
 
     Log.d("StudentCard", "Final UI values for student: ${student.email} - Curriculum: $studentCurriculum, Approval Status: $studentApprovalStatus, Program: $studentProgram")
 
@@ -146,6 +142,29 @@ fun StudentCard(
             Text(text = "Approval Status: $studentApprovalStatus", fontSize = 16.sp)
 
             Spacer(modifier = Modifier.height(8.dp))
+
+
+            // **✅ Program Dropdown**
+            Box {
+                Button(onClick = { programExpanded = true }) {
+                    Text("Update Program")
+                }
+                DropdownMenu(
+                    expanded = programExpanded,
+                    onDismissRequest = { programExpanded = false }
+                ) {
+                    listOf("BS Computer Engineering", "BS Electronics and Communications Engineering", "BS Electrical Engineering").forEach { program ->
+                        DropdownMenuItem(
+                            text = { Text(program.capitalize()) },
+                            onClick = {
+                                Log.d("StudentCardBug", "Updating approval status for Student ID: ${student.studentID} to $program")
+                                viewModel.updateStudentProgram(student.studentID, program) // ✅ Update Firestore
+                                programExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
 
             // **✅ Approval Status Dropdown**
             Box {
