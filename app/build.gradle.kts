@@ -62,6 +62,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("io.coil-kt:coil-compose:2.0.0")
     implementation("io.coil-kt:coil-gif:2.0.0")
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.33.1-alpha")
     // --------------------------------------------------------------
 
     // Compose BOM (Bill of Materials)

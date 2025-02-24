@@ -67,6 +67,8 @@ import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.UserProfileScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.WaitingForApprovalScreen
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.StudentViewModel
 import kotlinx.coroutines.delay
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 
 @Composable
@@ -76,11 +78,13 @@ fun StudentMainScreen(navController: NavController) {
     val context = LocalContext.current
     val studentId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     val studentViewModel: StudentViewModel = viewModel()
+    val isRefreshing by studentViewModel.isRefreshing.collectAsState()
 
-    // Fetch approval status ONCE when Composable loads
-    LaunchedEffect(studentId) {
-        studentViewModel.fetchApprovalStatus(studentId)
+    // 🔥 Real-time listener for approval status of current user
+    LaunchedEffect(Unit) {
+        studentViewModel.observeCurrentUserApprovalStatus() // Replaces fetchApprovalStatus()
     }
+
 
     val approvalStatus by studentViewModel.approvalStatus.collectAsState()
 
@@ -179,7 +183,10 @@ fun StudentMainScreen(navController: NavController) {
             Box(modifier = Modifier.padding(paddingValues)) {
                 when (selectedScreen.value) {
                     "Home" -> RunningGif(context)
-                    "Curriculum" -> {
+                    "Curriculum" -> SwipeRefresh(
+                        state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+                        onRefresh = { studentViewModel.refreshData(studentId) }
+                    ) {
                         when (approvalStatus) {
                             "pending" -> WaitingForApprovalScreen(context)
                             "approved" -> CurriculumOverviewScreen()
@@ -187,7 +194,10 @@ fun StudentMainScreen(navController: NavController) {
                         }
                     }
 
-                    "Next Courses" -> {
+                    "Next Courses" -> SwipeRefresh(
+                        state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+                        onRefresh = { studentViewModel.refreshData(studentId) }
+                    ) {
                         when (approvalStatus) {
                             "pending" -> WaitingForApprovalScreen(context)
                             "approved" -> NextCoursesScreen(studentId, viewModel())
