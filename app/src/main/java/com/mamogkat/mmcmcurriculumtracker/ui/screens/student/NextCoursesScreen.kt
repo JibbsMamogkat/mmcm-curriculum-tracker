@@ -77,12 +77,12 @@ fun NextCoursesScreen(
                 selectedTerm = newTerm
             }
 
-            if (availableCourses.isEmpty()) {
-                Text(
-                    "No available courses at this time.",
-                    color = colorResource(id = R.color.mmcm_red)
-                )
-            } else {
+//            if (availableCourses.isEmpty()) {
+//                Text(
+//                    "No available courses at this time.",
+//                    color = colorResource(id = R.color.mmcm_red)
+//                )
+//            } else {
                 LazyColumn {
                     items(availableCourses) { (course, color) ->
                         CourseItem(course, color)
@@ -91,4 +91,3 @@ fun NextCoursesScreen(
             }
         }
     }
-}

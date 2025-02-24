@@ -349,28 +349,6 @@ class FirebaseRepository {
                 onError(e)
             }
     }
-    fun approveStudentCourses(studentId: String, selectedCourses: Set<String>, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
-        val studentRef = db.collection("students").document(studentId)
-
-        db.runTransaction { transaction ->
-            val snapshot = transaction.get(studentRef)
-            if (snapshot.exists()) {
-                val existingCourses = snapshot.get("completedCourses") as? List<String> ?: emptyList()
-                val updatedCourses = existingCourses.toMutableSet().apply { addAll(selectedCourses) }
-
-                transaction.update(studentRef, mapOf(
-                    "completedCourses" to updatedCourses.toList(),
-                    "approvalStatus" to "approved"
-                ))
-            }
-        }.addOnSuccessListener {
-            Log.d("FirebaseRepository", "Successfully approved courses for student: $studentId")
-            onSuccess()
-        }.addOnFailureListener { e ->
-            Log.e("FirebaseRepository", "Failed to approve courses: ${e.message}")
-            onError(e)
-        }
-    }
 
     fun getStudentCurriculum(studentId: String, onComplete: (String) -> Unit, onError: (Exception) -> Unit) {
         db.collection("students").document(studentId)
@@ -388,19 +366,6 @@ class FirebaseRepository {
             }
     }
 
-    fun fetchCompletedCourses(studentId: String, onResult: (List<String>) -> Unit) {
-        db.collection("students").document(studentId)
-            .get()
-            .addOnSuccessListener { document ->
-                val courses = document.get("completedCourses") as? List<String> ?: emptyList()
-                Log.d("FirebaseRepository", "Fetched completedCourses: $courses")
-                onResult(courses)
-            }
-            .addOnFailureListener { e ->
-                Log.e("FirebaseRepository", "Error fetching completed courses", e)
-                onResult(emptyList())
-            }
-    }
 
     fun updateCompletedCourses(studentId: String, completedCourses: Set<String>) {
         db.collection("students").document(studentId)
@@ -429,6 +394,18 @@ class FirebaseRepository {
             .addOnFailureListener { onResult("Unknown") }
     }
 
+    fun fetchAdminEmail(userID: String, onResult: (String) -> Unit) {
+        db.collection("admins").document(userID)
+            .get()
+            .addOnSuccessListener { document ->
+                Log.d("AdminEmail", "Document Data: ${document.data}")
+                val email = document.getString("email") ?: "Unknown"
+                Log.d("AdminEmail", "Extracted Email: $email")
+                onResult(email)
+    }
+
+    }//end of class
 }
+
 
 

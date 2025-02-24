@@ -111,12 +111,13 @@ fun AdminNextAvailableCoursesScreen(
                 }
 
                 // 🔹 Display available courses
-                if (completedCourses.isEmpty()) {
-                    Text("Loading available courses...", fontStyle = FontStyle.Italic)
-                } else if (availableCourses.isEmpty()) {
+//                if (completedCourses.isEmpty()) {
+//                    Text("Loading available courses...", fontStyle = FontStyle.Italic)
+//                } else
+                if (availableCourses.isEmpty()) {
                     Log.w("AdminNextAvailableCoursesScreen", "No available courses found for student $studentId")
                     Text(
-                        "No available courses at this time.",
+                        "Fetching....",
                         color = colorResource(id = R.color.mmcm_red)
                     )
                 } else {

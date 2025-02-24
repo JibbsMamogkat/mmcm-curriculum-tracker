@@ -116,6 +116,19 @@ class AdminViewModel : ViewModel() {
         }
     }
 
+    //Admin page functinos
+    // fetch admin email
+    private val _adminEmail = MutableLiveData<String>()
+    val adminEmail: LiveData<String> = _adminEmail
+
+    fun fetchAdminEmail(userID: String) {
+        repository.fetchAdminEmail(userID) { email ->
+            _adminEmail.postValue(email) // ✅ Use postValue for LiveData
+            Log.d("AdminEmail", "Admin Email Fetched for Homepage: $email")
+
+        }
+
+    }
 
 
     fun logoutAdmin() {

@@ -99,12 +99,11 @@ fun StudentCard(
     navController: NavController
 ) {
     val curriculumMap = viewModel.getCurriculumNameMap()
-    val selectedCurriculum by viewModel.studentCurriculum.observeAsState(initial = student.curriculum ?: "")
     var approvalExpanded by remember { mutableStateOf(false) }
     var curriculumExpanded by remember { mutableStateOf(false) }
 
-    var studentApprovalStatus by rememberSaveable { mutableStateOf("") }
-    var studentCurriculum by rememberSaveable { mutableStateOf("Not Assigned") }
+    var studentApprovalStatus by rememberSaveable { mutableStateOf("Fetching...") }
+    var studentCurriculum by rememberSaveable { mutableStateOf("Fetching...") }
     var studentProgram by rememberSaveable { mutableStateOf("Fetching...") } // ✅ Store fetched program
 
     // Fetch only once
@@ -116,8 +115,8 @@ fun StudentCard(
     }
 
     // Observe changes from ViewModel
-    val fetchedApprovalStatus = viewModel.studentApprovalStatus.observeAsState("").value
-    val fetchedCurriculum = viewModel.studentCurriculum.observeAsState("Not Assigned").value
+    val fetchedApprovalStatus = viewModel.studentApprovalStatus.observeAsState("Fetching...").value
+    val fetchedCurriculum = viewModel.studentCurriculum.observeAsState("Fetching...").value
     val fetchedProgram = viewModel.studentProgram.observeAsState("Fetching...").value // ✅ Observe program
 
     if (fetchedApprovalStatus.isNotEmpty()) {
@@ -130,7 +129,7 @@ fun StudentCard(
         studentProgram = fetchedProgram
     }
 
-    Log.d("StudentCard", "Final UI values - Curriculum: $studentCurriculum, Approval Status: $studentApprovalStatus, Program: $studentProgram")
+    Log.d("StudentCard", "Final UI values for student: ${student.email} - Curriculum: $studentCurriculum, Approval Status: $studentApprovalStatus, Program: $studentProgram")
 
     val curriculumName = curriculumMap[studentCurriculum] ?: "Not Assigned"
 
@@ -213,7 +212,8 @@ fun StudentCard(
                 onClick = {
                     Log.d("StudentCard", "Navigating to Next Available Courses for Student ID: ${student.studentID}")
                     navController.navigate("admin_next_available_courses_screen/${student.studentID}")
-                }
+                },
+                enabled = if (studentApprovalStatus == "approved") true else false
             ) {
                 Text("Next Available Courses")
             }

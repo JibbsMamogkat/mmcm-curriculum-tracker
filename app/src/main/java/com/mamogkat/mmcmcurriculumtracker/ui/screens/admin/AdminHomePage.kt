@@ -45,6 +45,9 @@ import com.mamogkat.mmcmcurriculumtracker.viewmodel.AdminViewModel
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.livedata.observeAsState
+import com.google.firebase.auth.FirebaseAuth
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +56,21 @@ fun AdminHomePage(navController: NavController, viewModel: AdminViewModel) {
     val coroutineScope = rememberCoroutineScope()
     var backPressedOnce by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val currentUserID = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    val adminEmail = viewModel.adminEmail.observeAsState("Admin")
+
+    // Fetch email when the screen loads
+    LaunchedEffect(currentUserID) {
+        if (currentUserID.isNotEmpty()) {
+            viewModel.fetchAdminEmail(currentUserID)
+        } else {
+            Log.e("AdminEmail", "No logged-in user found.")
+        }
+    }
+    LaunchedEffect(adminEmail.value) {
+        Log.d("AdminEmail", "Updated Admin Email: ${adminEmail.value}")
+    }
 
     // ✅ Reset backPressedOnce after 2 seconds using LaunchedEffect outside BackHandler
     LaunchedEffect(backPressedOnce) {
@@ -109,7 +127,7 @@ fun AdminHomePage(navController: NavController, viewModel: AdminViewModel) {
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = "Welcome, Admin",
+                    text = "Welcome, ${adminEmail.value}",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -166,14 +184,13 @@ fun AdminNavigationDrawer(navController: NavController, drawerState: DrawerState
                 .padding(horizontal = 16.dp)
         ) {
             NavigationDrawerSection("Navigation") {
-                DrawerItem("Student Master List", Icons.Default.Person) {
-                    navController.navigate("student_master_list")
+                DrawerItem("Home", Icons.Default.Home)  {
+                    navController.navigate("admin_home_page")
                     coroutineScope.launch { drawerState.close() }
                 }
-                DrawerItem("Next Available Courses",
-                           Icons.AutoMirrored.Filled.List
-                ) {
-                    navController.navigate("admin_next_available_courses_screen")
+
+                DrawerItem("Student Master List", Icons.Default.Person) {
+                    navController.navigate("student_master_list")
                     coroutineScope.launch { drawerState.close() }
                 }
                 DrawerItem("Manage Curriculums", Icons.Default.Menu) {
