@@ -44,7 +44,6 @@ fun AdminNextAvailableCoursesScreen(
     val completedCourses by viewModel.completedCourses.observeAsState(emptySet()) // ✅ Bind directly to Firestore
 
 
-
     Log.d("AdminNextAvailableCoursesScreen", "Fetching student and course data for Student ID: $studentId")
 
     // ✅ Ensure `completedCourses` is loaded first, then `availableCourses` updates
@@ -56,16 +55,13 @@ fun AdminNextAvailableCoursesScreen(
         }
     }
     // ✅ **Automatically recompute available courses when completedCourses updates**
-    val availableCourses by remember {
-        derivedStateOf {
-            if (completedCourses.isNotEmpty()) {
-                Log.d("AdminNextAvailableCoursesScreen", "Computing available courses for Student ID: $studentId, term: $selectedTerm")
-                viewModel.getAvailableCourses(studentId, selectedTerm)
-            } else {
-                emptyList()
-            }
-        }
+    val availableCourses by viewModel.availableCourses.collectAsState()
+    LaunchedEffect(studentId, selectedTerm) {
+        Log.d("AdminNextAvailableCoursesScreen", "🔄 Fetching available courses for Student ID: $studentId, term: $selectedTerm")
+        viewModel.getAvailableCourses(studentId, selectedTerm)
     }
+
+    Log.d("AdminNextAvailableCoursesScreen", "Available courses computed for Student ID: $studentId")
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -112,9 +108,6 @@ fun AdminNextAvailableCoursesScreen(
                 }
 
                 // 🔹 Display available courses
-                if (completedCourses.isEmpty()) {
-                    Text("Loading available courses...", fontStyle = FontStyle.Italic)
-                } else
                 if (availableCourses.isEmpty()) {
                     Log.w("AdminNextAvailableCoursesScreen", "No available courses found for student $studentId")
                     Text(
@@ -122,9 +115,9 @@ fun AdminNextAvailableCoursesScreen(
                         color = colorResource(id = R.color.mmcm_red)
                     )
                 } else {
+                    Log.d("AdminNextAvailableCoursesScreen", "Found ${availableCourses.size} available courses for student $studentId")
                     LazyColumn {
                         items(availableCourses) { (course, color) ->
-                            Log.d("AdminNextAvailableCoursesScreen", "Displaying course: ${course.name} (Code: ${course.code}), Color: $color")
                             CourseItem(course, color)
                         }
                     }

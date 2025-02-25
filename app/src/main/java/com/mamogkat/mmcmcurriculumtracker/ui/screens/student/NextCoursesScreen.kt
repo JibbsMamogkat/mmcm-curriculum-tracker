@@ -41,13 +41,13 @@ fun NextCoursesScreen(
         availableCourses = emptyList()
 
         viewModel.loadStudentCompletedCourses(studentId) {
-            availableCourses = viewModel.getAvailableCourses(studentId, selectedTerm)
+            viewModel.getAvailableCourses(studentId, selectedTerm)
         }
     }
 
     // Fetch available courses when the term changes
     LaunchedEffect(selectedTerm) {
-        availableCourses = viewModel.getAvailableCourses(studentId, selectedTerm)
+        viewModel.getAvailableCourses(studentId, selectedTerm)
     }
 
     Scaffold(

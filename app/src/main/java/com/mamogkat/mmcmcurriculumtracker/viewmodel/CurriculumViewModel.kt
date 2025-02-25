@@ -14,6 +14,8 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.mamogkat.mmcmcurriculumtracker.models.CourseGraph
 import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
 import com.mamogkat.mmcmcurriculumtracker.repository.FirebaseRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class CurriculumViewModel : ViewModel() {
@@ -111,29 +113,35 @@ class CurriculumViewModel : ViewModel() {
         val terms = listOf("term_1", "term_2", "term_3") // 🔹 Terms inferred from Firestore path
 
         // 🔹 Elective categories to fetch depending on the curriculum
-        val electiveCategories = listOf<String>()
-        if (curriculumId == "1") {
-            val electiveCategories = listOf(
-                "AWS171P",
-                "EMSY171P",
-                "GEN_ED",
-                "MACH171P",
-                "MICR172P",
-                "NETA172P",
-                "SDEV173P",
-                "SNAD174P"
+        val electiveCategories = mutableListOf<String>()
+        Log.d("ElectivesBUG", "Fetching electives for curriculum: $curriculumId")
+        if (curriculumId == "bscpe_2022_2023") {
+            electiveCategories.addAll(
+                listOf(
+                    "AWS171P",
+                    "EMSY171P",
+                    "GEN_ED",
+                    "MACH171P",
+                    "MICR172P",
+                    "NETA172P",
+                    "SDEV173P",
+                    "SNAD174P"
+                )
             )
-        } else if (curriculumId == "2"){
-            val electiveCategories = listOf(
-                "ADVANCED_ELECTRICAL_SYSTEMS_DESIGN",
-                "ADVANCED_POWER_SYSTEMS",
-                "ADVANCED_SYSTEM_DESIGN",
-                "AGRICULTURAL_ENGINEERING",
-                "GEN_ED",
-                "MECHATRONICS",
-                "OPEN_ELECTIVE"
+        } else if (curriculumId == "bsee_2024_2025") {
+            electiveCategories.addAll(
+                listOf(
+                    "ADVANCED_ELECTRICAL_SYSTEMS_DESIGN",
+                    "ADVANCED_POWER_SYSTEMS",
+                    "ADVANCED_SYSTEM_DESIGN",
+                    "AGRICULTURAL_ENGINEERING",
+                    "GEN_ED",
+                    "MECHATRONICS",
+                    "OPEN_ELECTIVE"
+                )
             )
         }
+        Log.d("ElectivesBUG", "Elective categories to fetch: $electiveCategories")
         val tasks = mutableListOf<Task<QuerySnapshot>>()
 
         // 🔹 Fetch all regular courses (Loop through all years and terms)
@@ -167,6 +175,7 @@ class CurriculumViewModel : ViewModel() {
             val electiveTask = electivePath.get().addOnSuccessListener { snapshot ->
                 val electives = snapshot.documents.mapNotNull { it.toObject(CourseNode::class.java) }
                 electiveCourses.addAll(electives)
+                Log.d("ElectivesBUG", "Electives for category: $category fetched: $electives")
             }.addOnFailureListener { e ->
                 Log.e("CurriculumViewModel", "Error fetching electives for $category", e)
             }
@@ -228,31 +237,29 @@ class CurriculumViewModel : ViewModel() {
         }
     }
 
+    private val _availableCourses = MutableStateFlow<List<Pair<CourseNode, String>>>(emptyList())
+    val availableCourses: StateFlow<List<Pair<CourseNode, String>>> = _availableCourses
 
-    fun getAvailableCourses(studentId: String, selectedTerm: Int): List<Pair<CourseNode, String>> {
-        Log.d("CurriculumViewModel", "Starting getAvailableCourses() for Student ID: $studentId, Term: $selectedTerm")
 
-        val graph = _courseGraph.value
-        if (graph == null) {
-            Log.e("CurriculumViewModel", "Course graph is null, returning empty list")
-            return emptyList()
+    fun getAvailableCourses(studentId: String, selectedTerm: Int) {
+        Log.d("CurriculumViewModel", "Starting computeAvailableCourses() for Student ID: $studentId, Term: $selectedTerm")
+
+        viewModelScope.launch {
+            val graph = _courseGraph.value
+            if (graph == null) {
+                Log.e("CurriculumViewModel", "Course graph is null, returning empty list")
+                _availableCourses.value = emptyList()
+                return@launch
+            }
+
+            Log.d("CurriculumViewModel", "Course graph successfully retrieved")
+
+            val completed = _studentCompletedCourses[studentId] ?: emptySet()
+            Log.d("CurriculumViewModel", "Student $studentId's Completed Courses: $completed")
+
+            Log.d("CurriculumViewModel", "Fetching next available courses for Term $selectedTerm...")
+            _availableCourses.value = graph.getNextAvailableCourses(selectedTerm, completed)
         }
-
-        Log.d("CurriculumViewModel", "Course graph successfully retrieved")
-
-        // Fetch completed courses specific to the student
-        val completed = _studentCompletedCourses[studentId] ?: emptySet()
-        Log.d("CurriculumViewModel", "Student $studentId's Completed Courses: $completed")
-
-        Log.d("CurriculumViewModel", "Fetching next available courses for Term $selectedTerm...")
-        val availableCourses = graph.getNextAvailableCourses(selectedTerm, completed)
-
-        Log.d(
-            "CurriculumViewModel",
-            "Available Courses for Student $studentId, Term $selectedTerm: ${availableCourses.map { it.first.code }}"
-        )
-
-        return availableCourses
     }
 
    // functions to upload BS CPE 2022-2023 CURRICULUM
