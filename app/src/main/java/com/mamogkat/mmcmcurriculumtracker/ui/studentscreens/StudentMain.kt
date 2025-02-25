@@ -236,7 +236,7 @@ fun BottomNavigationBar(selectedScreen: MutableState<String>) {
         )
         NavigationBarItem(
             icon = { Icon(Icons.Default.List, contentDescription = "Next Courses") },
-            label = { Text("Next Courses", fontSize = 10.sp) },
+            label = { Text("Courses") },
             selected = selectedScreen.value == "Next Courses",
             onClick = { selectedScreen.value = "Next Courses" },
             colors = NavigationBarItemDefaults.colors(
@@ -260,7 +260,7 @@ fun BottomNavigationBar(selectedScreen: MutableState<String>) {
         )
         NavigationBarItem(
             icon = { Icon(Icons.Default.AccountBox, contentDescription = "Account") },
-            label = { Text("Account", fontSize = 10.sp) },
+            label = { Text("Account") },
             selected = selectedScreen.value == "Account",
             onClick = { selectedScreen.value = "Account" },
             colors = NavigationBarItemDefaults.colors(
@@ -272,7 +272,7 @@ fun BottomNavigationBar(selectedScreen: MutableState<String>) {
         )
         NavigationBarItem(
             icon = { Icon(Icons.Default.Info, contentDescription = "DevInfo") },
-            label = { Text("Info", fontSize = 10.sp) },
+            label = { Text("Info") },
             selected = selectedScreen.value == "Info",
             onClick = { selectedScreen.value = "Info" },
             colors = NavigationBarItemDefaults.colors(

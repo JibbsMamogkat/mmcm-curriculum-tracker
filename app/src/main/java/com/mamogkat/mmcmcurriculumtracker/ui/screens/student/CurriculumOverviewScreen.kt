@@ -96,7 +96,12 @@ fun CurriculumOverviewScreen(
             )
 
             if (courseGraph == null) {
-                CircularProgressIndicator()
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = colorResource(id = R.color.mmcm_blue))
+                }
             } else {
                 val groupedCourses = courseGraph!!.groupedCourses
                 val electiveCourses = courseGraph!!.electives

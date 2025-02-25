@@ -86,7 +86,7 @@ fun NextCoursesScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = colorResource(id = R.color.mmcm_red))
+                    CircularProgressIndicator(color = colorResource(id = R.color.mmcm_blue))
                 }
             } else {
                 LazyColumn(
