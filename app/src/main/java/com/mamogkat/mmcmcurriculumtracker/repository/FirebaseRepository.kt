@@ -405,6 +405,26 @@ class FirebaseRepository {
             .document(studentId)
             .update("program", program)
     }
+    // duff added for bugs
+    fun listenToStudentData(studentId: String, onUpdate: (Set<String>, String?) -> Unit) {
+        db.collection("students")
+            .document(studentId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestoreRepository", "Error listening to student data", error)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    val completedCourses = snapshot.get("completedCourses") as? List<String> ?: emptyList()
+                    val curriculum = snapshot.getString("curriculum")
+                    onUpdate(completedCourses.toSet(), curriculum) // ✅ Pass both arguments
+                } else {
+                    onUpdate(emptySet(), null)
+                }
+            }
+    }
+    //------------------------
 
 
     fun fetchAdminEmail(userID: String, onResult: (String) -> Unit) {
@@ -418,6 +438,7 @@ class FirebaseRepository {
     }
 
     }//end of class
+
 }
 
 

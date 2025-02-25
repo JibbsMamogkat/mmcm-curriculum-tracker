@@ -3,7 +3,9 @@ package com.mamogkat.mmcmcurriculumtracker.ui.studentscreens
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -69,24 +71,34 @@ import kotlinx.coroutines.delay
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.HomePageScreen
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.*
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StudentMainScreen(navController: NavController) {
-    val selectedScreen = remember { mutableStateOf("Home")}
+    val selectedScreen = remember { mutableStateOf("Home") }
     var backPressedOnce by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val studentId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    val studentId = FirebaseAuth.getInstance().currentUser ?.uid ?: ""
     val studentViewModel: StudentViewModel = viewModel()
     val isRefreshing by studentViewModel.isRefreshing.collectAsState()
+    val approvalStatus by studentViewModel.approvalStatus.collectAsState()
 
     // 🔥 Real-time listener for approval status of current user
     LaunchedEffect(Unit) {
-        studentViewModel.observeCurrentUserApprovalStatus() // Replaces fetchApprovalStatus()
+        studentViewModel.observeCurrentUserApprovalStatus()
     }
-
-
-    val approvalStatus by studentViewModel.approvalStatus.collectAsState()
 
     // ✅ Reset backPressedOnce after 2 seconds using LaunchedEffect outside BackHandler
     LaunchedEffect(backPressedOnce) {
@@ -99,121 +111,196 @@ fun StudentMainScreen(navController: NavController) {
     // Back button behavior
     BackHandler {
         if (backPressedOnce) {
-            // Exit the app
             (context as? Activity)?.finish()
         } else {
             backPressedOnce = true
             Toast.makeText(context, "Tap again to exit", Toast.LENGTH_SHORT).show()
         }
     }
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = colorResource(id = R.color.mmcm_white) // Background for entire app
-    ) {
-        Scaffold (
-            bottomBar = {
-                NavigationBar (
-                    containerColor = colorResource(id = R.color.mmcm_blue),
-                    contentColor = colorResource(id = R.color.mmcm_white),
-                ) {
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.CheckCircle, contentDescription = "Curriculum") },
-                        label = { Text("Curriculum") },
-                        selected = selectedScreen.value == "Curriculum",
-                        onClick = { selectedScreen.value = "Curriculum" },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = colorResource(id = R.color.mmcm_blue),
-                            unselectedIconColor = colorResource(id = R.color.white),
-                            selectedTextColor = colorResource(id = R.color.mmcm_red),
-                            unselectedTextColor = colorResource(id = R.color.white)
-                        )
-                    )
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.List, contentDescription = "Next Courses") },
-                        label = { Text("Next Courses", fontSize = 10.sp) },
-                        selected = selectedScreen.value == "Next Courses",
-                        onClick = { selectedScreen.value = "Next Courses" },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = colorResource(id = R.color.mmcm_blue),
-                            unselectedIconColor = colorResource(id = R.color.white),
-                            selectedTextColor = colorResource(id = R.color.mmcm_red),
-                            unselectedTextColor = colorResource(id = R.color.white)
-                        )
-                    )
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                        label = { Text("Home") },
-                        selected = selectedScreen.value == "Home",
-                        onClick = { selectedScreen.value = "Home" },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = colorResource(id = R.color.mmcm_blue),
-                            unselectedIconColor = colorResource(id = R.color.white),
-                            selectedTextColor = colorResource(id = R.color.mmcm_red),
-                            unselectedTextColor = colorResource(id = R.color.white)
-                        )
-                    )
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.AccountBox, contentDescription = "Account") },
-                        label = { Text("Account", fontSize = 10.sp) },
-                        selected = selectedScreen.value == "Account",
-                        onClick = { selectedScreen.value = "Account" },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = colorResource(id = R.color.mmcm_blue),
-                            unselectedIconColor = colorResource(id = R.color.white),
-                            selectedTextColor = colorResource(id = R.color.mmcm_red),
-                            unselectedTextColor = colorResource(id = R.color.white)
-                        )
-                    )
-                    NavigationBarItem(
-                        icon = {Icon(Icons.Default.Info, contentDescription = "DevInfo") },
-                        label = { Text("Info", fontSize = 10.sp) },
-                        selected = selectedScreen.value == "Info",
-                        onClick = { selectedScreen.value = "Info"},
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = colorResource(id = R.color.mmcm_blue),
-                            unselectedIconColor = colorResource(id = R.color.white),
-                            selectedTextColor = colorResource(id = R.color.mmcm_red),
-                            unselectedTextColor = colorResource(id = R.color.white)
-                        )
-                    )
+
+    // Modal Navigation Drawer
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+                // Left side: Logo and Title
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Replace with your logo
+                    Icon(Icons.Default.Info, contentDescription = "Logo", modifier = Modifier.size(40.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("MMCM Curriculum Tracker", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Right side: Drawer items
+                DrawerItem("Home", selectedScreen, drawerState, coroutineScope)
+                DrawerItem("Next Courses", selectedScreen, drawerState, coroutineScope)
+                DrawerItem("Curriculum", selectedScreen, drawerState, coroutineScope)
+                DrawerItem("Account", selectedScreen, drawerState, coroutineScope)
+                DrawerItem("Info", selectedScreen, drawerState, coroutineScope)
+                DrawerItem("Log Out", selectedScreen, drawerState, coroutineScope) {
+                    // Handle log out logic here
                 }
             }
+        }
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = colorResource(id = R.color.mmcm_white)
         ) {
-                paddingValues ->
-            Box(modifier = Modifier.padding(paddingValues)) {
-                when (selectedScreen.value) {
-                    "Home" -> HomePageScreen()
-                    "Curriculum" -> SwipeRefresh(
-                        state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
-                        onRefresh = { studentViewModel.refreshData(studentId) }
-                    ) {
-                        when (approvalStatus) {
-                            "pending" -> WaitingForApprovalScreen(context)
-                            "approved" -> CurriculumOverviewScreen()
-                            else -> LoadingScreen() // Or handle errors gracefully
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text("MMCM Curriculum Tracker") },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                coroutineScope.launch { drawerState.open() } // Open the drawer
+                            }) {
+                                Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            }
+                        },
+                        actions = {
+                            // Add logo at the end
+                            Image(
+                                painter = painterResource(id = R.drawable.mmcm_logo),
+                                contentDescription = "MMCM Logo",
+                                modifier = Modifier
+                                    .size(50.dp)
+                            )
                         }
+                    )
+                },
+                bottomBar = {
+                    if (drawerState.isClosed) {
+                        BottomNavigationBar(selectedScreen)
                     }
-
-                    "Next Courses" -> SwipeRefresh(
-                        state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
-                        onRefresh = { studentViewModel.refreshData(studentId) }
-                    ) {
-                        when (approvalStatus) {
-                            "pending" -> WaitingForApprovalScreen(context)
-                            "approved" -> NextCoursesScreen(studentId, viewModel())
-                            else -> LoadingScreen()
+                }
+            ) { paddingValues ->
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    when (selectedScreen.value) {
+                        "Home" -> HomePageScreen()
+                        "Curriculum" -> SwipeRefresh(
+                            state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+                            onRefresh = { studentViewModel.refreshData(studentId) }
+                        ) {
+                            when (approvalStatus) {
+                                "pending" -> WaitingForApprovalScreen(context)
+                                "approved" -> CurriculumOverviewScreen()
+                                else -> LoadingScreen()
+                            }
                         }
+                        "Next Courses" -> SwipeRefresh(
+                            state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+                            onRefresh = { studentViewModel.refreshData(studentId) }
+                        ) {
+                            when (approvalStatus) {
+                                "pending" -> WaitingForApprovalScreen(context)
+                                "approved" -> NextCoursesScreen(studentId, viewModel())
+                                else -> LoadingScreen()
+                            }
+                        }
+                        "Account" -> UserProfileScreen(navController = navController, authViewModel = viewModel())
+                        "Info" -> AboutDevelopersScreen()
                     }
-
-                    "Account" -> UserProfileScreen(navController = navController, authViewModel = viewModel())
-                    "Info" -> AboutDevelopersScreen()
                 }
             }
         }
     }
-
 }
 
+@Composable
+fun BottomNavigationBar(selectedScreen: MutableState<String>) {
+    NavigationBar(
+        containerColor = colorResource(id = R.color.mmcm_blue),
+        contentColor = colorResource(id = R.color.mmcm_white),
+    ) {
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.CheckCircle, contentDescription = "Curriculum") },
+            label = { Text("Curriculum") },
+            selected = selectedScreen.value == "Curriculum",
+            onClick = { selectedScreen.value = "Curriculum" },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = colorResource(id = R.color.mmcm_blue),
+                unselectedIconColor = colorResource(id = R.color.white),
+                selectedTextColor = colorResource(id = R.color.mmcm_red),
+                unselectedTextColor = colorResource(id = R.color.white)
+            )
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.List, contentDescription = "Next Courses") },
+            label = { Text("Next Courses", fontSize = 10.sp) },
+            selected = selectedScreen.value == "Next Courses",
+            onClick = { selectedScreen.value = "Next Courses" },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = colorResource(id = R.color.mmcm_blue),
+                unselectedIconColor = colorResource(id = R.color.white),
+                selectedTextColor = colorResource(id = R.color.mmcm_red),
+                unselectedTextColor = colorResource(id = R.color.white)
+            )
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+            label = { Text("Home") },
+            selected = selectedScreen.value == "Home",
+            onClick = { selectedScreen.value = "Home" },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = colorResource(id = R.color.mmcm_blue),
+                unselectedIconColor = colorResource(id = R.color.white),
+                selectedTextColor = colorResource(id = R.color.mmcm_red),
+                unselectedTextColor = colorResource(id = R.color.white)
+            )
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.AccountBox, contentDescription = "Account") },
+            label = { Text("Account", fontSize = 10.sp) },
+            selected = selectedScreen.value == "Account",
+            onClick = { selectedScreen.value = "Account" },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = colorResource(id = R.color.mmcm_blue),
+                unselectedIconColor = colorResource(id = R.color.white),
+                selectedTextColor = colorResource(id = R.color.mmcm_red),
+                unselectedTextColor = colorResource(id = R.color.white)
+            )
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.Info, contentDescription = "DevInfo") },
+            label = { Text("Info", fontSize = 10.sp) },
+            selected = selectedScreen.value == "Info",
+            onClick = { selectedScreen.value = "Info" },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = colorResource(id = R.color.mmcm_blue),
+                unselectedIconColor = colorResource(id = R.color.white),
+                selectedTextColor = colorResource(id = R.color.mmcm_red),
+                unselectedTextColor = colorResource(id = R.color.white)
+            )
+        )
+    }
+}
+
+@Composable
+fun DrawerItem(label: String, selectedScreen: MutableState<String>, drawerState: DrawerState, coroutineScope: CoroutineScope, onClick: (() -> Unit)? = null) {
+    Text(
+        text = label,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clickable {
+                selectedScreen.value = label
+                onClick?.invoke()
+                // Close the drawer
+                coroutineScope.launch { drawerState.close() }
+            },
+        fontSize = 18.sp
+    )
+}
 @Preview
 @Composable
 private fun PreviewStudentMainScreen() {

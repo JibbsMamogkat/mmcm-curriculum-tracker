@@ -17,6 +17,9 @@ import com.mamogkat.mmcmcurriculumtracker.repository.FirebaseRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import androidx.lifecycle.asFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
 
 class CurriculumViewModel : ViewModel() {
     private val repository = FirebaseRepository()
@@ -220,7 +223,7 @@ class CurriculumViewModel : ViewModel() {
 
 
 
-    //Admin Next Courses Available functions
+   //Admin Next Courses Available functions
     fun loadStudentCompletedCourses(studentId: String, onComplete: () -> Unit) {
 
         viewModelScope.launch {
@@ -241,7 +244,7 @@ class CurriculumViewModel : ViewModel() {
     val availableCourses: StateFlow<List<Pair<CourseNode, String>>> = _availableCourses
 
 
-    fun getAvailableCourses(studentId: String, selectedTerm: Int) {
+   fun getAvailableCourses(studentId: String, selectedTerm: Int) {
         Log.d("CurriculumViewModel", "Starting computeAvailableCourses() for Student ID: $studentId, Term: $selectedTerm")
 
         viewModelScope.launch {
@@ -261,6 +264,42 @@ class CurriculumViewModel : ViewModel() {
             _availableCourses.value = graph.getNextAvailableCourses(selectedTerm, completed)
         }
     }
+    // Duff added for bugs
+    // CurriculumViewModel.kt
+    private val _studentCurriculum = mutableMapOf<String, String>()
+    fun observeStudentData(studentId: String, onComplete: () -> Unit) {
+        Log.d("CurriculumViewModel", "Starting real-time listener for Student ID: $studentId")
+
+        repository.listenToStudentData(studentId) { completedCourses, curriculum ->  // ✅ Two parameters
+            viewModelScope.launch {
+                Log.d("CurriculumViewModel", "Real-time update: Completed - $completedCourses | Curriculum - $curriculum")
+
+                _studentCompletedCourses[studentId] = completedCourses
+                _studentCurriculum[studentId] = curriculum ?: ""  // ✅ Store curriculum
+
+                getAvailableCoursesStudent(studentId, 1)  // ✅ Trigger update
+                onComplete() // ✅ Call completion callback
+            }
+        }
+    }
+
+
+    fun getAvailableCoursesStudent(studentId: String, selectedTerm: Int) {
+        Log.d("CurriculumViewModel", "Starting computeAvailableCourses() for Student ID: $studentId, Term: $selectedTerm")
+
+        viewModelScope.launch {
+            _courseGraph.asFlow().filterNotNull().firstOrNull()?.let { graph ->
+                Log.d("CurriculumViewModel", "Course graph successfully retrieved")
+
+                val completed = _studentCompletedCourses[studentId] ?: emptySet()
+                Log.d("CurriculumViewModel", "Student $studentId's Completed Courses: $completed")
+
+                Log.d("CurriculumViewModel", "Fetching next available courses for Term $selectedTerm...")
+                _availableCourses.value = graph.getNextAvailableCourses(selectedTerm, completed)
+            } ?: Log.e("CurriculumViewModel", "Course graph is null even after waiting, returning empty list")
+        }
+    }
+    //----------------------------------------------
 
    // functions to upload BS CPE 2022-2023 CURRICULUM
     fun uploadFirstYearTerm1() {
