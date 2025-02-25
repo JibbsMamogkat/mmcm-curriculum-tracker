@@ -53,6 +53,8 @@ class CurriculumViewModel : ViewModel() {
     fun setCurriculum(curriculum: String) {
         _selectedCurriculum.postValue(curriculum)
     }
+    private val _curriculumName = MutableLiveData<String>()
+    val curriculumName: LiveData<String> = _curriculumName
 
     //ADMIN Curriculum Overview functions
     fun fetchStudentData(studentId: String) {
@@ -81,6 +83,17 @@ class CurriculumViewModel : ViewModel() {
 
                 if (curriculumId != null) {
                     fetchCurriculum(curriculumId)  // Fetch courseGraph from Firestore
+                    // 🔹 Fetch the curriculum name from Firestore
+                    repository.getCurriculumDocument(curriculumId)
+                        .get()
+                        .addOnSuccessListener { curriculumDoc ->
+                            val curriculumName = curriculumDoc.getString("name") ?: "Unknown Curriculum"
+                            _curriculumName.postValue(curriculumName) // Store it in LiveData
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("CurriculumViewModel", "Error fetching curriculum name", e)
+                            _curriculumName.postValue("Error Fetching Curriculum")
+                        }
                 } else {
                     Log.e("CurriculumViewModel", "curriculumId is null for student: $studentId")
                 }
@@ -298,6 +311,44 @@ class CurriculumViewModel : ViewModel() {
                 _availableCourses.value = graph.getNextAvailableCourses(selectedTerm, completed)
             } ?: Log.e("CurriculumViewModel", "Course graph is null even after waiting, returning empty list")
         }
+    }
+    // for UI Curriculum student
+    private val _expandedYears = MutableStateFlow(mapOf<Int, Boolean>())
+    val expandedYears: StateFlow<Map<Int, Boolean>> = _expandedYears
+
+    private val _expandedTerms = MutableStateFlow(mapOf<Pair<Int, Int>, Boolean>())
+    val expandedTerms: StateFlow<Map<Pair<Int, Int>, Boolean>> = _expandedTerms
+
+    private val _expandedElectives = MutableStateFlow(false)
+    val expandedElectives: StateFlow<Boolean> = _expandedElectives
+
+    private val _scrollPosition = MutableStateFlow(0)
+    val scrollPosition: StateFlow<Int> = _scrollPosition
+
+    private val _scrollOffset = MutableStateFlow(0)
+    val scrollOffset: StateFlow<Int> = _scrollOffset
+
+    fun toggleYearExpansion(year: Int) {
+        _expandedYears.value = _expandedYears.value.toMutableMap().apply {
+            this[year] = !(this[year] ?: false)
+        }
+    }
+
+    fun toggleTermExpansion(year: Int, term: Int, allCompleted: Boolean) {
+        _expandedTerms.value = _expandedTerms.value.toMutableMap().toMap().let { currentMap ->
+            val newState = !currentMap.getOrDefault(Pair(year, term), !allCompleted) // Correct default state
+            currentMap.toMutableMap().apply { this[Pair(year, term)] = newState }
+        }
+    }
+
+
+    fun toggleElectivesExpansion() {
+        _expandedElectives.value = !_expandedElectives.value
+    }
+
+    fun saveScrollPosition(index: Int, offset: Int) {
+        _scrollPosition.value = index
+        _scrollOffset.value = offset
     }
     //----------------------------------------------
 

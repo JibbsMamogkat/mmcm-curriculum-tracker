@@ -193,7 +193,7 @@ fun StudentMainScreen(navController: NavController) {
                         ) {
                             when (approvalStatus) {
                                 "pending" -> WaitingForApprovalScreen(context)
-                                "approved" -> CurriculumOverviewScreen()
+                                "approved" -> CurriculumOverviewScreen(studentId)
                                 else -> LoadingScreen()
                             }
                         }

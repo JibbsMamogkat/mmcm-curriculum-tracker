@@ -1,29 +1,48 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens.student
+import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminNavigationDrawer
 import com.mamogkat.mmcmcurriculumtracker.ui.year.curriculumData
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
+import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 
 data class Curriculum(
     val code: String,
@@ -36,199 +55,216 @@ data class Curriculum(
     var isChecked: Boolean = false
 )
 @Composable
-fun CurriculumOverviewScreen() {
-    // State to track which term is expanded
-    val expandedStates = remember { mutableStateMapOf<String, Boolean>() }
+fun CurriculumOverviewScreen(
+    studentId: String,
+    viewModel: CurriculumViewModel = viewModel()
+) {
+    val courseGraph by viewModel.courseGraph.observeAsState()
+    val completedCourses by viewModel.completedCourses.observeAsState(emptySet())
+    val curriculumName by viewModel.curriculumName.observeAsState("YOUR CURRICULUM")
 
-    // State to track checkbox selections
-    val checkboxStates = remember {
-        mutableStateMapOf<String, Boolean>()
+    val expandedYears by viewModel.expandedYears.collectAsState()
+    val expandedTerms by viewModel.expandedTerms.collectAsState()
+    val expandedElectives by viewModel.expandedElectives.collectAsState()
+
+    val scrollPosition by viewModel.scrollPosition.collectAsState()
+    val scrollOffset by viewModel.scrollOffset.collectAsState()
+
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = scrollPosition,
+        initialFirstVisibleItemScrollOffset = scrollOffset
+    )
+
+    LaunchedEffect(studentId) {
+        viewModel.fetchStudentData(studentId)
     }
 
-    // Main layout using a Box
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            curriculumData.forEach { (year, terms) ->
-                // Centered Year Title
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = year,
-                            style = MaterialTheme.typography.headlineLarge
-                        )
-                    }
-                }
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .collect { (index, offset) ->
+                viewModel.saveScrollPosition(index, offset)
+            }
+    }
 
-                terms.forEach { (term, courses) ->
+    Surface(color = colorResource(id = R.color.mmcm_white)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = curriculumName,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            if (courseGraph == null) {
+                CircularProgressIndicator()
+            } else {
+                val groupedCourses = courseGraph!!.groupedCourses
+                val electiveCourses = courseGraph!!.electives
+
+                LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
+                    groupedCourses.toSortedMap(compareBy { it })
+                        .forEach { (year, terms) ->
+                            val expandedYear = expandedYears[year] ?: false
+
+                            // 🔹 Year Clickable Header
+                            item {
+                                val allTermsCompleted = terms.all { (_, courses) ->
+                                    courses.all { completedCourses.contains(it.code) }
+                                }
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(if (expandedYear) colorResource(id = R.color.mmcm_blue) else Color.Transparent)
+                                        .clickable { viewModel.toggleYearExpansion(year) }
+                                        .padding(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Year $year",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 22.sp,
+                                        color = if (allTermsCompleted) Color.Green else Color.White.takeIf { expandedYear }
+                                            ?: colorResource(id = R.color.mmcm_blue),
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                    Icon(
+                                        painter = if (expandedYear)
+                                            painterResource(id = R.drawable.baseline_expand_less_24)
+                                        else
+                                            painterResource(id = R.drawable.baseline_expand_more_24),
+                                        tint = Color.White.takeIf { expandedYear } ?: Color.Black,
+                                        contentDescription = if (expandedYear) "Collapse" else "Expand"
+                                    )
+                                }
+                            }
+
+                            // 🔹 Only Show Terms If Year is Expanded
+                            if (expandedYear) {
+                                terms.toSortedMap(compareBy { it })
+                                    .forEach { (term, courses) ->
+                                        val allCompleted = courses.all { completedCourses.contains(it.code) }
+                                        val expandedTerm = expandedTerms[Pair(year, term)] ?: !allCompleted
+
+                                        // 🔹 Term Clickable Header
+                                        item {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .background(if (expandedTerm) Color.LightGray else Color.Transparent)
+                                                    .clickable { viewModel.toggleTermExpansion(year, term, allCompleted) }
+                                                    .padding(12.dp),
+                                                horizontalArrangement = Arrangement.Center, // ✅ Center text
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = "Term $term",
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    fontSize = 18.sp,
+                                                    color = if (allCompleted) Color.Green else Color.Red, // ✅ Green for completed, Red for incomplete
+                                                    textAlign = TextAlign.Center // ✅ Ensure text is centered
+                                                )
+                                                Icon(
+                                                    painter = if (expandedTerm)
+                                                        painterResource(id = R.drawable.baseline_expand_less_24)
+                                                    else
+                                                        painterResource(id = R.drawable.baseline_expand_more_24),
+                                                    contentDescription = if (expandedTerm) "Collapse" else "Expand"
+                                                )
+                                            }
+                                        }
+
+                                        // 🔹 Show Courses If Term is Expanded
+                                        if (expandedTerm) {
+                                            items(courses) { course ->
+                                                CourseItem(
+                                                    courseName = course.name,
+                                                    courseCode = course.code,
+                                                    isCompleted = completedCourses.contains(course.code)
+                                                )
+                                            }
+                                        }
+                                    }
+                            }
+                        }
+
+                    // 🔹 Expandable Elective Courses Section
                     item {
-                        CollapsibleTerm(
-                            term = term,
-                            courses = courses,
-                            isExpanded = expandedStates[term] ?: false,
-                            onExpandChange = { expandedStates[term] = it },
-                            checkboxStates = checkboxStates
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { viewModel.toggleElectivesExpansion() }
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Elective Courses",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 22.sp,
+                                color = colorResource(id = R.color.mmcm_blue),
+                                modifier = Modifier.padding(8.dp)
+                            )
+                            Icon(
+                                painter = if (expandedElectives)
+                                    painterResource(id = R.drawable.baseline_expand_less_24)
+                                else
+                                    painterResource(id = R.drawable.baseline_expand_more_24),
+                                contentDescription = if (expandedElectives) "Collapse" else "Expand"
+                            )
+                        }
+                    }
+
+                    if (expandedElectives) {
+                        items(electiveCourses) { elective ->
+                            CourseItem(
+                                courseName = elective.name,
+                                courseCode = elective.code,
+                                isCompleted = completedCourses.contains(elective.code)
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
-
-
 @Composable
-fun CurriculumItem(
-    curriculum: Curriculum,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    val backgroundColor = if (curriculum.isChecked) Color(0xFFDFFFDF) else Color.White
-    val cardElevation = if (curriculum.isChecked) 8.dp else 4.dp
-
+fun CourseItem(courseName: String, courseCode: String, isCompleted: Boolean) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = cardElevation),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+            .padding(vertical = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                CurriculumRow(label = "CODE:", value = curriculum.code)
-                CurriculumRow(label = "TITLE:", value = curriculum.title)
-                CurriculumRow(label = "LECTURE HOURS:", value = curriculum.lecHours.toString())
-                CurriculumRow(label = "LAB HOURS:", value = curriculum.labHours.toString())
-                CurriculumRow(label = "UNITS:", value = curriculum.units.toString())
-                CurriculumRow(label = "PREREQUISITES:", value = curriculum.prerequisites ?: "None")
-                CurriculumRow(label = "CO-REQUISITES:", value = curriculum.coRequisites ?: "None")
+            Column(modifier = Modifier.weight(1f)) { // Let text take most space
+                Text(courseName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(courseCode, fontSize = 14.sp, color = Color.Gray)
             }
-
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
-                Text(
-                    text = if (curriculum.isChecked) "Finish" else "",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Green,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-                Checkbox(
-                    checked = curriculum.isChecked,
-                    onCheckedChange = onCheckedChange,
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.colorScheme.primary,
-                        uncheckedColor = MaterialTheme.colorScheme.onBackground
+            if (isCompleted) {
+                Box(
+                    modifier = Modifier.width(100.dp), // Fixed width prevents line breaks
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Text(
+                        text = "Completed",
+                        color = Color.Green,
+                        fontWeight = FontWeight.Bold
                     )
-                )
+                }
             }
         }
     }
 }
 
-@Composable
-fun CurriculumRow(label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.width(150.dp) // Fixed width for labels to align properly
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
 
-@Composable
-fun CollapsibleTerm(
-    term: String,
-    courses: List<Curriculum>,
-    isExpanded: Boolean,
-    onExpandChange: (Boolean) -> Unit,
-    checkboxStates: MutableMap<String, Boolean>
-) {
-    Column {
-        // Term Header (Clickable)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onExpandChange(!isExpanded) }
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = term,
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.weight(1f)
-            )
-            Button(onClick = { onExpandChange(!isExpanded) }) {
-                Text(text = if (isExpanded) "Show Less" else "Show More")
-            }
-        }
 
-        // Collapsible Content
-        if (isExpanded) {
-            courses.forEach { course ->
-                val checkboxKey = "${term}_${course.code}"
-                CurriculumItem(
-                    curriculum = course.copy(isChecked = checkboxStates[checkboxKey] ?: false),
-                    onCheckedChange = { isChecked ->
-                        checkboxStates[checkboxKey] = isChecked // Persist checkbox state
-                    }
-                )
-            }
-        }
-    }
-}
-@Composable
-fun CurriculumItemPreview() {
-    // Create a mutable state to hold the checked state of the checkbox
-    var isChecked by remember { mutableStateOf(false) }
-    val sampleCurriculum = Curriculum(
-        code = "CHM031",
-        title = "Chemistry for Engineers",
-        lecHours = 4.5,
-        labHours = 0.0,
-        units = 3.0,
-        prerequisites = null,
-        coRequisites = null,
-        isChecked = isChecked // use the state here
-    )
-
-    CurriculumItem(
-        curriculum = sampleCurriculum,
-        onCheckedChange = { newCheckedState ->
-            isChecked = newCheckedState
-        }
-    )
-}
-
-@Preview
-@Composable
-fun CurriculumOverviewScreenPreview() {
-    CurriculumOverviewScreen()
-}
