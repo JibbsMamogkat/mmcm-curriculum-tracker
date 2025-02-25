@@ -238,21 +238,44 @@ fun StudentCard(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-
+            var showDialog by remember { mutableStateOf(false) }
             // **✅ Remove Student Button**
             Button(
-                onClick = {
-                    Log.d("StudentCard", "Removing Student ID: ${student.studentID}")
-                    viewModel.removeStudent(student.studentID)
-                },
+                onClick = { showDialog = true }, // Show confirmation dialog
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
                 Text("Remove Student", color = MaterialTheme.colorScheme.onError)
             }
+
+            // Confirmation Dialog
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false }, // Close dialog if dismissed
+                    title = { Text("Confirm Removal") },
+                    text = { Text("Are you sure you want to remove this student? This action cannot be undone.") },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                Log.d("StudentCard", "Removing Student ID: ${student.studentID}")
+                                viewModel.removeStudent(student.studentID)
+                                showDialog = false
+                            }
+                        ) {
+                            Text("Yes, Remove")
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { showDialog = false }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
         }
     }
 }
-
 
 
 

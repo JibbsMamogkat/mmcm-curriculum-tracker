@@ -20,6 +20,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
 import com.mamogkat.mmcmcurriculumtracker.navigation.Screen
@@ -44,21 +45,20 @@ fun AdminNextAvailableCoursesScreen(
     val completedCourses by viewModel.completedCourses.observeAsState(emptySet()) // ✅ Bind directly to Firestore
 
 
-    Log.d("AdminNextAvailableCoursesScreen", "Fetching student and course data for Student ID: $studentId")
-
     // ✅ Ensure `completedCourses` is loaded first, then `availableCourses` updates
     LaunchedEffect(studentId) {
         Log.d("AdminNextAvailableCoursesScreen", "Fetching student data for Student ID: $studentId")
         viewModel.fetchStudentData(studentId)
-        viewModel.loadStudentCompletedCourses(studentId) {
+        viewModel.observeStudentData(studentId) {
             Log.d("AdminNextAvailableCoursesScreen", "Completed courses loaded for Student ID: $studentId")
         }
     }
     // ✅ **Automatically recompute available courses when completedCourses updates**
-    val availableCourses by viewModel.availableCourses.collectAsState()
+    // Using Flow with collectAsStateWithLifecycle
+    val availableCourses by viewModel.availableCourses.collectAsStateWithLifecycle()
     LaunchedEffect(studentId, selectedTerm) {
         Log.d("AdminNextAvailableCoursesScreen", "🔄 Fetching available courses for Student ID: $studentId, term: $selectedTerm")
-        viewModel.getAvailableCourses(studentId, selectedTerm)
+        viewModel.getAvailableCoursesStudent(studentId, selectedTerm)
     }
 
     Log.d("AdminNextAvailableCoursesScreen", "Available courses computed for Student ID: $studentId")
