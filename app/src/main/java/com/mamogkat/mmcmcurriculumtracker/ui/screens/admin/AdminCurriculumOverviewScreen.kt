@@ -75,6 +75,9 @@ fun AdminCurriculumOverviewScreen(
                     val groupedCourses = courseGraph!!.groupedCourses
                     val electiveCourses = courseGraph!!.electives
 
+                    Log.d("AdminCurriculumOverview", "Grouped Courses for studentId: $studentId: $groupedCourses")
+                    Log.d("AdminCurriculumOverview", "Elective Courses for studentId: $studentId: $electiveCourses")
+
                     LazyColumn(modifier = Modifier.padding(16.dp)) {
                         // 🔹 Iterate over Years
                         groupedCourses.toSortedMap(compareBy { it }) // Ensure years are sorted numerically

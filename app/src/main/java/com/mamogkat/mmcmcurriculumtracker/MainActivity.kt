@@ -28,7 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
         // 🔥 Run the upload function once
-//        curriculumViewModel.uploadBSEE_2024_2025()
+//      curriculumViewModel.uploadBSEE_2024_2025()
         setContent {
             MMCMCurriculumTrackerTheme {
                 // A surface container using the 'background' color from the theme

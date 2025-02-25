@@ -69,6 +69,7 @@ class CurriculumViewModel : ViewModel() {
                 val curriculumId = document.getString("curriculum")?.let { id ->
                     when (id) {
                         "1" -> "bscpe_2022_2023" // ✅ Map curriculum ID 1 to actual Firestore ID
+                        "2" -> "bsee_2024_2025"
                         else -> null
                     }
                 }
@@ -108,8 +109,31 @@ class CurriculumViewModel : ViewModel() {
 
         val years = listOf("1", "2", "3", "4") // 🔹 Years inferred from Firestore path
         val terms = listOf("term_1", "term_2", "term_3") // 🔹 Terms inferred from Firestore path
-        val electiveCategories = listOf("AWS171P", "EMSY171P", "GEN_ED", "MACH171P", "MICR172P", "NETA172P", "SDEV173P", "SNAD174P")
 
+        // 🔹 Elective categories to fetch depending on the curriculum
+        val electiveCategories = listOf<String>()
+        if (curriculumId == "1") {
+            val electiveCategories = listOf(
+                "AWS171P",
+                "EMSY171P",
+                "GEN_ED",
+                "MACH171P",
+                "MICR172P",
+                "NETA172P",
+                "SDEV173P",
+                "SNAD174P"
+            )
+        } else if (curriculumId == "2"){
+            val electiveCategories = listOf(
+                "ADVANCED_ELECTRICAL_SYSTEMS_DESIGN",
+                "ADVANCED_POWER_SYSTEMS",
+                "ADVANCED_SYSTEM_DESIGN",
+                "AGRICULTURAL_ENGINEERING",
+                "GEN_ED",
+                "MECHATRONICS",
+                "OPEN_ELECTIVE"
+            )
+        }
         val tasks = mutableListOf<Task<QuerySnapshot>>()
 
         // 🔹 Fetch all regular courses (Loop through all years and terms)
@@ -189,6 +213,7 @@ class CurriculumViewModel : ViewModel() {
 
     //Admin Next Courses Available functions
     fun loadStudentCompletedCourses(studentId: String, onComplete: () -> Unit) {
+
         viewModelScope.launch {
             Log.d("CurriculumViewModel", "Loading completed courses for Student ID: $studentId")
 
@@ -1662,6 +1687,16 @@ class CurriculumViewModel : ViewModel() {
              "regularTerms" to listOf(3),
              "term" to 3,
              "yearLevel" to 2
+         ),
+         mapOf(
+             "code" to "SS036",
+             "name" to "Science, Technology, and Society",
+             "units" to 3,
+             "prerequisites" to listOf<String>(),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(3),
+             "term" to 3,
+             "yearLevel" to 2
          )
      )
      val thirdYearTerm1Courses = listOf(
@@ -1711,6 +1746,82 @@ class CurriculumViewModel : ViewModel() {
              "units" to 1,
              "prerequisites" to listOf("DS100L"),
              "coRequisites" to listOf("CPE126"),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 3
+         ),
+         mapOf(
+             "code" to "ECE130",
+             "name" to "Feedback and Control Systems",
+             "units" to 3,
+             "prerequisites" to listOf("MATH116"),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "EE107-1",
+             "name" to "AC Machinery",
+             "units" to 3,
+             "prerequisites" to listOf("EE106-1"),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "EE107L-1",
+             "name" to "AC Machinery (Laboratory)",
+             "units" to 1,
+             "prerequisites" to listOf("EE106L-1"),
+             "coRequisites" to listOf("EE107-1"),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "EE122-1",
+             "name" to "AC Apparatus and Devices",
+             "units" to 2,
+             "prerequisites" to listOf("EE103"),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "EE122L-1",
+             "name" to "AC Apparatus and Devices (Laboratory)",
+             "units" to 1,
+             "prerequisites" to listOf("EE103L"),
+             "coRequisites" to listOf("EE122-1"),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "EE801E",
+             "name" to "Engineering Sciences Exit Exam",
+             "units" to 0,
+             "prerequisites" to listOf("CHM031", "PHY035", "EECO102", "MEC100-1", "ME111-1"),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "HUM034",
+             "name" to "Art Appreciation",
+             "units" to 3,
+             "prerequisites" to listOf<String>(),
+             "coRequisites" to listOf<String>(),
              "regularTerms" to listOf(1),
              "term" to 1,
              "yearLevel" to 3
@@ -1767,6 +1878,72 @@ class CurriculumViewModel : ViewModel() {
              "regularTerms" to listOf(2),
              "term" to 2,
              "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "EE182C",
+             "name" to "Electrical Standards and Practices (Computational)",
+             "units" to 1,
+             "prerequisites" to listOf("EE181"),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(2),
+             "term" to 2,
+             "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "EE802E",
+             "name" to "Electrical Engineering 1 Exit Exam",
+             "units" to 0,
+             "prerequisites" to listOf("CPE101-2", "EE107-1", "EE122-1"),
+             "coRequisites" to listOf("EE182C"),
+             "regularTerms" to listOf(2),
+             "term" to 2,
+             "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "GEELEC01",
+             "name" to "GE Elective 1",
+             "units" to 3,
+             "prerequisites" to listOf<String>(),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(2),
+             "term" to 2,
+             "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "MSE102",
+             "name" to "Fundamentals of Material Science and Engineering",
+             "units" to 3,
+             "prerequisites" to listOf("CHM031", "CE104-2"),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(2),
+             "term" to 2,
+             "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "RES101",
+             "name" to "Methods of Research",
+             "units" to 3,
+             "prerequisites" to listOf("IE101-1", "ENG024"),
+             "coRequisites" to listOf("CPE103-2"),
+             "regularTerms" to listOf(2),
+             "term" to 2,
+             "yearLevel" to 3
+         ),
+
+         mapOf(
+             "code" to "SS022",
+             "name" to "Readings in Philippine History",
+             "units" to 3,
+             "prerequisites" to listOf<String>(),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(2),
+             "term" to 2,
+             "yearLevel" to 3
          )
      )
      val thirdYearTerm3Courses = listOf(
@@ -1817,6 +1994,46 @@ class CurriculumViewModel : ViewModel() {
              "prerequisites" to listOf("EE182C", "EE122-1"),
              "coRequisites" to listOf<String>(),
              "regularTerms" to listOf(3),
+             "term" to 3,
+             "yearLevel" to 3
+         ),
+         mapOf(
+             "code" to "EE134L-1",
+             "name" to "Power Systems Analysis 1 (Laboratory)",
+             "units" to 1,
+             "prerequisites" to listOf("EE182C", "EE122L-1"),
+             "coRequisites" to listOf("EE134-1"),
+             "regularTerms" to listOf(3),
+             "term" to 3,
+             "yearLevel" to 3
+         ),
+         mapOf(
+             "code" to "EEELEC01",
+             "name" to "EE Elective 1",
+             "units" to 3,
+             "prerequisites" to listOf<String>(),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(3),
+             "term" to 3,
+             "yearLevel" to 3
+         ),
+         mapOf(
+             "code" to "SS085",
+             "name" to "Philippine Indigenous Communities",
+             "units" to 3,
+             "prerequisites" to listOf<String>(),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(1, 2, 3),
+             "term" to 3,
+             "yearLevel" to 3
+         ),
+         mapOf(
+             "code" to "TEC100-2",
+             "name" to "Technopreneurship",
+             "units" to 3,
+             "prerequisites" to listOf("EMGT100", "ACT099"),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(2, 3),
              "term" to 3,
              "yearLevel" to 3
          )
@@ -1871,6 +2088,66 @@ class CurriculumViewModel : ViewModel() {
              "regularTerms" to listOf(1),
              "term" to 1,
              "yearLevel" to 4
+         ),
+         mapOf(
+             "code" to "EE135L-1",
+             "name" to "Power Systems Analysis 2 (Laboratory)",
+             "units" to 1,
+             "prerequisites" to listOf("EE134L-1"),
+             "coRequisites" to listOf("EE135-1"),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 4
+         ),
+         mapOf(
+             "code" to "EE136L-1",
+             "name" to "Fundamentals of Power Plant Engineering Design (Lab)",
+             "units" to 1,
+             "prerequisites" to listOf("EE134-1", "EE134L-1"),
+             "coRequisites" to listOf("EE135L-1"),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 4
+         ),
+         mapOf(
+             "code" to "EE803E",
+             "name" to "Electrical Engineering 2 Exit Exam",
+             "units" to 0,
+             "prerequisites" to listOf("EE107-1", "EE122-1", "EE182C", "EE109-2", "EE134-1"),
+             "coRequisites" to listOf("ECE140-1"),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 4
+         ),
+         mapOf(
+             "code" to "EEELEC02",
+             "name" to "EE Elective 2",
+             "units" to 3,
+             "prerequisites" to listOf<String>(),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 4
+         ),
+         mapOf(
+             "code" to "SS086",
+             "name" to "Gender and Society",
+             "units" to 3,
+             "prerequisites" to listOf<String>(),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 4
+         ),
+         mapOf(
+             "code" to "EE198-3",
+             "name" to "EE Correlation 1",
+             "units" to -1,
+             "prerequisites" to listOf("MATH800E", "EE801E"),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(1),
+             "term" to 1,
+             "yearLevel" to 4
          )
      )
      val fourthYearTerm2Courses = listOf(
@@ -1919,6 +2196,26 @@ class CurriculumViewModel : ViewModel() {
              "name" to "The Contemporary World",
              "units" to 3,
              "prerequisites" to listOf<String>(),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(2),
+             "term" to 2,
+             "yearLevel" to 4
+         ),
+         mapOf(
+             "code" to "SS038",
+             "name" to "The Life and Works of Jose Rizal",
+             "units" to 3,
+             "prerequisites" to listOf<String>(),
+             "coRequisites" to listOf<String>(),
+             "regularTerms" to listOf(2),
+             "term" to 2,
+             "yearLevel" to 4
+         ),
+         mapOf(
+             "code" to "EE198-4",
+             "name" to "EE Correlation 2",
+             "units" to -1,
+             "prerequisites" to listOf("EE134-1", "ECE132-1", "ECE140-1", "EE802E", "EE803E"),
              "coRequisites" to listOf<String>(),
              "regularTerms" to listOf(2),
              "term" to 2,

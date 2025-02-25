@@ -41,19 +41,9 @@ fun AdminNextAvailableCoursesScreen(
 
     var selectedTerm by remember { mutableStateOf(1) } // Default term
     val studentEmail by viewModel.studentEmail.observeAsState("Fetching Email...")
-    val completedCourses by viewModel.completedCourses.observeAsState(emptySet())
+    val completedCourses by viewModel.completedCourses.observeAsState(emptySet()) // ✅ Bind directly to Firestore
 
-    // ✅ **Automatically recompute available courses when completedCourses updates**
-    val availableCourses by remember {
-        derivedStateOf {
-            if (completedCourses.isNotEmpty()) {
-                Log.d("AdminNextAvailableCoursesScreen", "Computing available courses for Student ID: $studentId, term: $selectedTerm")
-                viewModel.getAvailableCourses(studentId, selectedTerm)
-            } else {
-                emptyList()
-            }
-        }
-    }
+
 
     Log.d("AdminNextAvailableCoursesScreen", "Fetching student and course data for Student ID: $studentId")
 
@@ -63,6 +53,17 @@ fun AdminNextAvailableCoursesScreen(
         viewModel.fetchStudentData(studentId)
         viewModel.loadStudentCompletedCourses(studentId) {
             Log.d("AdminNextAvailableCoursesScreen", "Completed courses loaded for Student ID: $studentId")
+        }
+    }
+    // ✅ **Automatically recompute available courses when completedCourses updates**
+    val availableCourses by remember {
+        derivedStateOf {
+            if (completedCourses.isNotEmpty()) {
+                Log.d("AdminNextAvailableCoursesScreen", "Computing available courses for Student ID: $studentId, term: $selectedTerm")
+                viewModel.getAvailableCourses(studentId, selectedTerm)
+            } else {
+                emptyList()
+            }
         }
     }
 
@@ -111,9 +112,9 @@ fun AdminNextAvailableCoursesScreen(
                 }
 
                 // 🔹 Display available courses
-//                if (completedCourses.isEmpty()) {
-//                    Text("Loading available courses...", fontStyle = FontStyle.Italic)
-//                } else
+                if (completedCourses.isEmpty()) {
+                    Text("Loading available courses...", fontStyle = FontStyle.Italic)
+                } else
                 if (availableCourses.isEmpty()) {
                     Log.w("AdminNextAvailableCoursesScreen", "No available courses found for student $studentId")
                     Text(
