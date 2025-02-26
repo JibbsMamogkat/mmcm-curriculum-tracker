@@ -1,6 +1,7 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.studentscreens
 
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -81,6 +82,8 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -94,7 +97,9 @@ fun StudentMainScreen(navController: NavController) {
     val studentViewModel: StudentViewModel = viewModel()
     val isRefreshing by studentViewModel.isRefreshing.collectAsState()
     val approvalStatus by studentViewModel.approvalStatus.collectAsState()
-
+    val authViewModel: AuthViewModel = viewModel()
+    val name by authViewModel.studentName.collectAsState()
+    val email = FirebaseAuth.getInstance().currentUser?.email
     // 🔥 Real-time listener for approval status of current user
     LaunchedEffect(Unit) {
         studentViewModel.observeCurrentUserApprovalStatus()
@@ -122,32 +127,66 @@ fun StudentMainScreen(navController: NavController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
+                    .fillMaxHeight()  // Take full height of the screen
+                    .fillMaxWidth(0.8f)  // Take 80% of the width of the screen
+                    .background(colorResource(id = R.color.mmcm_white)),
                 horizontalAlignment = Alignment.Start
             ) {
                 // Left side: Logo and Title
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(colorResource(id = R.color.mmcm_blue)) // Set the background color
+                            .padding(8.dp) // Optional padding to adjust the layout inside the row
+                ) {
                     // Replace with your logo
-                    Icon(Icons.Default.Info, contentDescription = "Logo", modifier = Modifier.size(40.dp))
+                    Icon(Icons.Default.Close, contentDescription = "Logo", modifier = Modifier.size(30.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("MMCM Curriculum Tracker", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    when (name) {
+                        null -> email ?: ""
+                        "user" -> Spacer(modifier = Modifier.height(24.dp))
+                        else -> Text(
+                            text = name ?: "",
+                            style = androidx.compose.material3.MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(12.dp),
+                            color = colorResource(R.color.mmcm_black),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 // Right side: Drawer items
                 DrawerItem("Home", selectedScreen, drawerState, coroutineScope)
+                Divider(modifier = Modifier.padding(vertical = 8.dp))  // Divider between items
+
                 DrawerItem("Next Courses", selectedScreen, drawerState, coroutineScope)
+                Divider(modifier = Modifier.padding(vertical = 8.dp))  // Divider between items
+
                 DrawerItem("Curriculum", selectedScreen, drawerState, coroutineScope)
+                Divider(modifier = Modifier.padding(vertical = 8.dp))  // Divider between items
+
                 DrawerItem("Account", selectedScreen, drawerState, coroutineScope)
+                Divider(modifier = Modifier.padding(vertical = 8.dp))  // Divider between items
+
                 DrawerItem("Info", selectedScreen, drawerState, coroutineScope)
+                Divider(modifier = Modifier.padding(vertical = 8.dp))  // Divider between items
+
+                Spacer(modifier = Modifier.weight(1f))  // This spacer pushes the "Log Out" to the bottom
+
+                // Log Out Button
                 DrawerItem("Log Out", selectedScreen, drawerState, coroutineScope) {
-                    // Handle log out logic here
+                    Log.d("StudentScreeen", "Success logout")
+                    authViewModel.logoutUser(navController)
                 }
             }
         }
@@ -286,21 +325,36 @@ fun BottomNavigationBar(selectedScreen: MutableState<String>) {
 }
 
 @Composable
-fun DrawerItem(label: String, selectedScreen: MutableState<String>, drawerState: DrawerState, coroutineScope: CoroutineScope, onClick: (() -> Unit)? = null) {
-    Text(
-        text = label,
+fun DrawerItem(
+    label: String,
+    selectedScreen: MutableState<String>,
+    drawerState: DrawerState,
+    coroutineScope: CoroutineScope,
+    onClick: (() -> Unit)? = null
+) {
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .height(56.dp)  // Ensuring the button is sufficiently tall
             .clickable {
                 selectedScreen.value = label
                 onClick?.invoke()
                 // Close the drawer
                 coroutineScope.launch { drawerState.close() }
-            },
-        fontSize = 18.sp
-    )
+            }
+            .padding(horizontal = 16.dp), // Optional horizontal padding
+        contentAlignment = Alignment.CenterStart // Align text to the start of the Box
+    ) {
+        Text(
+            text = label,
+            color = colorResource(R.color.mmcm_blue),
+            fontSize = 18.sp,
+            modifier = Modifier
+                .padding(start = 16.dp) // Adds padding from the left for better layout // Ensures the Text takes full size of Box
+        )
+    }
 }
+
 @Preview
 @Composable
 private fun PreviewStudentMainScreen() {
