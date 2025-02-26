@@ -72,7 +72,8 @@ import kotlin.random.Random
 
 @Composable
 fun HomePageScreen(onNavigate: (String) -> Unit, innerPadding: PaddingValues) {
-    val scrollState = rememberScrollState()
+    val studentViewModel: StudentViewModel = viewModel()
+    val scrollState = studentViewModel.scrollState
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current

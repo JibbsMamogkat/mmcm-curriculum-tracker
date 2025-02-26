@@ -1,6 +1,7 @@
 package com.mamogkat.mmcmcurriculumtracker.viewmodel
 
 import android.util.Log
+import androidx.compose.foundation.ScrollState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -14,6 +15,7 @@ import kotlinx.coroutines.tasks.await
 class StudentViewModel : ViewModel() {
 
     private val firestore = FirebaseFirestore.getInstance()
+    val scrollState = ScrollState(0)
 
     private val _approvalStatus = MutableStateFlow<String?>(null) // Null until loaded
     val approvalStatus = _approvalStatus.asStateFlow()
