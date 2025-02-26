@@ -8,17 +8,22 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.runtime.*
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -459,18 +464,19 @@ class AuthViewModel: ViewModel() {
     }
 
     private fun fetchStudentName() {
-        val currentUser = auth.currentUser
-        currentUser?.uid?.let { uid ->
-            db.collection("students").document(uid).get()
-                .addOnSuccessListener { document ->
-                    _studentName.value = document.getString("name") ?: "No name available"
-                }
-                .addOnFailureListener {
-                    _studentName.value = "Failed to fetch name"
-                }
-        } ?: run {
-            _studentName.value = "No user logged in"
-        }
+        val currentUser = Firebase.auth.currentUser
+        val studentId = currentUser?.uid ?: return
+
+        Firebase.firestore.collection("students")
+            .document(studentId)
+            .get()
+            .addOnSuccessListener { document ->
+                _studentName.value = document.getString("name") ?: "No Name"
+                _lastNameChangeTime.value = document.getTimestamp("lastNameChange")?.toDate()?.time
+            }
+            .addOnFailureListener {
+                Log.e("AuthViewModel", "Failed to fetch name")
+            }
     }
 
 
@@ -596,4 +602,33 @@ class AuthViewModel: ViewModel() {
             }
         })
     }
+    private val _lastNameChangeTime = MutableStateFlow<Long?>(null) // Store last name change time
+    val lastNameChangeTime: StateFlow<Long?> = _lastNameChangeTime
+
+
+    fun updateStudentName(newName: String) {
+        val currentUser = Firebase.auth.currentUser
+        val studentId = currentUser?.uid ?: return
+
+        viewModelScope.launch {
+            try {
+                val currentTime = Timestamp.now() // Current time
+                val studentRef = Firebase.firestore.collection("students").document(studentId)
+
+                studentRef.update(
+                    mapOf(
+                        "name" to newName,
+                        "lastNameChange" to currentTime // Store last name change time
+                    )
+                ).await()
+
+                _studentName.value = newName
+                _lastNameChangeTime.value = currentTime.toDate().time // Convert Firestore Timestamp to Long
+            } catch (e: Exception) {
+                Log.e("AuthViewModel", "Failed to update name: ${e.message}")
+            }
+        }
+    }
+
+
 }

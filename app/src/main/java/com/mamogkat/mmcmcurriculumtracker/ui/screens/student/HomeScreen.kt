@@ -186,7 +186,7 @@ fun HomePageScreen(onNavigate: (String) -> Unit, innerPadding: PaddingValues) {
                         contentColor = colorResource(R.color.mmcm_blue)
                     )
                 ) {
-                    Text("GET STARTED")
+                    Text("TRACK")
                 }
             }
         }
