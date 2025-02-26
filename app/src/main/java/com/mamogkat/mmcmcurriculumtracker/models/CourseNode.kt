@@ -7,7 +7,7 @@ data class CourseNode(
     val yearLevel: Int = 0, // ✅ Default value added
     val term: Int = 0, // ✅ Default value added
     val prerequisites: List<String> = emptyList(),
-    val corequisites: List<String> = emptyList(),
+    val coRequisites: List<String> = emptyList(),
     val regularTerms: List<Int> = emptyList(),
     val taken: Boolean = false
 ) {

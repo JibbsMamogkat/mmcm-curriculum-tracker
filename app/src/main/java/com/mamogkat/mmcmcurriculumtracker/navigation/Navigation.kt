@@ -42,6 +42,7 @@ sealed class Screen(val route: String) {
     object ManageCurriculumsPage: Screen("manage_curriculum_page")
     object AdminCurriculumOverviewScreen: Screen("admin_curriculum_overview_screen")
     object AdminNextAvailableCoursesScreen: Screen("admin_next_available_courses_screen")
+    object AboutDevelopers: Screen("about_developers")
 }
 
 
@@ -59,6 +60,7 @@ fun AppNavHost(navController: NavHostController, adminViewModel: AdminViewModel,
         composable(Screen.Student.route) { StudentMainScreen(navController)  }
         composable(Screen.StudentMasterList.route) { StudentMasterListScreen(adminViewModel, navController)}
         composable(Screen.ManageCurriculumsPage.route) { ManageCurriculumsPage(navController) }
+        composable(Screen.AboutDevelopers.route) { AboutDevelopersScreen(navController) }
         composable(
             route = "admin_curriculum_overview/{studentId}",  // ✅ Define studentId as a route argument
             arguments = listOf(navArgument("studentId") { type = NavType.StringType })

@@ -201,6 +201,10 @@ fun AdminNavigationDrawer(navController: NavController, drawerState: DrawerState
                     Log.d("AdminHomePage", "Successfully Navigated to ManageCurriculumsPage")
                     coroutineScope.launch { drawerState.close() }
                 }
+                DrawerItem("About the Developers", Icons.Default.Info) {
+                    navController.navigate("about_developers")
+                    coroutineScope.launch { drawerState.close() }
+                }
             }
 
 

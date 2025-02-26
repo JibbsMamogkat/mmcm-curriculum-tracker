@@ -20,7 +20,9 @@ import androidx.navigation.compose.rememberNavController
 import com.mamogkat.mmcmcurriculumtracker.R
 
 @Composable
-fun AboutDevelopersScreen() {
+fun AboutDevelopersScreen(
+    navController: NavController = rememberNavController()
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
