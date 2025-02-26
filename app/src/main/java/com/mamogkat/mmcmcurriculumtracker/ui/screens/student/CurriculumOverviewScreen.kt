@@ -186,6 +186,7 @@ fun CurriculumOverviewScreen(
                                                 CourseItem(
                                                     courseName = course.name,
                                                     courseCode = course.code,
+                                                    courseUnits = course.units,
                                                     isCompleted = completedCourses.contains(course.code)
                                                 )
                                             }
@@ -226,6 +227,7 @@ fun CurriculumOverviewScreen(
                             CourseItem(
                                 courseName = elective.name,
                                 courseCode = elective.code,
+                                courseUnits = elective.units,
                                 isCompleted = completedCourses.contains(elective.code)
                             )
                         }
@@ -236,7 +238,7 @@ fun CurriculumOverviewScreen(
     }
 }
 @Composable
-fun CourseItem(courseName: String, courseCode: String, isCompleted: Boolean) {
+fun CourseItem(courseName: String, courseCode: String, courseUnits: Int, isCompleted: Boolean) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -254,6 +256,7 @@ fun CourseItem(courseName: String, courseCode: String, isCompleted: Boolean) {
             Column(modifier = Modifier.weight(1f)) { // Let text take most space
                 Text(courseName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text(courseCode, fontSize = 14.sp, color = Color.Gray)
+                Text("Units: $courseUnits", fontSize = 14.sp, color = Color.Gray)
             }
             if (isCompleted) {
                 Box(

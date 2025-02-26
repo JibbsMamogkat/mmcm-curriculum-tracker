@@ -1,6 +1,8 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.screens.admin
 
+import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,7 +19,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,8 +30,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mamogkat.mmcmcurriculumtracker.R
 import com.mamogkat.mmcmcurriculumtracker.models.CourseNode
 import com.mamogkat.mmcmcurriculumtracker.navigation.Screen
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.student.AvailabilityLegend
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.CurriculumViewModel
 import kotlinx.coroutines.launch
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,14 +101,15 @@ fun AdminNextAvailableCoursesScreen(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = "Available Courses for Student: $studentEmail",
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-
+                AvailabilityLegend()
                 // 🔹 Term Filter Dropdown
                 Log.d("AdminNextAvailableCoursesScreen", "Rendering term filter dropdown")
                 TermFilterDropdown(selectedTerm) { newTerm ->
@@ -130,6 +139,8 @@ fun AdminNextAvailableCoursesScreen(
 
 @Composable
 fun CourseItem(course: CourseNode, colorCode: String) {
+    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
 
     Card(
         modifier = Modifier
@@ -152,6 +163,26 @@ fun CourseItem(course: CourseNode, colorCode: String) {
                 Text(text = course.name, fontWeight = FontWeight.Bold, color = Color.White)
                 Text(text = "Course Code: ${course.code}", color = Color.White)
                 }
+            // Show button only if color is green
+            if (colorCode == "green") {
+                IconButton(onClick = {
+                    val textToShare = "${course.name} (${course.code})"
+
+                    // Copy to clipboard
+                    clipboardManager.setText(AnnotatedString(textToShare))
+                    Toast.makeText(context, "Copied: $textToShare", Toast.LENGTH_SHORT).show()
+
+                    // Share intent
+                    val sendIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, textToShare)
+                        type = "text/plain"
+                    }
+                    context.startActivity(Intent.createChooser(sendIntent, "Share Course"))
+                }) {
+                    Icon(Icons.Default.Share, contentDescription = "Share", tint = Color.White)
+                }
+            }
         }
     }
 }
