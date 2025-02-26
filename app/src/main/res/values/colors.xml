@@ -13,5 +13,6 @@
     <color name="mmcm_red">#EC1F28</color> <!-- Red -->
     <color name="mmcm_white">#FFFFFF</color> <!-- White -->
     <color name="mmcm_black">#000000</color> <!-- Black -->
-    <color name="mmcm_silver">#B1B1B1</color> <!-- Silver -->
+    <color name="mmcm_silver">#BFBEBC</color> <!-- Silver -->
+    <color name="mmcm_orange">#FF9800</color>
 </resources>

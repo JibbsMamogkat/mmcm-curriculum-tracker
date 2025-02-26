@@ -63,23 +63,17 @@ fun NextCoursesScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            /*Text(
-                text = "Available Courses: $studentEmail",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                ),
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
-            )
-*/
+
+            AvailabilityLegend()
+
+            Spacer(modifier = Modifier.height(10.dp))
             TermFilterDropdown(selectedTerm) { newTerm ->
                 selectedTerm = newTerm
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             if (availableCourses.isEmpty()) {
                 Box(

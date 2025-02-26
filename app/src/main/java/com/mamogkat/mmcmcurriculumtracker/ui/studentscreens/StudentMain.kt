@@ -1,9 +1,13 @@
 package com.mamogkat.mmcmcurriculumtracker.ui.studentscreens
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -86,6 +90,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.mamogkat.mmcmcurriculumtracker.viewmodel.AuthViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalConfiguration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,6 +113,8 @@ fun StudentMainScreen(navController: NavController) {
         studentViewModel.observeCurrentUserApprovalStatus()
     }
 
+
+
     // ✅ Reset backPressedOnce after 2 seconds using LaunchedEffect outside BackHandler
     LaunchedEffect(backPressedOnce) {
         if (backPressedOnce) {
@@ -123,21 +133,36 @@ fun StudentMainScreen(navController: NavController) {
         }
     }
 
+
+
     // Modal Navigation Drawer
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+    val alpha by animateFloatAsState(
+        targetValue = if (drawerState.isClosed) 1f else 0f, // Fade in when drawer is closed, fade out when open
+        animationSpec = tween(durationMillis = 300) // 300ms animation duration
+    )
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    val drawerWidth = if (isLandscape) 280.dp else configuration.screenWidthDp.dp * 0.8f
+
+    LaunchedEffect(configuration) {
+        coroutineScope.launch { drawerState.close() } // Close drawer on rotation
+    }
 
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            Column(
+            ModalDrawerSheet(
                 modifier = Modifier
-                    .fillMaxHeight()  // Take full height of the screen
-                    .fillMaxWidth(0.8f)  // Take 80% of the width of the screen
+                    .fillMaxHeight()
+                    .width(drawerWidth)
+                    .verticalScroll(rememberScrollState())
                     .background(colorResource(id = R.color.mmcm_white)),
-                horizontalAlignment = Alignment.Start
-            ) {
+                drawerShape = RectangleShape // Removes rounded corners
+            )  {
                 // Left side: Logo and Title
                 Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -147,21 +172,49 @@ fun StudentMainScreen(navController: NavController) {
                             .padding(8.dp) // Optional padding to adjust the layout inside the row
                 ) {
                     // Replace with your logo
-                    Icon(Icons.Default.Close, contentDescription = "Logo", modifier = Modifier.size(30.dp))
+                    IconButton(onClick = { coroutineScope.launch { drawerState.close() } }) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Close Drawer",
+                            modifier = Modifier.size(30.dp),
+                            tint = colorResource(R.color.mmcm_white)
+                        )
+                    }
                     Spacer(modifier = Modifier.width(8.dp))
                     when (name) {
-                        null -> email ?: ""
+                        null -> Text(
+                            text = email ?: "",
+                            color = colorResource(R.color.mmcm_white),
+                            modifier = Modifier.weight(1f), // Allow text to take available space
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                         "user" -> Spacer(modifier = Modifier.height(24.dp))
                         else -> Text(
                             text = name ?: "",
                             style = androidx.compose.material3.MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(12.dp),
-                            color = colorResource(R.color.mmcm_black),
+                            modifier = Modifier.padding(12.dp).weight(1f),
+                            color = colorResource(R.color.mmcm_white),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Column (
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                                .wrapContentWidth()
+                    ) {
+                        Text("Status", color = colorResource(R.color.mmcm_white))
+                        when (approvalStatus) {
+                            "pending" -> Text("PENDING", color = colorResource(R.color.mmcm_red))
+                            "approved" -> Text("APPROVED", color = colorResource(R.color.teal_700))
+                            else -> CircularProgressIndicator(color = colorResource(id = R.color.mmcm_red))
+                        }
+                    }
+
                 }
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -184,10 +237,12 @@ fun StudentMainScreen(navController: NavController) {
                 Spacer(modifier = Modifier.weight(1f))  // This spacer pushes the "Log Out" to the bottom
 
                 // Log Out Button
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
                 DrawerItem("Log Out", selectedScreen, drawerState, coroutineScope) {
                     Log.d("StudentScreeen", "Success logout")
                     authViewModel.logoutUser(navController)
                 }
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
             }
         }
     ) {
@@ -198,12 +253,24 @@ fun StudentMainScreen(navController: NavController) {
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text("MMCM Curriculum Tracker") },
+                        title = {
+                            Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "MMCM Curriculum Tracker",
+                                style = androidx.compose.material3.MaterialTheme.typography.headlineMedium,  // Default heading style
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,  // Font size for the title
+                                color = colorResource(id = R.color.mmcm_blue),
+                            )
+                        } },
                         navigationIcon = {
                             IconButton(onClick = {
                                 coroutineScope.launch { drawerState.open() } // Open the drawer
                             }) {
-                                Icon(Icons.Default.Menu, contentDescription = "Menu")
+                                Icon(Icons.Default.Menu, contentDescription = "Menu", tint = colorResource(R.color.mmcm_blue))
                             }
                         },
                         actions = {
@@ -218,14 +285,19 @@ fun StudentMainScreen(navController: NavController) {
                     )
                 },
                 bottomBar = {
-                    if (drawerState.isClosed) {
+                    BottomNavigation(
+                        modifier = Modifier.alpha(alpha) // Apply the fade effect
+                    ) {
                         BottomNavigationBar(selectedScreen)
                     }
                 }
             ) { paddingValues ->
                 Box(modifier = Modifier.padding(paddingValues)) {
                     when (selectedScreen.value) {
-                        "Home" -> HomePageScreen()
+                        "Home" -> HomePageScreen(
+                            onNavigate = { selectedScreen.value = it},
+                            innerPadding = paddingValues
+                        )
                         "Curriculum" -> SwipeRefresh(
                             state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
                             onRefresh = { studentViewModel.refreshData(studentId) }
