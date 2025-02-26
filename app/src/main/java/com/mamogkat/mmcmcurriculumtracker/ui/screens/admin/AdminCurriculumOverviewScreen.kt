@@ -93,6 +93,7 @@ fun AdminCurriculumOverviewScreen(
                                         text = "Year $year",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 22.sp,
+                                        color = colorResource(id = R.color.mmcm_blue),
                                         modifier = Modifier.padding(top = 12.dp, bottom = 8.dp)
                                     )
                                 }
@@ -104,6 +105,7 @@ fun AdminCurriculumOverviewScreen(
                                                 text = "Term $term",
                                                 fontWeight = FontWeight.SemiBold,
                                                 fontSize = 18.sp,
+                                                color = colorResource(id = R.color.mmcm_red),
                                                 modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                                             )
                                         }
