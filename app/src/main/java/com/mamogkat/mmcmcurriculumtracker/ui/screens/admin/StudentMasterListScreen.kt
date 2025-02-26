@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -76,7 +77,12 @@ fun StudentMasterListScreen(viewModel: AdminViewModel, navController: NavControl
                 modifier = Modifier.fillMaxSize().padding(paddingValues)
             ) {
                 if (students.isEmpty()) {
-                    Text("No students found", modifier = Modifier.padding(top = 16.dp))
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = colorResource(id = R.color.mmcm_blue))
+                    }
                     Log.d("StudentMasterListScreen", "No students found")
                 } else {
                     LazyColumn {

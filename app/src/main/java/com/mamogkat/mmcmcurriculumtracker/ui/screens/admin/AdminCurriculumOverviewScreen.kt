@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
@@ -70,7 +71,12 @@ fun AdminCurriculumOverviewScreen(
             Column(modifier = Modifier.padding(paddingValues)) {
                 if (courseGraph == null) {
                     Log.d("AdminCurriculumOverview", "Waiting for courseGraph data...")
-                    CircularProgressIndicator()
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = colorResource(id = R.color.mmcm_blue))
+                    }
                 } else {
                     val groupedCourses = courseGraph!!.groupedCourses
                     val electiveCourses = courseGraph!!.electives
