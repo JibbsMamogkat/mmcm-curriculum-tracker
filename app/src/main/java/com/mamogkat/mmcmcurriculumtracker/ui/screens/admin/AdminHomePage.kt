@@ -202,8 +202,9 @@ fun AdminNavigationDrawer(navController: NavController, drawerState: DrawerState
 
 
             NavigationDrawerSection("Settings") {
+                val context = LocalContext.current
                 DrawerItem("Admin Settings", Icons.Default.Settings) {
-                    navController.navigate("AdminSettingsPage")
+                    Toast.makeText(context, "Admin Settings is under development", Toast.LENGTH_SHORT).show()
                     coroutineScope.launch { drawerState.close() }
                 }
                 // DUFF ADDED for LOGOUT
