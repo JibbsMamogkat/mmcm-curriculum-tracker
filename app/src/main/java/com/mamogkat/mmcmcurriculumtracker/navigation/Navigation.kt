@@ -16,6 +16,7 @@ import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.StudentMasterListScre
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.ManageCurriculumsPage
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminCurriculumOverviewScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminNextAvailableCoursesScreen
+import com.mamogkat.mmcmcurriculumtracker.ui.screens.admin.AdminAboutDevs
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.ChangePasswordScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.ErrorScreen
 import com.mamogkat.mmcmcurriculumtracker.ui.screens.auth.ForgotPassword
@@ -43,6 +44,7 @@ sealed class Screen(val route: String) {
     object AdminCurriculumOverviewScreen: Screen("admin_curriculum_overview_screen")
     object AdminNextAvailableCoursesScreen: Screen("admin_next_available_courses_screen")
     object AboutDevelopers: Screen("about_developers")
+    object AdminAboutDevs: Screen("admin_about_devs")
 }
 
 
@@ -61,6 +63,7 @@ fun AppNavHost(navController: NavHostController, adminViewModel: AdminViewModel,
         composable(Screen.StudentMasterList.route) { StudentMasterListScreen(adminViewModel, navController)}
         composable(Screen.ManageCurriculumsPage.route) { ManageCurriculumsPage(navController) }
         composable(Screen.AboutDevelopers.route) { AboutDevelopersScreen(navController) }
+        composable(Screen.AdminAboutDevs.route) { AdminAboutDevs(navController) }
         composable(
             route = "admin_curriculum_overview/{studentId}",  // ✅ Define studentId as a route argument
             arguments = listOf(navArgument("studentId") { type = NavType.StringType })

@@ -111,7 +111,7 @@ class CourseGraph(
 
         Log.d("CourseGraph", "Processing electives...")
 
-        // Step 5: Ensure electives are always available if not completed
+        // Step 5: Add electives for reference at the end
         electives.forEach { elective ->
             if (elective.code !in completedCourses) {
                 availableCourses.add(Pair(elective, "blue")) // ✅ Special case for electives

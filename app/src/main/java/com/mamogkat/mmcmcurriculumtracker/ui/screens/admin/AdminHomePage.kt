@@ -193,16 +193,9 @@ fun AdminNavigationDrawer(navController: NavController, drawerState: DrawerState
                     navController.navigate("student_master_list")
                     coroutineScope.launch { drawerState.close() }
                 }
-                DrawerItem("Manage Curriculums", Icons.Default.Menu) {
 
-                    Log.d("AdminHomePage", "Navigating to ManageCurriculumsPage")
-                    navController.navigate("manage_curriculum_page")
-
-                    Log.d("AdminHomePage", "Successfully Navigated to ManageCurriculumsPage")
-                    coroutineScope.launch { drawerState.close() }
-                }
                 DrawerItem("About the Developers", Icons.Default.Info) {
-                    navController.navigate("about_developers")
+                    navController.navigate("admin_about_devs")
                     coroutineScope.launch { drawerState.close() }
                 }
             }

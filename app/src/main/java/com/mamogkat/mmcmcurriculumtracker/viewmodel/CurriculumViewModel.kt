@@ -78,6 +78,7 @@ class CurriculumViewModel : ViewModel() {
                         "1" -> "bscpe_2022_2023" // ✅ Map curriculum ID 1 to actual Firestore ID
                         "2" -> "bsee_2024_2025"
                         "3" -> "bscpe_2021_2022"
+                        "4" -> "bsece_2022_2023"
                         else -> null
                     }
                 }
@@ -169,6 +170,27 @@ class CurriculumViewModel : ViewModel() {
                     "NETA172P",
                     "SDEV173P",
                     "SNAD174P"
+                )
+            )
+        }
+        else if(curriculumId == "bsece_2022_2023") {
+            electiveCategories.addAll(
+                listOf(
+                    "ECE137P",
+                    "ECE110P",
+                    "ECE154P",
+                    "ECE152P",
+                    "SNAD175P",
+                    "NETA172P",
+                    "AWS171P",
+                    "ECE194",
+                    "NETA173P",
+                    "ECE166P",
+                    "ECE153",
+                    "ECE118P",
+                    "ECE127",
+                    "AENG",
+                    "GEN_ED"
                 )
             )
         }
@@ -3542,55 +3564,317 @@ class CurriculumViewModel : ViewModel() {
         )
 
 
-//        repository.uploadCourses("bscpe_2021_2022", 1, "term_1", firstYearTerm1Courses) {
-//            Log.d("UploadDebug", "First Year Term 1 courses uploaded")
-//        }
-//
-//        repository.uploadCourses("bscpe_2021_2022", 1, "term_2", firstYearTerm2Courses) {
-//            Log.d("UploadDebug", "First Year Term 2 courses uploaded")
-//        }
-//        repository.uploadCourses("bscpe_2021_2022", 1, "term_3", firstYearTerm3Courses) {
-//            Log.d("UploadDebug", "First Year Term 3 courses uploaded")
-//        }
-//
-//        repository.uploadCourses("bscpe_2021_2022", 2, "term_1", secondYearTerm1Courses) {
-//            Log.d("UploadDebug", "Second Year Term 1 courses uploaded")
-//        }
-//        repository.uploadCourses("bscpe_2021_2022", 2, "term_2", secondYearTerm2Courses) {
-//            Log.d("UploadDebug", "Second Year Term 2 courses uploaded")
-//        }
-//
-//        repository.uploadCourses("bscpe_2021_2022", 2, "term_3", secondYearTerm3Courses) {
-//            Log.d("UploadDebug", "Second Year Term 3 courses uploaded")
-//        }
-//        repository.uploadCourses("bscpe_2021_2022", 3, "term_1", thirdYearTerm1Courses) {
-//            Log.d("UploadDebug", "Third Year Term 1 courses uploaded successfully!")
-//        }
-//
-//        repository.uploadCourses("bscpe_2021_2022", 3, "term_2", thirdYearTerm2Courses) {
-//            Log.d("UploadDebug", "Third Year Term 2 courses uploaded successfully!")
-//        }
-//        repository.uploadCourses("bscpe_2021_2022", 3, "term_3", thirdYearTerm3Courses) {
-//            Log.d("UploadDebug", "Third Year Term 3 courses uploaded successfully!")
-//        }
-//
-//        repository.uploadCourses("bscpe_2021_2022", 4, "term_1", fourthYearTerm1Courses) {
-//            Log.d("UploadDebug", "Fourth Year Term 1 courses uploaded successfully!")
-//        }
-//
-//        repository.uploadCourses("bscpe_2021_2022", 4, "term_2", fourthYearTerm2Courses) {
-//            Log.d("UploadDebug", "Fourth Year Term 2 courses uploaded successfully!")
-//        }
-//
-//        repository.uploadCourses("bscpe_2021_2022", 4, "term_3", fourthYearTerm3Courses) {
-//            Log.d("UploadDebug", "Fourth Year Term 3 courses uploaded successfully!")
-//        }
+        repository.uploadCourses("bscpe_2021_2022", 1, "term_1", firstYearTerm1Courses) {
+            Log.d("UploadDebug", "First Year Term 1 courses uploaded")
+        }
+
+        repository.uploadCourses("bscpe_2021_2022", 1, "term_2", firstYearTerm2Courses) {
+            Log.d("UploadDebug", "First Year Term 2 courses uploaded")
+        }
+        repository.uploadCourses("bscpe_2021_2022", 1, "term_3", firstYearTerm3Courses) {
+            Log.d("UploadDebug", "First Year Term 3 courses uploaded")
+        }
+
+        repository.uploadCourses("bscpe_2021_2022", 2, "term_1", secondYearTerm1Courses) {
+            Log.d("UploadDebug", "Second Year Term 1 courses uploaded")
+        }
+        repository.uploadCourses("bscpe_2021_2022", 2, "term_2", secondYearTerm2Courses) {
+            Log.d("UploadDebug", "Second Year Term 2 courses uploaded")
+        }
+
+        repository.uploadCourses("bscpe_2021_2022", 2, "term_3", secondYearTerm3Courses) {
+            Log.d("UploadDebug", "Second Year Term 3 courses uploaded")
+        }
+        repository.uploadCourses("bscpe_2021_2022", 3, "term_1", thirdYearTerm1Courses) {
+            Log.d("UploadDebug", "Third Year Term 1 courses uploaded successfully!")
+        }
+
+        repository.uploadCourses("bscpe_2021_2022", 3, "term_2", thirdYearTerm2Courses) {
+            Log.d("UploadDebug", "Third Year Term 2 courses uploaded successfully!")
+        }
+        repository.uploadCourses("bscpe_2021_2022", 3, "term_3", thirdYearTerm3Courses) {
+            Log.d("UploadDebug", "Third Year Term 3 courses uploaded successfully!")
+        }
+
+        repository.uploadCourses("bscpe_2021_2022", 4, "term_1", fourthYearTerm1Courses) {
+            Log.d("UploadDebug", "Fourth Year Term 1 courses uploaded successfully!")
+        }
+
+        repository.uploadCourses("bscpe_2021_2022", 4, "term_2", fourthYearTerm2Courses) {
+            Log.d("UploadDebug", "Fourth Year Term 2 courses uploaded successfully!")
+        }
+
+        repository.uploadCourses("bscpe_2021_2022", 4, "term_3", fourthYearTerm3Courses) {
+            Log.d("UploadDebug", "Fourth Year Term 3 courses uploaded successfully!")
+        }
 
         repository.uploadElectives("bscpe_2021_2022", electives)
 
     }
 
+    //bs ece 2022-2023 curriculum
+    fun uploadbsECE2022Curriculum() {
+        val firstYearTerm1Courses = listOf(
+            mapOf("code" to "CHM031", "name" to "Chemistry for Engineers", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 1),
+            mapOf("code" to "CHM031L", "name" to "Chemistry for Engineers (Laboratory)", "units" to 1, "prerequisites" to listOf<String>(), "coRequisites" to listOf("CHM031"), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 1),
+            mapOf("code" to "ENG023", "name" to "Receptive Communication Skills", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 1),
+            mapOf("code" to "HUM021", "name" to "Logic and Critical Thinking", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 1),
+            mapOf("code" to "MATH031", "name" to "Mathematics for Engineers", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 1),
+            mapOf("code" to "SS022", "name" to "Readings in Philippine History", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 1),
+            mapOf("code" to "NSTP010", "name" to "National Service Training Program 1", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 1),
+            mapOf("code" to "VE021", "name" to "Life Coaching Series 1", "units" to 1, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 1)
+        )
 
+        val firstYearTerm2Courses = listOf(
+            mapOf("code" to "CPE001L", "name" to "Computer Fundamentals and Programming 1 (Lab)", "units" to 1, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 1),
+            mapOf("code" to "DRAW021W", "name" to "Engineering Drawing 1", "units" to 1, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 1),
+            mapOf("code" to "ECE100", "name" to "Electronics Engineering Orientation", "units" to 1, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 1),
+            mapOf("code" to "ENG024", "name" to "Writing for Academic Studies", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 1),
+            mapOf("code" to "MATH035", "name" to "Mathematics in the Modern World", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 1),
+            mapOf("code" to "MATH041", "name" to "Engineering Calculus 1", "units" to 4, "prerequisites" to listOf("MATH031"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 1),
+            mapOf("code" to "SS021", "name" to "Understanding the Self", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 1),
+            mapOf("code" to "NSTP011P", "name" to "National Service Training Program 2 (Paired)", "units" to 3, "prerequisites" to listOf("NSTP010"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 1),
+            mapOf("code" to "VE022", "name" to "Life Coaching Series 2", "units" to 1, "prerequisites" to listOf("VE021"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 1)
+        )
+
+        val firstYearTerm3Courses = listOf(
+            mapOf("code" to "ECE121L", "name" to "Computer-Aided Calculations (Laboratory)", "units" to 1, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 1),
+            mapOf("code" to "HUM039", "name" to "Ethics", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 1),
+            mapOf("code" to "MATH042", "name" to "Engineering Calculus 2", "units" to 4, "prerequisites" to listOf("MATH041"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 1),
+            mapOf("code" to "IE101-1", "name" to "Engineering Data Analysis", "units" to 3, "prerequisites" to listOf("MATH041"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 1),
+            mapOf("code" to "PHY035", "name" to "Physics for Engineers", "units" to 4, "prerequisites" to listOf("MATH041"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 1),
+            mapOf("code" to "PHY035L", "name" to "Physics for Engineers (Laboratory)", "units" to 1, "prerequisites" to listOf("MATH041"), "coRequisites" to listOf("PHY035"), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 1),
+            mapOf("code" to "PE001", "name" to "Physical Activities Toward Health and Fitness 1", "units" to 2, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 1),
+            mapOf("code" to "VE023", "name" to "Life Coaching Series 3", "units" to 1, "prerequisites" to listOf("VE022"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 1)
+        )
+
+        val secondYearTerm1Courses = listOf(
+            mapOf("code" to "CPE142L", "name" to "Object Oriented Programming (Lab)", "units" to 2, "prerequisites" to listOf("CPE001L"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 2),
+            mapOf("code" to "EECO102", "name" to "Engineering Economy", "units" to 3, "prerequisites" to listOf("IE101-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 2),
+            mapOf("code" to "EE101-2", "name" to "Circuits 1", "units" to 3, "prerequisites" to listOf("MATH042", "PHY035"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 2),
+            mapOf("code" to "EE101L-2", "name" to "Circuits 1 (Laboratory)", "units" to 1, "prerequisites" to listOf("PHY035L"), "coRequisites" to listOf("EE101-2"), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 2),
+            mapOf("code" to "MATH056", "name" to "Differential Equations", "units" to 3, "prerequisites" to listOf("MATH042"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 2),
+            mapOf("code" to "PHY034", "name" to "Physics for ECE", "units" to 3, "prerequisites" to listOf("MATH041"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 2),
+            mapOf("code" to "PHY034L", "name" to "Physics for ECE (Laboratory)", "units" to 1, "prerequisites" to listOf("MATH041"), "coRequisites" to listOf("PHY034"), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 2),
+            mapOf("code" to "PE002", "name" to "Physical Activities Toward Health and Fitness 2", "units" to 2, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 2)
+        )
+
+        val secondYearTerm2Courses = listOf(
+            mapOf("code" to "ECE101-2", "name" to "Electronics Devices and Circuits", "units" to 3, "prerequisites" to listOf("MATH042", "PHY035"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 2),
+            mapOf("code" to "ECE101L-2", "name" to "Electronics Devices and Circuits (Laboratory)", "units" to 1, "prerequisites" to listOf("PHY035L"), "coRequisites" to listOf("ECE101-2"), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 2),
+            mapOf("code" to "EE102-1", "name" to "Circuits 2", "units" to 3, "prerequisites" to listOf("EE101-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 2),
+            mapOf("code" to "EE102L-1", "name" to "Circuits 2 (Laboratory)", "units" to 1, "prerequisites" to listOf("EE101L-2"), "coRequisites" to listOf("EE102-1"), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 2),
+            mapOf("code" to "EMGT100", "name" to "Engineering Management", "units" to 2, "prerequisites" to listOf("EECO102"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 2),
+            mapOf("code" to "MATH116", "name" to "Advanced Engineering Mathematics", "units" to 3, "prerequisites" to listOf("MATH056"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 2),
+            mapOf("code" to "MATH116E", "name" to "Engineering Mathematics Exit Exam", "units" to 0, "prerequisites" to listOf("IE101-1", "MATH056"), "coRequisites" to listOf("MATH116"), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 2),
+            mapOf("code" to "SS085", "name" to "Philippine Indigenous Communities", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 2),
+            mapOf("code" to "PE003", "name" to "Physical Activities Toward Health and Fitness 3", "units" to 2, "prerequisites" to listOf("PE001", "PE002"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 2)
+        )
+
+        val secondYearTerm3Courses = listOf(
+            mapOf("code" to "CPE115-1", "name" to "Logic Circuit and Switching Theory", "units" to 3, "prerequisites" to listOf("ECE101-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 2),
+            mapOf("code" to "CPE115L-1", "name" to "Logic Circuit and Switching Theory (Laboratory)", "units" to 1, "prerequisites" to listOf("ECE101L-2"), "coRequisites" to listOf("CPE115-1"), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 2),
+            mapOf("code" to "ECE102-1", "name" to "Electronics Circuits Analysis and Design", "units" to 3, "prerequisites" to listOf("ECE101-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 2),
+            mapOf("code" to "ECE102L-1", "name" to "Electronics Circuits Analysis and Design (Lab)", "units" to 1, "prerequisites" to listOf("ECE101L-2"), "coRequisites" to listOf("ECE102-1"), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 2),
+            mapOf("code" to "ECE115", "name" to "Electromagnetics for ECE", "units" to 4, "prerequisites" to listOf("PHY035", "MATH056"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 2),
+            mapOf("code" to "MATH116L", "name" to "Advanced Engineering Mathematics (Lab)", "units" to 1, "prerequisites" to listOf("MATH116", "ECE121L"), "coRequisites" to listOf("MATH161"), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 2),
+            mapOf("code" to "MATH161", "name" to "Numerical Methods", "units" to 3, "prerequisites" to listOf("MATH116"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 2),
+            mapOf("code" to "PE004", "name" to "Physical Activities Toward Health and Fitness 4", "units" to 2, "prerequisites" to listOf("PE001", "PE002"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 2),
+            // Summer Term Courses
+            mapOf("code" to "ENG041", "name" to "Purposive Communication", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 2),
+            mapOf("code" to "EENV102", "name" to "Environmental Science and Engineering", "units" to 3, "prerequisites" to listOf("CHM031"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 2),
+            mapOf("code" to "SS036", "name" to "Science, Technology, and Society", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 2)
+        )
+        val thirdYearTerm1Courses = listOf(
+            mapOf("code" to "CPE123-1", "name" to "Microprocessor and Microcontroller Systems and Design", "units" to 3, "prerequisites" to listOf("CPE115-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 3),
+            mapOf("code" to "CPE123L-1", "name" to "Microprocessor and Microcontroller Systems and Design (Lab)", "units" to 1, "prerequisites" to listOf("CPE115L-1"), "coRequisites" to listOf("CPE123-1"), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 3),
+            mapOf("code" to "DRAW023L-1", "name" to "Computer-Aided Drafting (Laboratory)", "units" to 1, "prerequisites" to listOf("DRAW021W"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 3),
+            mapOf("code" to "ECE130", "name" to "Feedback and Control Systems", "units" to 3, "prerequisites" to listOf("MATH116"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 3),
+            mapOf("code" to "ECE130L", "name" to "Feedback and Control Systems (Laboratory)", "units" to 1, "prerequisites" to listOf("MATH116", "ECE121L"), "coRequisites" to listOf("ECE130"), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 3),
+            mapOf("code" to "ECE141-1", "name" to "Principles of Communication System", "units" to 3, "prerequisites" to listOf("ECE102-1", "ECE115"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 3),
+            mapOf("code" to "ECE141L-1", "name" to "Principles of Communication System (Lab)", "units" to 1, "prerequisites" to listOf("ECE102L-1"), "coRequisites" to listOf("ECE141-1"), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 3),
+            mapOf("code" to "EMGT100E", "name" to "General Engineering and Applied Sciences Exit Exam", "units" to 0, "prerequisites" to listOf("CHM031", "PHY035", "PHY034", "EECO102"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 3),
+            mapOf("code" to "TEC100", "name" to "Technopreneurship", "units" to 3, "prerequisites" to listOf("EMGT100"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 3)
+        )
+
+        val thirdYearTerm2Courses = listOf(
+            mapOf("code" to "ECE142-1", "name" to "Modulation and Coding Techniques", "units" to 3, "prerequisites" to listOf("ECE141-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 3),
+            mapOf("code" to "ECE142L-1", "name" to "Modulation and Coding Techniques Laboratory", "units" to 1, "prerequisites" to listOf("ECE141L-1"), "coRequisites" to listOf("ECE142-1"), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 3),
+            mapOf("code" to "ECE163", "name" to "Signals Spectra and Signal Processing", "units" to 3, "prerequisites" to listOf("MATH116"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 3),
+            mapOf("code" to "ECE163L", "name" to "Signals Spectra and Signal Processing (Lab)", "units" to 1, "prerequisites" to listOf("ECE121L", "MATH116"), "coRequisites" to listOf("ECE163"), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 3),
+            mapOf("code" to "NETA172P-1", "name" to "CCNA Routing and Switching 1 (Paired)", "units" to 3, "prerequisites" to listOf("PHY035"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 3),
+            mapOf("code" to "RES101", "name" to "Methods of Research", "units" to 3, "prerequisites" to listOf("IE101-1", "ENG024"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 3),
+            mapOf("code" to "CPE144L", "name" to "Mobile Application Development (Laboratory)", "units" to 2, "prerequisites" to listOf("CPE142L"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 3)
+        )
+
+        val thirdYearTerm3Courses = listOf(
+            mapOf("code" to "CAP200D", "name" to "Capstone Design / Thesis 1 (Laboratory)", "units" to 1, "prerequisites" to listOf("RES101"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "ECE107-1", "name" to "Electronic Systems and Design", "units" to 3, "prerequisites" to listOf("ECE102-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "ECE107L-1", "name" to "Electronic Systems and Design (Laboratory)", "units" to 1, "prerequisites" to listOf("ECE102-1"), "coRequisites" to listOf("ECE107-1"), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "ECE107-1E", "name" to "Electronics Engineering Exit Exam", "units" to 0, "prerequisites" to listOf("ECE102-1", "EE102-1", "CPE115-1", "ECE130", "ECE115", "CPE123-1"), "coRequisites" to listOf("ECE107-1"), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "ECE143-1", "name" to "Transmission Media and Antenna Systems and Design", "units" to 3, "prerequisites" to listOf("ECE142-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "ECE143L-1", "name" to "Transmission Media and Antenna Systems and Design (Lab)", "units" to 1, "prerequisites" to listOf("ECE142L-1"), "coRequisites" to listOf("ECE143-1"), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "ECE160L", "name" to "Electronic Schematics, Diagram and Modules (Lab)", "units" to 1, "prerequisites" to listOf("ECE102-1", "ECE102L-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "ECEELEC01-1", "name" to "ECE Elective 1 (Paired)", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "GEELEC01", "name" to "GE Elective 1", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3) ,
+            mapOf("code" to "GEELEC02", "name" to "GE Elective 2", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "MSE102", "name" to "Fundamentals of Material Science and Engineering", "units" to 3, "prerequisites" to listOf("CHM031"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "SAF102", "name" to "Basic Occupational Safety and Health", "units" to 3, "prerequisites" to listOf("CHM031"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3)
+        )
+
+        val fourthYearTerm1Courses = listOf(
+            mapOf("code" to "CAP200D-1", "name" to "Capstone Design / Thesis 2 (Laboratory)", "units" to 1, "prerequisites" to listOf("CAP200D"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 4),
+            mapOf("code" to "ECE144-1", "name" to "Data Communications", "units" to 3, "prerequisites" to listOf("ECE142-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 4),
+            mapOf("code" to "ECE144L-1", "name" to "Data Communications (Laboratory)", "units" to 1, "prerequisites" to listOf("ECE142L-1"), "coRequisites" to listOf("ECE144-1"), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 4),
+            mapOf("code" to "ECE144-1E", "name" to "Electronics Systems and Technologies 1 Exit Exam", "units" to 0, "prerequisites" to listOf("ECE142-1", "ECE163", "ECE107-1"), "coRequisites" to listOf("ECE144-1"), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 4),
+            mapOf("code" to "ECEELEC02-1", "name" to "ECE Elective 2 (Paired)", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 4),
+            mapOf("code" to "HUM034", "name" to "Art Appreciation", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 4),
+            mapOf("code" to "SS023", "name" to "The Contemporary World", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 4),
+            mapOf("code" to "DS100L", "name" to "Applied Data Science Laboratory", "units" to 1, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1), "term" to 1, "yearLevel" to 4)
+        )
+
+        val fourthYearTerm2Courses = listOf(
+            mapOf("code" to "CAP200D-2", "name" to "Capstone Design / Thesis 3 (Laboratory)", "units" to 1, "prerequisites" to listOf("CAP200D"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 4),
+            mapOf("code" to "ECE145P-1", "name" to "Wireless Communications (Paired)", "units" to 4, "prerequisites" to listOf("ECE143-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 4),
+            mapOf("code" to "ECE181", "name" to "ECE Laws, Codes and Professional Ethics", "units" to 3, "prerequisites" to listOf("HUM039"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 4),
+            mapOf("code" to "ECE181E", "name" to "Electronics Systems and Technologies 2 Exit Exam", "units" to 0, "prerequisites" to listOf("ECE143-1", "ECE144-1"), "coRequisites" to listOf("ECE145P-1", "ECE181"), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 4),
+            mapOf("code" to "ECE191F-1", "name" to "ECE Seminars and Colloquium (Field)", "units" to 1, "prerequisites" to listOf("CPE123-1", "ECE141-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 4),
+            mapOf("code" to "ECEELEC03-1", "name" to "ECE Elective 3 (Paired)", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 4),
+            mapOf("code" to "SS038", "name" to "The Life and Works of Jose Rizal", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 4),
+            mapOf("code" to "COR198", "name" to "Correlation 1", "units" to -1, "prerequisites" to listOf("CHM031", "MATH116", "MATH116E", "PHY035", "EECO102"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 4),
+            mapOf("code" to "SGE101", "name" to "Student Global Experience", "units" to 0, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 4)
+        )
+
+        val fourthYearTerm3Courses = listOf(
+            mapOf("code" to "ECE199R-1", "name" to "ECE Practicum", "units" to 3, "prerequisites" to listOf("ECE102-1", "ECE141-1", "HUM039", "CAP200D-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 4),
+            mapOf("code" to "ECE198-2", "name" to "ECE Correlation 2", "units" to -1, "prerequisites" to listOf("EMGT100E", "ECE107-1E", "ECE143-1", "ECE144-1", "ECE144-1E"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 4)
+        )
+
+        val electives = mapOf(
+            "ECE137P" to listOf(
+                mapOf("code" to "ECE137P", "name" to "Industrial Control and Instrumentation Systems (Paired)", "units" to 3, "prerequisites" to listOf("ECE130"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE137P-1", "name" to "Mechatronics 1: Fundamentals of Mechatronics (Paired)", "units" to 3, "prerequisites" to listOf("ECE130"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE137P-2", "name" to "Mechatronics 2: Robotics (Paired)", "units" to 3, "prerequisites" to listOf("ECE130"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "ECE110P" to listOf(
+                mapOf("code" to "ECE110P-1", "name" to "Introduction to Analog Integrated Circuits Design (Paired)", "units" to 3, "prerequisites" to listOf("CPE115-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE110P-2", "name" to "Introduction to Digital VLSI Design (Paired)", "units" to 3, "prerequisites" to listOf("ECE110P-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE110P-3", "name" to "VLSI Test and Measurement (Paired)", "units" to 3, "prerequisites" to listOf("ECE110P-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "ECE154P" to listOf(
+                mapOf("code" to "ECE154P-1", "name" to "ICT Infrastructure (Paired)", "units" to 3, "prerequisites" to listOf("ECE141-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE154P-2", "name" to "Electronics Auxiliary System (Paired)", "units" to 3, "prerequisites" to listOf("ECE107-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "ECE152P" to listOf(
+                mapOf("code" to "ECE152P-1", "name" to "Advanced Communication System and Design (Paired)", "units" to 3, "prerequisites" to listOf("ECE142-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE152P-2", "name" to "Advanced Networking (Paired)", "units" to 3, "prerequisites" to listOf("ECE143-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE152P-3", "name" to "Network Security (Paired)", "units" to 3, "prerequisites" to listOf("ECE144-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "SNAD175P" to listOf(
+                mapOf("code" to "SNAD175P-1", "name" to "System and Network Administration 1 (Paired)", "units" to 3, "prerequisites" to listOf("ECE142-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "SNAD175P-2", "name" to "System and Network Administration 2 (Paired)", "units" to 3, "prerequisites" to listOf("SNAD175P-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "SNAD175P-3", "name" to "System and Network Administration 3 (Paired)", "units" to 3, "prerequisites" to listOf("SNAD175P-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "NETA172P" to listOf(
+                mapOf("code" to "NETA172P-2", "name" to "CCNA Routing and Switching 2 (Paired)", "units" to 3, "prerequisites" to listOf("NETA172P-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "NETA172P-3", "name" to "CCNA Routing and Switching 3 (Paired)", "units" to 3, "prerequisites" to listOf("NETA172P-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "NETA172P-4", "name" to "CCNA Routing and Switching 4 (Paired)", "units" to 3, "prerequisites" to listOf("NETA172P-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "AWS171P" to listOf(
+                mapOf("code" to "AWS171P", "name" to "Cloud Foundations (Paired)", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "AWS171P-1", "name" to "Cloud Development (Paired)", "units" to 3, "prerequisites" to listOf("AWS171P"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "AWS171P-2", "name" to "Cloud Architecture (Paired)", "units" to 3, "prerequisites" to listOf("AWS171P"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "AWS171P-3", "name" to "Cloud System Operations (Paired)", "units" to 3, "prerequisites" to listOf("AWS171P"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "ECE194" to listOf(
+                mapOf("code" to "ECE194", "name" to "Special Topics in Electronics Engineering (Paired)", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "NETA173P" to listOf(
+                mapOf("code" to "NETA173P", "name" to "HCIA Storage (Paired)", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "ECE166P" to listOf(
+                mapOf("code" to "ECE166P-1", "name" to "Semiconductor Material & Device Characterization (Paired)", "units" to 3, "prerequisites" to listOf("ECE102-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE166P-2", "name" to "Manufacturing and Process Control for Semiconductor and Electronics (Paired)", "units" to 3, "prerequisites" to listOf("ECE166P-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "ECE153" to listOf(
+                mapOf("code" to "ECE153", "name" to "Fundamentals of Acoustics", "units" to 3, "prerequisites" to listOf("PHY035"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE153P-1", "name" to "Broadcast Production Engineering 1 (Paired)", "units" to 3, "prerequisites" to listOf("ECE141-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE153P-2", "name" to "Broadcast Production Engineering 2 (Paired)", "units" to 3, "prerequisites" to listOf("ECE153P-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "ECE118P" to listOf(
+                mapOf("code" to "ECE118P-1", "name" to "Advanced Power Supply Systems (Paired)", "units" to 3, "prerequisites" to listOf("ECE107-1", "ECE115"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE118P-2", "name" to "Renewable Energy Systems (Paired)", "units" to 3, "prerequisites" to listOf("ECE107-1", "ECE115"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE118P-3", "name" to "Motor Drives and Inverters (Paired)", "units" to 3, "prerequisites" to listOf("ECE107-1", "ECE115"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "ECE127" to listOf(
+                mapOf("code" to "ECE127-1", "name" to "Fundamentals of Biomedical Engineering", "units" to 3, "prerequisites" to listOf("PHY034"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE127-2", "name" to "Medical Imaging", "units" to 3, "prerequisites" to listOf("PHY034"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ECE127-3", "name" to "Biophysical Phenomena", "units" to 3, "prerequisites" to listOf("PHY034"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "AENG" to listOf(
+                mapOf("code" to "AENG012", "name" to "AB Power Engineering", "units" to 3, "prerequisites" to listOf("EE102-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "AENG013", "name" to "AB Electrification and Control Systems", "units" to 3, "prerequisites" to listOf("AENG012"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "GEN_ED" to listOf(
+                mapOf("code" to "ENV075", "name" to "Environmental Science", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ENV076", "name" to "People and the Earth's Ecosystem", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ENV078", "name" to "The Entrepreneurial Mind", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "HUM080", "name" to "Philippine Popular Culture", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "HUM081", "name" to "Indigenous Creative Crafts", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "HUM082", "name" to "Reading Visual Art", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "HUM083", "name" to "Great Books", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "SS084", "name" to "Religions, Religious Experiences and Spirituality", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "SS086", "name" to "Gender and Society", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            )
+        )
+//        repository.uploadCourses("bsece_2022_2023", 1, "term_1", firstYearTerm1Courses) {
+//            Log.d("UploadDebug", "First Year Term 1 courses uploaded")
+//        }
+//
+//        repository.uploadCourses("bsece_2022_2023", 1, "term_2", firstYearTerm2Courses) {
+//            Log.d("UploadDebug", "First Year Term 2 courses uploaded")
+//        }
+//        repository.uploadCourses("bsece_2022_2023", 1, "term_3", firstYearTerm3Courses) {
+//            Log.d("UploadDebug", "First Year Term 3 courses uploaded")
+//        }
+//
+//        repository.uploadCourses("bsece_2022_2023", 2, "term_1", secondYearTerm1Courses) {
+//            Log.d("UploadDebug", "Second Year Term 1 courses uploaded")
+//        }
+//        repository.uploadCourses("bsece_2022_2023", 2, "term_2", secondYearTerm2Courses) {
+//            Log.d("UploadDebug", "Second Year Term 2 courses uploaded")
+//        }
+//
+//        repository.uploadCourses("bsece_2022_2023", 2, "term_3", secondYearTerm3Courses) {
+//            Log.d("UploadDebug", "Second Year Term 3 courses uploaded")
+//        }
+//        repository.uploadCourses("bsece_2022_2023", 3, "term_1", thirdYearTerm1Courses) {
+//            Log.d("UploadDebug", "Third Year Term 1 courses uploaded successfully!")
+//        }
+//
+//        repository.uploadCourses("bsece_2022_2023", 3, "term_2", thirdYearTerm2Courses) {
+//            Log.d("UploadDebug", "Third Year Term 2 courses uploaded successfully!")
+//        }
+        repository.uploadCourses("bsece_2022_2023", 3, "term_3", thirdYearTerm3Courses) {
+            Log.d("UploadDebug", "Third Year Term 3 courses uploaded successfully!")
+        }
+
+//        repository.uploadCourses("bsece_2022_2023", 4, "term_1", fourthYearTerm1Courses) {
+//            Log.d("UploadDebug", "Fourth Year Term 1 courses uploaded successfully!")
+//        }
+//
+//        repository.uploadCourses("bsece_2022_2023", 4, "term_2", fourthYearTerm2Courses) {
+//            Log.d("UploadDebug", "Fourth Year Term 2 courses uploaded successfully!")
+//        }
+//
+//        repository.uploadCourses("bsece_2022_2023", 4, "term_3", fourthYearTerm3Courses) {
+//            Log.d("UploadDebug", "Fourth Year Term 3 courses uploaded successfully!")
+//        }
+//
+//        repository.uploadElectives("bsece_2022_2023", electives)
+
+
+    }
 
     //-------------------------------------------------------------
 
