@@ -118,11 +118,13 @@ fun AdminNextAvailableCoursesScreen(
 
                 // 🔹 Display available courses
                 if (availableCourses.isEmpty()) {
-                    Log.w("AdminNextAvailableCoursesScreen", "No available courses found for student $studentId")
-                    Text(
-                        "Fetching....",
-                        color = colorResource(id = R.color.mmcm_red)
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = colorResource(id = R.color.mmcm_blue))
+                    }
+                    Log.d("AdminNextAvailableCoursesScreen", "No available courses found")
                 } else {
                     Log.d("AdminNextAvailableCoursesScreen", "Found ${availableCourses.size} available courses for student $studentId")
                     LazyColumn {

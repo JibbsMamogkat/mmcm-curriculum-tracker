@@ -77,6 +77,7 @@ class CurriculumViewModel : ViewModel() {
                     when (id) {
                         "1" -> "bscpe_2022_2023" // ✅ Map curriculum ID 1 to actual Firestore ID
                         "2" -> "bsee_2024_2025"
+                        "3" -> "bscpe_2021_2022"
                         else -> null
                     }
                 }
@@ -154,6 +155,20 @@ class CurriculumViewModel : ViewModel() {
                     "GEN_ED",
                     "MECHATRONICS",
                     "OPEN_ELECTIVE"
+                )
+            )
+        }
+        else if (curriculumId == "bscpe_2021_2022") {
+            electiveCategories.addAll(
+                listOf(
+                    "AWS171P",
+                    "EMSY171P",
+                    "GEN_ED",
+                    "MACH171P",
+                    "MICR172P",
+                    "NETA172P",
+                    "SDEV173P",
+                    "SNAD174P"
                 )
             )
         }
@@ -3478,98 +3493,98 @@ class CurriculumViewModel : ViewModel() {
 
         val electives = mapOf(
             "NETA172P" to listOf(
-                mapOf("code" to "NETA172P-2", "name" to "CCNA Routing and Switching 2 (Paired)", "units" to 3, "prerequisites" to listOf("NETA172P-1"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "NETA172P-3", "name" to "CCNA Routing and Switching 3 (Paired)", "units" to 3, "prerequisites" to listOf("NETA172P-2"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "NETA172P-4", "name" to "CCNA Routing and Switching 4 (Paired)", "units" to 3, "prerequisites" to listOf("NETA172P-2"), "coRequisites" to listOf<String>())
+                mapOf("code" to "NETA172P-2", "name" to "CCNA Routing and Switching 2 (Paired)", "units" to 3, "prerequisites" to listOf("NETA172P-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "NETA172P-3", "name" to "CCNA Routing and Switching 3 (Paired)", "units" to 3, "prerequisites" to listOf("NETA172P-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "NETA172P-4", "name" to "CCNA Routing and Switching 4 (Paired)", "units" to 3, "prerequisites" to listOf("NETA172P-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3)
             ),
             "MICR172P" to listOf(
-                mapOf("code" to "MICR172P-1", "name" to "Microelectronics 1 (Paired)", "units" to 3, "prerequisites" to listOf("CPE103-4", "CPE104L-1"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "MICR172P-2", "name" to "Microelectronics 2 (Paired)", "units" to 3, "prerequisites" to listOf("MICR172P-1"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "MICR172P-3", "name" to "Microelectronics 3 (Paired)", "units" to 3, "prerequisites" to listOf("MICR172P-2"), "coRequisites" to listOf<String>())
-            ),
-            "MACH171P" to listOf(
-                mapOf("code" to "MACH171P-1", "name" to "Machine Learning 1 (Paired)", "units" to 3, "prerequisites" to listOf("MATH116", "CS105L"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "MACH171P-2", "name" to "Machine Learning 2 (Paired)", "units" to 3, "prerequisites" to listOf("MACH171P-1"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "MACH171P-3", "name" to "Machine Learning 3 (Paired)", "units" to 3, "prerequisites" to listOf("MACH171P-2"), "coRequisites" to listOf<String>())
-            ),
-            "EMSY171P" to listOf(
-                mapOf("code" to "EMSY171P-1", "name" to "Embedded Systems 1 (Paired)", "units" to 3, "prerequisites" to listOf("CPE103-4", "CPE104L-1"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "EMSY171P-2", "name" to "Embedded Systems 2 (Paired)", "units" to 3, "prerequisites" to listOf("EMSY171P-1"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "EMSY171P-3", "name" to "Embedded Systems 3 (Paired)", "units" to 3, "prerequisites" to listOf("EMSY171P-2"), "coRequisites" to listOf<String>())
-            ),
-            "SDEV173P" to listOf(
-                mapOf("code" to "SDEV173P-1", "name" to "Software Development 1 (Paired)", "units" to 3, "prerequisites" to listOf("CPE107-1"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "SDEV173P-2", "name" to "Software Development 2 (Paired)", "units" to 3, "prerequisites" to listOf("SDEV173P-1"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "SDEV173P-3", "name" to "Software Development 3 (Paired)", "units" to 3, "prerequisites" to listOf("SDEV173P-2"), "coRequisites" to listOf<String>())
-            ),
-            "SNAD174P" to listOf(
-                mapOf("code" to "SNAD174P-1", "name" to "System and Network Administration 1 (Paired)", "units" to 3, "prerequisites" to listOf("CPE109-1"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "SNAD174P-2", "name" to "System and Network Administration 2 (Paired)", "units" to 3, "prerequisites" to listOf("SNAD174P-1"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "SNAD174P-3", "name" to "System and Network Administration 3 (Paired)", "units" to 3, "prerequisites" to listOf("SNAD174P-2"), "coRequisites" to listOf<String>())
-            ),
-            "AWS171P" to listOf(
-                mapOf("code" to "AWS171P", "name" to "Cloud Foundations (Paired)", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>()),
-                mapOf("code" to "AWS171P-1", "name" to "Cloud Development (Paired)", "units" to 3, "prerequisites" to listOf("AWS171P"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "AWS171P-2", "name" to "Cloud Architecture (Paired)", "units" to 3, "prerequisites" to listOf("AWS171P"), "coRequisites" to listOf<String>()),
-                mapOf("code" to "AWS171P-3", "name" to "Cloud System Operations (Paired)", "units" to 3, "prerequisites" to listOf("AWS171P"), "coRequisites" to listOf<String>())
+                mapOf("code" to "MICR172P-1", "name" to "Microelectronics 1 (Paired)", "units" to 3, "prerequisites" to listOf("CPE103-4", "CPE104L-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "MICR172P-2", "name" to "Microelectronics 2 (Paired)", "units" to 3, "prerequisites" to listOf("MICR172P-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "MICR172P-3", "name" to "Microelectronics 3 (Paired)", "units" to 3, "prerequisites" to listOf("MICR172P-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3)
             ),
             "GEN_ED" to listOf(
-                mapOf("code" to "ENV075", "name" to "Environmental Science", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>()),
-                mapOf("code" to "ENV076", "name" to "People and the Earth's Ecosystem", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>()),
-                mapOf("code" to "ENV078", "name" to "The Entrepreneurial Mind", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>()),
-                mapOf("code" to "HUM080", "name" to "Philippine Popular Culture", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>()),
-                mapOf("code" to "HUM081", "name" to "Indigenous Creative Crafts", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>()),
-                mapOf("code" to "HUM082", "name" to "Reading Visual Art", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>()),
-                mapOf("code" to "HUM083", "name" to "Great Books", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>()),
-                mapOf("code" to "SS084", "name" to "Religions, Religious Experiences and Spirituality", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>()),
-                mapOf("code" to "SS086", "name" to "Gender and Society", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>())
+                mapOf("code" to "ENV075", "name" to "Environmental Science", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ENV076", "name" to "People and the Earth's Ecosystem", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "ENV078", "name" to "The Entrepreneurial Mind", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "HUM080", "name" to "Philippine Popular Culture", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "HUM081", "name" to "Indigenous Creative Crafts", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "HUM082", "name" to "Reading Visual Art", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "HUM083", "name" to "Great Books", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "SS084", "name" to "Religions, Religious Experiences and Spirituality", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4),
+                mapOf("code" to "SS086", "name" to "Gender and Society", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 4)
+            ),
+            "MACH171P" to listOf(
+                mapOf("code" to "MACH171P-1", "name" to "Machine Learning 1 (Paired)", "units" to 3, "prerequisites" to listOf("MATH116", "CS105L"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "MACH171P-2", "name" to "Machine Learning 2 (Paired)", "units" to 3, "prerequisites" to listOf("MACH171P-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "MACH171P-3", "name" to "Machine Learning 3 (Paired)", "units" to 3, "prerequisites" to listOf("MACH171P-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3)
+            ),
+            "EMSY171P" to listOf(
+                mapOf("code" to "EMSY171P-1", "name" to "Embedded Systems 1 (Paired)", "units" to 3, "prerequisites" to listOf("CPE103-4", "CPE104L-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "EMSY171P-2", "name" to "Embedded Systems 2 (Paired)", "units" to 3, "prerequisites" to listOf("EMSY171P-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "EMSY171P-3", "name" to "Embedded Systems 3 (Paired)", "units" to 3, "prerequisites" to listOf("EMSY171P-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3)
+            ),
+            "SDEV173P" to listOf(
+                mapOf("code" to "SDEV173P-1", "name" to "Software Development 1 (Paired)", "units" to 3, "prerequisites" to listOf("CPE107-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "SDEV173P-2", "name" to "Software Development 2 (Paired)", "units" to 3, "prerequisites" to listOf("SDEV173P-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "SDEV173P-3", "name" to "Software Development 3 (Paired)", "units" to 3, "prerequisites" to listOf("SDEV173P-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3)
+            ),
+            "SNAD174P" to listOf(
+                mapOf("code" to "SNAD174P-1", "name" to "System and Network Administration 1 (Paired)", "units" to 3, "prerequisites" to listOf("CPE109-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "SNAD174P-2", "name" to "System and Network Administration 2 (Paired)", "units" to 3, "prerequisites" to listOf("SNAD174P-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "SNAD174P-3", "name" to "System and Network Administration 3 (Paired)", "units" to 3, "prerequisites" to listOf("SNAD174P-2"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3)
+            ),
+            "AWS171P" to listOf(
+                mapOf("code" to "AWS171P", "name" to "Cloud Foundations (Paired)", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "AWS171P-1", "name" to "Cloud Development (Paired)", "units" to 3, "prerequisites" to listOf("AWS171P"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "AWS171P-2", "name" to "Cloud Architecture (Paired)", "units" to 3, "prerequisites" to listOf("AWS171P"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3),
+                mapOf("code" to "AWS171P-3", "name" to "Cloud System Operations (Paired)", "units" to 3, "prerequisites" to listOf("AWS171P"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(1,2,3), "term" to 3, "yearLevel" to 3)
             )
         )
 
 
-        repository.uploadCourses("bscpe_2021_2022", 1, "term_1", firstYearTerm1Courses) {
-            Log.d("UploadDebug", "First Year Term 1 courses uploaded")
-        }
-
-        repository.uploadCourses("bscpe_2021_2022", 1, "term_2", firstYearTerm2Courses) {
-            Log.d("UploadDebug", "First Year Term 2 courses uploaded")
-        }
-        repository.uploadCourses("bscpe_2021_2022", 1, "term_3", firstYearTerm3Courses) {
-            Log.d("UploadDebug", "First Year Term 3 courses uploaded")
-        }
-
-        repository.uploadCourses("bscpe_2021_2022", 2, "term_1", secondYearTerm1Courses) {
-            Log.d("UploadDebug", "Second Year Term 1 courses uploaded")
-        }
-        repository.uploadCourses("bscpe_2021_2022", 2, "term_2", secondYearTerm2Courses) {
-            Log.d("UploadDebug", "Second Year Term 2 courses uploaded")
-        }
-
-        repository.uploadCourses("bscpe_2021_2022", 2, "term_3", secondYearTerm3Courses) {
-            Log.d("UploadDebug", "Second Year Term 3 courses uploaded")
-        }
-        repository.uploadCourses("bscpe_2021_2022", 3, "term_1", thirdYearTerm1Courses) {
-            Log.d("UploadDebug", "Third Year Term 1 courses uploaded successfully!")
-        }
-
-        repository.uploadCourses("bscpe_2021_2022", 3, "term_2", thirdYearTerm2Courses) {
-            Log.d("UploadDebug", "Third Year Term 2 courses uploaded successfully!")
-        }
-        repository.uploadCourses("bscpe_2021_2022", 3, "term_3", thirdYearTerm3Courses) {
-            Log.d("UploadDebug", "Third Year Term 3 courses uploaded successfully!")
-        }
-
-        repository.uploadCourses("bscpe_2021_2022", 4, "term_1", fourthYearTerm1Courses) {
-            Log.d("UploadDebug", "Fourth Year Term 1 courses uploaded successfully!")
-        }
-
-        repository.uploadCourses("bscpe_2021_2022", 4, "term_2", fourthYearTerm2Courses) {
-            Log.d("UploadDebug", "Fourth Year Term 2 courses uploaded successfully!")
-        }
-
-        repository.uploadCourses("bscpe_2021_2022", 4, "term_3", fourthYearTerm3Courses) {
-            Log.d("UploadDebug", "Fourth Year Term 3 courses uploaded successfully!")
-        }
+//        repository.uploadCourses("bscpe_2021_2022", 1, "term_1", firstYearTerm1Courses) {
+//            Log.d("UploadDebug", "First Year Term 1 courses uploaded")
+//        }
+//
+//        repository.uploadCourses("bscpe_2021_2022", 1, "term_2", firstYearTerm2Courses) {
+//            Log.d("UploadDebug", "First Year Term 2 courses uploaded")
+//        }
+//        repository.uploadCourses("bscpe_2021_2022", 1, "term_3", firstYearTerm3Courses) {
+//            Log.d("UploadDebug", "First Year Term 3 courses uploaded")
+//        }
+//
+//        repository.uploadCourses("bscpe_2021_2022", 2, "term_1", secondYearTerm1Courses) {
+//            Log.d("UploadDebug", "Second Year Term 1 courses uploaded")
+//        }
+//        repository.uploadCourses("bscpe_2021_2022", 2, "term_2", secondYearTerm2Courses) {
+//            Log.d("UploadDebug", "Second Year Term 2 courses uploaded")
+//        }
+//
+//        repository.uploadCourses("bscpe_2021_2022", 2, "term_3", secondYearTerm3Courses) {
+//            Log.d("UploadDebug", "Second Year Term 3 courses uploaded")
+//        }
+//        repository.uploadCourses("bscpe_2021_2022", 3, "term_1", thirdYearTerm1Courses) {
+//            Log.d("UploadDebug", "Third Year Term 1 courses uploaded successfully!")
+//        }
+//
+//        repository.uploadCourses("bscpe_2021_2022", 3, "term_2", thirdYearTerm2Courses) {
+//            Log.d("UploadDebug", "Third Year Term 2 courses uploaded successfully!")
+//        }
+//        repository.uploadCourses("bscpe_2021_2022", 3, "term_3", thirdYearTerm3Courses) {
+//            Log.d("UploadDebug", "Third Year Term 3 courses uploaded successfully!")
+//        }
+//
+//        repository.uploadCourses("bscpe_2021_2022", 4, "term_1", fourthYearTerm1Courses) {
+//            Log.d("UploadDebug", "Fourth Year Term 1 courses uploaded successfully!")
+//        }
+//
+//        repository.uploadCourses("bscpe_2021_2022", 4, "term_2", fourthYearTerm2Courses) {
+//            Log.d("UploadDebug", "Fourth Year Term 2 courses uploaded successfully!")
+//        }
+//
+//        repository.uploadCourses("bscpe_2021_2022", 4, "term_3", fourthYearTerm3Courses) {
+//            Log.d("UploadDebug", "Fourth Year Term 3 courses uploaded successfully!")
+//        }
 
         repository.uploadElectives("bscpe_2021_2022", electives)
 
