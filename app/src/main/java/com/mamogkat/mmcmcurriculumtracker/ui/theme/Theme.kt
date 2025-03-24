@@ -13,7 +13,9 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.colorResource
 import androidx.core.view.WindowCompat
+import com.mamogkat.mmcmcurriculumtracker.R
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -39,35 +41,24 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun MMCMCurriculumTrackerTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(
-                window,
-                view
-            ).isAppearanceLightStatusBars = darkTheme
-        }
-    }
+    val forcedLightColorScheme = lightColorScheme(
+        primary = colorResource(R.color.mmcm_blue),       // mmcm_blue (Main accent color)
+        onPrimary = colorResource(R.color.mmcm_white),           // Text/icons on primary should be white for contrast
+        secondary = colorResource(R.color.mmcm_red),      // mmcm_red (For secondary elements)
+        onSecondary = colorResource(R.color.mmcm_white),         // Ensure readability on red backgrounds
+        background = colorResource(R.color.mmcm_white),          // mmcm_white (Forced white background)
+        onBackground = colorResource(R.color.mmcm_black),        // mmcm_black (Black text for contrast)
+        surface = colorResource(R.color.mmcm_white),        // mmcm_silver (For cards, surfaces)
+        onSurface = colorResource(R.color.mmcm_black),           // Black text/icons on surfaces
+        error = colorResource(R.color.mmcm_red),         // mmcm_orange (For warnings, errors)
+        onError = colorResource(R.color.mmcm_white)              // Text/icons on error should be white
+    )
 
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
+        colorScheme = forcedLightColorScheme, // Always apply forced light colors
+        typography = Typography,  // Use default or custom typography
         content = content
     )
 }
