@@ -4,7 +4,7 @@ This mobile app helps students and admins at Mapúa Malayan Colleges Mindanao (M
 
 ---
 
-## 🔍 Features
+## Features
 
 ### Student Users
 - Browse curriculum checklist
@@ -23,7 +23,7 @@ This mobile app helps students and admins at Mapúa Malayan Colleges Mindanao (M
 
 ---
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 - **Jetpack Compose** for UI
 - **Kotlin** as the primary language
@@ -33,7 +33,7 @@ This mobile app helps students and admins at Mapúa Malayan Colleges Mindanao (M
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 
@@ -79,7 +79,7 @@ com.mamogkat.mmcmcurriculumtracker/
 
 ---
 
-## 🧠 How Course Eligibility Works
+## How Course Eligibility Works
 
 - Courses are stored as documents with fields like prerequisites, corequisites, and term offerings.
 - The app constructs a **Directed Acyclic Graph (DAG)** based on these relationships.
@@ -87,7 +87,7 @@ com.mamogkat.mmcmcurriculumtracker/
 
 ---
 
-## 🧾 Sample Course Format (Firestore)
+## Sample Course Format (Firestore)
 
 ```kotlin
 mapOf(
@@ -104,7 +104,7 @@ mapOf(
 
 ---
 
-## ▶️ Getting Started
+## Getting Started
 
 1. Clone this repository.
 2. Open it in Android Studio.
@@ -113,21 +113,21 @@ mapOf(
 
 ---
 
-## 📌 Future Plans
+## Future Plans
 
 * Editable curriculum management by admins
 * Exportable student reports
 
 ---
 
-## 👤 Developer
+## Developed by
 
-Developed by:
+**Mohammad Jameel Jibreel N. Mamogkat**  
+Bachelor of Science in Computer Engineering – MMCM
 
-***Mohammad Jameel Jibreel N. Mamogkat**
+**Duff S. Bastasa**  
 Bachelor of Science in Computer Engineering – MMCM
-***Duff S. Bastasa**
-Bachelor of Science in Computer Engineering – MMCM
+
 
 ---
 
