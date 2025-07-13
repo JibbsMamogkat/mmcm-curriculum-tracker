@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 //      curriculumViewModel.uploadBSEE_2024_2025()
 //        curriculumViewModel.uploadBSCPE_2021_2022()
 //        curriculumViewModel.uploadbsECE2022Curriculum()
+//        curriculumViewModel.updateBSCPE20222023_3rdYr3rdTerm()
         setContent {
             MMCMCurriculumTrackerTheme {
                 // A surface container using the 'background' color from the theme

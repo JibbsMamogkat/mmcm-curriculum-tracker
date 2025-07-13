@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -43,7 +44,10 @@ fun AdminNextAvailableCoursesScreen(
     navController: NavController,
     viewModel: CurriculumViewModel = viewModel()
 ) {
-    Log.d("AdminNextAvailableCoursesScreen", "Initializing screen for Student ID: $studentId")
+    Log.d(
+        "AdminNextAvailableCoursesScreen",
+        "Initializing screen for Student ID: $studentId"
+    )
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
@@ -55,26 +59,58 @@ fun AdminNextAvailableCoursesScreen(
 
     // ✅ Ensure `completedCourses` is loaded first, then `availableCourses` updates
     LaunchedEffect(studentId) {
-        Log.d("AdminNextAvailableCoursesScreen", "Fetching student data for Student ID: $studentId")
+        Log.d(
+            "AdminNextAvailableCoursesScreen",
+            "Fetching student data for Student ID: $studentId"
+        )
         viewModel.fetchStudentData(studentId)
         viewModel.observeStudentData(studentId) {
-            Log.d("AdminNextAvailableCoursesScreen", "Completed courses loaded for Student ID: $studentId")
+            Log.d(
+                "AdminNextAvailableCoursesScreen",
+                "Completed courses loaded for Student ID: $studentId"
+            )
         }
     }
     // ✅ **Automatically recompute available courses when completedCourses updates**
     // Using Flow with collectAsStateWithLifecycle
     val availableCourses by viewModel.availableCourses.collectAsStateWithLifecycle()
-    LaunchedEffect(studentId, selectedTerm) {
-        Log.d("AdminNextAvailableCoursesScreen", "🔄 Fetching available courses for Student ID: $studentId, term: $selectedTerm")
-        viewModel.getAvailableCoursesStudent(studentId, selectedTerm)
+    LaunchedEffect(
+        studentId,
+        selectedTerm
+    ) {
+        Log.d(
+            "AdminNextAvailableCoursesScreen",
+            "🔄 Fetching available courses for Student ID: $studentId, term: $selectedTerm"
+        )
+        viewModel.getAvailableCoursesStudent(
+            studentId,
+            selectedTerm
+        )
     }
 
-    Log.d("AdminNextAvailableCoursesScreen", "Available courses computed for Student ID: $studentId")
+    val greenCoursesText = buildString {
+        append("Available Courses\nTerm: $selectedTerm:\n\n") // Add header at the start
+        append(
+            availableCourses
+                .filter { it.second == "green" } // Get only green courses
+                .joinToString("\n") { "(${it.first.code}) - ${it.first.name}" } // Format: "(CODE) - NAME"
+        )
+    }
+    val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
+
+    Log.d(
+        "AdminNextAvailableCoursesScreen",
+        "Available courses computed for Student ID: $studentId"
+    )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            AdminNavigationDrawer(navController, drawerState)
+            AdminNavigationDrawer(
+                navController,
+                drawerState
+            )
         }
     ) {
         Scaffold(
@@ -91,53 +127,96 @@ fun AdminNextAvailableCoursesScreen(
                                 drawerState.open()
                             }
                         }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = colorResource(id = R.color.mmcm_white))
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = "Menu",
+                                tint = colorResource(id = R.color.mmcm_white)
+                            )
                         }
                     }
                 )
             }
         ) { paddingValues ->
-            Column(
+            Box(
                 modifier = Modifier
-                    .padding(paddingValues)
                     .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(paddingValues)
             ) {
-                Text(
-                    text = "Available Courses for Student: $studentEmail",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                AvailabilityLegend()
-                // 🔹 Term Filter Dropdown
-                Log.d("AdminNextAvailableCoursesScreen", "Rendering term filter dropdown")
-                TermFilterDropdown(selectedTerm) { newTerm ->
-                    selectedTerm = newTerm
-                }
-
-                // 🔹 Display available courses
-                if (availableCourses.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = colorResource(id = R.color.mmcm_blue))
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Available Courses for Student: $studentEmail",
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    AvailabilityLegend()
+                    // 🔹 Term Filter Dropdown
+                    Log.d(
+                        "AdminNextAvailableCoursesScreen",
+                        "Rendering term filter dropdown"
+                    )
+                    TermFilterDropdown(selectedTerm) { newTerm ->
+                        selectedTerm = newTerm
                     }
-                    Log.d("AdminNextAvailableCoursesScreen", "No available courses found")
-                } else {
-                    Log.d("AdminNextAvailableCoursesScreen", "Found ${availableCourses.size} available courses for student $studentId")
-                    LazyColumn {
-                        items(availableCourses) { (course, color) ->
-                            CourseItem(course, color)
+
+                    // 🔹 Display available courses
+                    if (availableCourses.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = colorResource(id = R.color.mmcm_blue))
                         }
+                        Log.d(
+                            "AdminNextAvailableCoursesScreen",
+                            "No available courses found"
+                        )
+                    } else {
+                        Log.d(
+                            "AdminNextAvailableCoursesScreen",
+                            "Found ${availableCourses.size} available courses for student $studentId"
+                        )
+                        LazyColumn {
+                            items(availableCourses) { (course, color) ->
+                                CourseItem(
+                                    course,
+                                    color
+                                )
+                            }
+                        }
+                    }
+
+                }
+                if (greenCoursesText.isNotEmpty()) {
+                    FloatingActionButton(
+                        onClick = {
+                            clipboardManager.setText(AnnotatedString(greenCoursesText))
+                            Toast.makeText(
+                                context,
+                                "Green courses copied!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd) // ✅ Fixed Alignment
+                            .padding(16.dp),
+                        containerColor = colorResource(R.color.mmcm_blue) // Green color
+                    ) {
+                        Icon(
+                            Icons.Filled.Share,
+                            contentDescription = "Copy Green Courses",
+                            tint = colorResource(R.color.mmcm_white)
+                        ) // ✅ Fixed Icon
                     }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun CourseItem(course: CourseNode, colorCode: String) {
@@ -164,7 +243,10 @@ fun CourseItem(course: CourseNode, colorCode: String) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = course.name, fontWeight = FontWeight.Bold, color = Color.White)
                 Text(text = "Course Code: ${course.code}", color = Color.White)
-                }
+                Text(text = "Units: ${course.units}", color = Color.White)
+                Text(text = "Prerequisites: ${course.prerequisites.joinToString(", ")}", color = Color.White)
+                Text(text = "Regular Terms: ${course.regularTerms.joinToString(", ")}", color = Color.White)
+            }
             // Show button only if color is green
             if (colorCode == "green") {
                 IconButton(onClick = {

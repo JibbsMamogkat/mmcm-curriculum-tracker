@@ -1224,6 +1224,28 @@ class CurriculumViewModel : ViewModel() {
         repository.updateElectivesWithYearLevelAndTerm("bscpe_2022_2023")
     }
 
+    // update BS CPE 2022-2023 3rdYr 3rd Term
+    fun updateBSCPE20222023_3rdYr3rdTerm(){
+        val thirdYearTerm3Courses = listOf(
+            mapOf("code" to "CAP200D", "name" to "Capstone Design / Thesis 1 (Laboratory)", "units" to 1, "prerequisites" to listOf("RES101"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "CPE112-1", "name" to "Embedded Systems", "units" to 3, "prerequisites" to listOf("CPE103-4"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "CPE112L-1", "name" to "Embedded Systems (Laboratory)", "units" to 1, "prerequisites" to listOf("CPE103L-4"), "coRequisites" to listOf("CPE112-1"), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "CPE112-1E", "name" to "Computer Engineering 2 Exit Exam", "units" to 0, "prerequisites" to listOf("CPE103-4", "CPE104L-1", "CPE108P", "EE101-3"), "coRequisites" to listOf("CPE112-1"), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "CPE144E", "name" to "Computer Engineering 1 Exit Exam", "units" to 0, "prerequisites" to listOf("CPE142L", "CPE143L", "CS105L", "CPE107-1"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "CPE151", "name" to "Operating Systems", "units" to 3, "prerequisites" to listOf("CS105L"), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "CPE151L", "name" to "Operating Systems (Laboratory)", "units" to 1, "prerequisites" to listOf("CS105L"), "coRequisites" to listOf("CPE151"), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "CPEELEC01", "name" to "CPE Elective 1 (Paired)", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "HUM034", "name" to "Art Appreciation", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "SS036", "name" to "Science, Technology, and Society", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3),
+            mapOf("code" to "DS100L", "name" to "Applied Data Science Laboratory", "units" to 1, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(3), "term" to 3, "yearLevel" to 3)
+        )
+
+        repository.uploadCourses("bscpe_2022_2023", 3, "term_3", thirdYearTerm3Courses) {
+            Log.d("UploadDebug", "Third Year Term 3 courses updated successfully!")
+        }
+
+    }
+
  // uploading BS EE 2024-2025
  fun uploadBSEE_2024_2025() {
      val firstYearTerm1Courses = listOf(
@@ -3855,9 +3877,9 @@ class CurriculumViewModel : ViewModel() {
 //        repository.uploadCourses("bsece_2022_2023", 3, "term_2", thirdYearTerm2Courses) {
 //            Log.d("UploadDebug", "Third Year Term 2 courses uploaded successfully!")
 //        }
-        repository.uploadCourses("bsece_2022_2023", 3, "term_3", thirdYearTerm3Courses) {
-            Log.d("UploadDebug", "Third Year Term 3 courses uploaded successfully!")
-        }
+//        repository.uploadCourses("bsece_2022_2023", 3, "term_3", thirdYearTerm3Courses) {
+//            Log.d("UploadDebug", "Third Year Term 3 courses uploaded successfully!")
+//        }
 
 //        repository.uploadCourses("bsece_2022_2023", 4, "term_1", fourthYearTerm1Courses) {
 //            Log.d("UploadDebug", "Fourth Year Term 1 courses uploaded successfully!")
