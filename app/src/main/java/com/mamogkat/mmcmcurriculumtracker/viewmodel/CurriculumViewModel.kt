@@ -1246,6 +1246,18 @@ class CurriculumViewModel : ViewModel() {
 
     }
 
+    // update BS CPE 2022-2023 4thYr 2nd Term
+    fun updateBSCPE20222023_4thYr2ndTerm(){
+        val fourthYearTerm2Courses = listOf(
+            mapOf("code" to "CPE194", "name" to "SPECIAL TOPICS IN COMPUTER ENGINEERING (PAIRED)", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 4),
+            mapOf("code" to "NETA173P", "name" to "HCIA STORAGE (PAIRED)", "units" to 3, "prerequisites" to listOf<String>(), "coRequisites" to listOf<String>(), "regularTerms" to listOf(2), "term" to 2, "yearLevel" to 4)
+        )
+
+        repository.uploadCourses("bscpe_2022_2023", 4, "term_2", fourthYearTerm2Courses) {
+            Log.d("UploadDebug", "Fourth Year Term 2 courses updated successfully!")
+        }
+    }
+
  // uploading BS EE 2024-2025
  fun uploadBSEE_2024_2025() {
      val firstYearTerm1Courses = listOf(

@@ -3,7 +3,6 @@ package com.mamogkat.mmcmcurriculumtracker.models
 import android.util.Log
 import java.util.PriorityQueue
 
-
 class CourseGraph(
     val groupedCourses: Map<Int, Map<Int, List<CourseNode>>>, // ✅ Organized by Year → Term
     val electives: List<CourseNode> = emptyList() // ✅ Separate list for electives
@@ -13,9 +12,13 @@ class CourseGraph(
     private val courses = mutableMapOf<String, CourseNode>() // Stores course details
     private val inDegree = mutableMapOf<String, Int>() // Stores prerequisites count
 
+    // ✅ Fast lookup set to easily check if a course is an elective later
+    private val electiveCodes = electives.map { it.code }.toSet()
+
     init {
         Log.d("CourseGraph", "Initializing CourseGraph with grouped courses and electives.")
         Log.d("CourseGraph", "Populating graph with courses...")
+
         // ✅ Populate Graph with Courses
         groupedCourses.values.forEach { termMap ->
             termMap.values.flatten().forEach {
@@ -23,10 +26,11 @@ class CourseGraph(
             }
         }
         Log.d("CourseGraph", "Total courses added to graph: ${courses.size}")
+
         Log.d("CourseGraph", "Populating graph with electives...")
         electives.forEach {
             addCourse(it)
-        } // ✅ Include electives
+        } // ✅ Include electives so Kahn's algorithm respects their prerequisites
         Log.d("CourseGraph", "Total electives added to graph: ${electives.size}")
     }
 
@@ -80,15 +84,17 @@ class CourseGraph(
         Log.d("CourseGraph", "Total courses added to queue: ${queue.size}")
 
         Log.d("CourseGraph", "Processing courses using Kahn’s Algorithm...")
+
         // Step 2: Process courses using Kahn’s Algorithm with priority queue
         while (queue.isNotEmpty()) {
             val course = queue.poll() // 🔹 Get the highest-priority course
             val courseCode = course.code
 
-            // Step 3: Determine eligibility color
+            // Step 3: Determine eligibility color using the fast lookup set
             val colorCode = when {
-                enrolledTerm in course.regularTerms -> "green" // ✅ Eligible & offered this term
-                else -> "orange" // ✅ Eligible but not regularly offered this term
+                courseCode in electiveCodes -> "blue" // ✅ Electives are strictly blue
+                enrolledTerm in course.regularTerms -> "green" // ✅ Non-elective eligible & offered this term
+                else -> "orange" // ✅ Non-elective eligible but not regularly offered this term
             }
 
             availableCourses.add(Pair(course, colorCode))
@@ -107,23 +113,10 @@ class CourseGraph(
                 }
             }
         }
-        Log.d("CourseGraph", "Total available non-elective courses found: ${availableCourses.size}")
 
-        Log.d("CourseGraph", "Processing electives...")
-
-        // Step 5: Add electives for reference at the end
-        electives.forEach { elective ->
-            if (elective.code !in completedCourses) {
-                availableCourses.add(Pair(elective, "blue")) // ✅ Special case for electives
-            }
-        }
-        Log.d("CourseGraph", "Total electives processed: ${electives.size}")
-
+        // ❌ Step 5 removed entirely to prevent duplicate courses from being added.
         Log.d("CourseGraph", "Total available courses found: ${availableCourses.size}")
 
         return availableCourses
     }
-
-
 }
-
